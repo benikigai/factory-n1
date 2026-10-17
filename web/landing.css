@@ -197,3 +197,8 @@ section h2 { display: inline-block; margin: 0; background: var(--ink); color: va
   section { padding-top: 64px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .run-live .rl-dot { animation: none; } }
+
+/* Plain-language sections: problem, approach, what's next */
+.prose p { max-width: 680px; margin: 14px 0 0; font-size: 18px; line-height: 1.6; color: var(--ink-2); }
+.prose p:first-of-type { margin-top: 22px; color: var(--ink); font-weight: 600; }
+.prose .law { color: var(--ink); font-weight: 600; margin-top: 22px; }
