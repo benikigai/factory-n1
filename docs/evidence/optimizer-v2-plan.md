@@ -26,3 +26,7 @@ Final package days are evaluated only after all searches stop. Random and geomet
 Published rates verified October 17, 2026: A100 PCIe $2/GPU-hour and storage $0.08/GiB-month. With a 128 GiB boot disk, estimated 75–95 minutes costs $2.52–$3.19; 100 minutes costs about $3.36. These are estimates, not posted charges. Source: https://www.crusoe.ai/cloud/pricing
 
 Work stops by minute 90 for artifact recovery and deletion. A host shutdown timer is a backup, not deletion proof. Save adapter files, hashes, training manifests, model provenance, exact requests, scores and screenshots confirming no instance or disk remains. Report any incomplete comparison rather than extend the budget.
+
+## Reproducibility limit observed during training
+
+The archived one-epoch artifact and the first checkpoint of the new three-epoch run have identical pre-training validation loss (0.5262690003558335), base revision, dataset token counts and hyperparameters, but different adapter hashes. Post-epoch validation loss is 0.3231038418092577 for the archive and 0.32272349926907345 for the new run. The new schedule uses a private seeded Python RNG; the archived recipe shuffled global RNG state after model loading. Actual old batch order and initial LoRA hashes were not recorded, and deterministic GPU execution was not enforced. The comparison therefore describes four trained artifacts from a single seed; it cannot attribute differences solely to the number of epochs. No final test was opened or policy changed after this observation.

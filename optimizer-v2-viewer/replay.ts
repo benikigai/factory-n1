@@ -10,9 +10,9 @@ import { buildingHash, contentHash, layoutHash } from '../src/training/generate.
 import { measureLayout, type OptimizerMeasurement } from '../src/training/optimizer.ts';
 import type { OptimizerCase } from '../src/training/optimizer-data.ts';
 import type { V2Arm, V2Plan, summarizeV2 } from '../src/training/optimizer-v2-evaluate.ts';
-import { MODELS, BASELINES, LABELS, type V2Catalog, type V2Replay, type Snapshot, type SnapshotScore, type Factory, type ArmScore } from './types.ts';
+import { MODELS, BASELINES, LABELS, type V2Catalog, type V2Replay, type Snapshot, type SnapshotScore, type Factory, type ArmScore, type Cohort } from './types.ts';
 
-type State = Parameters<typeof summarizeV2>[0]['states'][number];
+type State = Parameters<typeof summarizeV2>[0]['states'][number] & { continuationExcluded?: boolean };
 export interface SavedV2Report {
   schemaVersion: 2;
   completed: boolean;
@@ -20,6 +20,26 @@ export interface SavedV2Report {
   planHash: string;
   overall: ReturnType<typeof summarizeV2>;
   cases: State[];
+}
+export interface SavedContinuationReport {
+  schemaVersion: 1;
+  completed: boolean;
+  terminalReason: string | null;
+  primaryFactoryCount: number;
+  all20Completed: false;
+  excludedFactory: string;
+  disclosure: string;
+  overall: SavedV2Report['overall'];
+  cases: State[];
+  accounting: { originalResolvedRequests: number; originalUnknownRequests: number; combinedModelCalls: number };
+}
+export interface ContinuationManifest {
+  approvedContinuation: boolean;
+  enginePlanHash: string;
+  originalPlanHash: string;
+  excludedCase: string;
+  includedIds: string[];
+  disclosure: string;
 }
 const ARMS = [...MODELS, ...BASELINES];
 const SNAPSHOTS: Snapshot[] = ['round3', 'round12'];
@@ -35,10 +55,15 @@ function side(label: string, layout: Layout, result: RunResult, measured: Optimi
   return { label, column: label, layout, result, train: split, select: split, final: { ...split, zeroDamage: final.zeroDamage, allShipped: measured.days.every(day => day.metrics.unshipped === 0), damagedTotal: measured.days.reduce((sum, day) => sum + day.metrics.damaged, 0), scenarios: measured.days.length } };
 }
 
-export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], options: { createdAt: string; graderHash: string; mode?: 'recorded' | 'synthetic'; sourceHashes?: Record<string, string>; models?: V2Catalog['models'] }) {
+export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], options: { createdAt: string; graderHash: string; mode?: 'recorded' | 'synthetic'; sourceHashes?: Record<string, string>; models?: V2Catalog['models']; cohort?: Cohort }) {
   if (!report.completed || report.terminalReason !== null) throw new Error('A complete evaluation is required before opening replay factories');
+  if (report.cases.some(state => state.continuationExcluded)) throw new Error('Internal skipped-factory metrics are not a completed comparison');
   if (options.graderHash !== graderHash()) throw new Error('Grader hash differs from completed evaluation');
   if (!cases.length || new Set(cases.map(item => item.id)).size !== cases.length || report.cases.length !== cases.length * ARMS.length) throw new Error('Replay must retain every factory and all six arms');
+  const cohort: Cohort = options.cohort ?? { kind: 'completed', originalFactories: cases.length, includedFactories: cases.length, excludedFactories: [], disclosure: 'All factories in this evaluation are included.' };
+  if (cohort.includedFactories !== cases.length || cohort.originalFactories !== cases.length + cohort.excludedFactories.length || cohort.excludedFactories.some(excluded => cases.some(item => item.id === excluded.id))) throw new Error('Cohort count or excluded-factory mismatch');
+  if (cohort.kind === 'completed' && cohort.excludedFactories.length) throw new Error('Excluded factories require explicit continuation mode');
+  if (cohort.kind === 'continuation' && (cohort.originalFactories !== 20 || cases.length !== 19 || cohort.excludedFactories.length !== 1)) throw new Error('Continuation must report 19 included factories from the original 20');
   const factories: Factory[] = [];
   const states = new Map<string, Record<V2Arm, State>>();
   for (const item of cases) {
@@ -76,7 +101,7 @@ export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], op
   }
   factories.sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
   const representative = [...factories].sort((a, b) => a.v2VsBasePercent - b.v2VsBasePercent || a.id.localeCompare(b.id))[Math.floor(factories.length / 2)];
-  const catalog: V2Catalog = { schemaVersion: 2, mode: options.mode ?? 'recorded', createdAt: options.createdAt, graderHash: options.graderHash, simVersion: SIM_VERSION, defaultCaseId: representative.id, selectionRule: 'Upper-middle factory after sorting all cases by v2 versus base percentage improvement at twelve proposals; ties break by ID. Includes wins, losses and ties.', scope: 'Scores average the same four final demand days. Each animation shows one shared day at a retained three- or twelve-proposal snapshot. Legacy renderer train/select slots hold the final aggregate score, not additional evidence. Model arms share proposal budgets; procedural baselines are separately labeled.', cases: factories, aggregate, models: options.models ?? {}, sourceHashes: options.sourceHashes ?? {} };
+  const catalog: V2Catalog = { schemaVersion: 2, mode: options.mode ?? 'recorded', createdAt: options.createdAt, graderHash: options.graderHash, simVersion: SIM_VERSION, defaultCaseId: representative.id, selectionRule: 'Upper-middle factory after sorting all included cases by v2 versus base percentage improvement at twelve proposals; ties break by ID. Includes wins, losses and ties.', scope: 'Scores average the same four final demand days. Each animation shows one shared day at a retained three- or twelve-proposal snapshot. Legacy renderer train/select slots hold the final aggregate score, not additional evidence. Model arms share proposal budgets; procedural baselines are separately labeled.', cases: factories, aggregate, models: options.models ?? {}, sourceHashes: options.sourceHashes ?? {}, cohort };
   const replays = new Map<string, V2Replay>();
   for (const item of cases) for (const day of item.finalDays) {
     const saved = states.get(item.id)!, scenario = makeScenario(day.seed, day.profile, day.count);
@@ -93,23 +118,54 @@ export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], op
   return { catalog, replays };
 }
 
-export function exportV2Replays(options: { evaluationDirectory: string; dataDirectory?: string; outputDirectory?: string }) {
+export function normalizeContinuation(report: SavedContinuationReport, manifest: ContinuationManifest): { report: SavedV2Report; cohort: Cohort } {
+  if (report.schemaVersion !== 1 || !report.completed || report.terminalReason !== null) throw new Error('Continuation is incomplete; sealed factories were not opened');
+  if (!manifest.approvedContinuation || manifest.excludedCase !== 'optimizer-v2-test-building-11' || manifest.excludedCase !== report.excludedFactory || manifest.disclosure !== report.disclosure || report.primaryFactoryCount !== 19 || report.all20Completed !== false || manifest.includedIds.length !== 19 || new Set(manifest.includedIds).size !== 19 || manifest.includedIds.includes(manifest.excludedCase)) throw new Error('Invalid 19-of-20 continuation disclosure or selection');
+  if (report.cases.length !== 19 * ARMS.length || report.cases.some(state => state.continuationExcluded || !manifest.includedIds.includes(state.caseId)) || new Set(report.cases.map(state => state.caseId)).size !== 19) throw new Error('Continuation headline states must include exactly the same 19 factories');
+  return {
+    report: { schemaVersion: 2, completed: true, terminalReason: null, planHash: manifest.enginePlanHash, overall: report.overall, cases: report.cases },
+    cohort: { kind: 'continuation', originalFactories: 20, includedFactories: 19, excludedFactories: [{ id: manifest.excludedCase, reason: 'Infrastructure interruption with an unresolved request; excluded from every headline arm.' }], disclosure: report.disclosure, originalResolvedRequests: report.accounting.originalResolvedRequests, originalUnknownRequests: report.accounting.originalUnknownRequests, combinedModelCalls: report.accounting.combinedModelCalls },
+  };
+}
+
+export function exportV2Replays(options: { evaluationDirectory: string; dataDirectory?: string; outputDirectory?: string; mode?: 'completed' | 'continuation' }) {
   const evaluation = resolve(options.evaluationDirectory), data = resolve(options.dataDirectory ?? 'runs/optimizer-data/v2'), output = resolve(options.outputDirectory ?? 'runs/optimizer-v2-viewer/data');
   if (!output.startsWith(resolve('runs/optimizer-v2-viewer') + '/') || existsSync(output)) throw new Error('Use a new output directory inside runs/optimizer-v2-viewer/');
   // Check completion before even reading the plan or held-out dataset.
-  const metricsText = readFileSync(join(evaluation, 'metrics.json'), 'utf8'), report = JSON.parse(metricsText) as SavedV2Report;
-  if (!report.completed || report.terminalReason !== null) throw new Error('Evaluation is incomplete; sealed factories were not opened');
-  const planText = readFileSync(join(evaluation, 'evaluation-plan.json'), 'utf8'), plan = JSON.parse(planText) as V2Plan;
-  if (contentHash(plan) !== report.planHash || plan.factoryLimit !== 20) throw new Error('Expected the completed all-20-factory evaluation plan');
+  const continuation = options.mode === 'continuation';
+  const metricsText = readFileSync(join(evaluation, continuation ? 'continuation-results.json' : 'metrics.json'), 'utf8');
+  const parsed = JSON.parse(metricsText) as SavedV2Report | SavedContinuationReport;
+  if (!parsed.completed || parsed.terminalReason !== null) throw new Error('Evaluation is incomplete; sealed factories were not opened');
+  let report: SavedV2Report, cohort: Cohort | undefined, includedIds: string[] | undefined, originalPlanHash: string | undefined;
+  const extraHashes: Record<string, string> = {};
+  if (continuation) {
+    const manifestText = readFileSync(join(evaluation, 'continuation-manifest.json'), 'utf8'), manifest = JSON.parse(manifestText) as ContinuationManifest;
+    ({ report, cohort } = normalizeContinuation(parsed as SavedContinuationReport, manifest));
+    includedIds = manifest.includedIds;
+    originalPlanHash = manifest.originalPlanHash;
+    const originalPlanText = readFileSync(join(evaluation, 'origin/evaluation-plan.json'), 'utf8');
+    if (contentHash(JSON.parse(originalPlanText)) !== manifest.originalPlanHash) throw new Error('Original plan hash differs from continuation manifest');
+    extraHashes.continuationManifest = contentHash(manifestText); extraHashes.originalPlan = contentHash(originalPlanText);
+  } else {
+    if (parsed.schemaVersion !== 2) throw new Error('Use explicit continuation mode for a continuation result');
+    report = parsed as SavedV2Report;
+  }
+  const planText = readFileSync(join(evaluation, continuation ? 'engine/evaluation-plan.json' : 'evaluation-plan.json'), 'utf8');
+  const plan = JSON.parse(planText) as V2Plan & { continuation?: { excludedCase: string; originalPlanHash: string } };
+  if (contentHash(plan) !== report.planHash || plan.factoryLimit !== 20) throw new Error('Evaluation plan hash or original factory count differs');
+  if (!continuation && plan.continuation) throw new Error('Internal continuation metrics cannot be exported as a completed 20-factory evaluation');
+  if (continuation && (plan.continuation?.excludedCase !== cohort!.excludedFactories[0].id || plan.continuation.originalPlanHash !== originalPlanHash)) throw new Error('Engine continuation provenance differs from headline report');
   const casesText = readFileSync(join(data, 'test-factories.jsonl'), 'utf8');
   if (contentHash(casesText) !== plan.datasetHash || Buffer.byteLength(casesText) !== plan.datasetBytes) throw new Error('Held-out dataset bytes differ from evaluation');
-  const cases = casesText.trim().split('\n').map(line => JSON.parse(line) as OptimizerCase).sort((a, b) => a.id.localeCompare(b.id));
-  if (cases.length !== 20) throw new Error('Expected all twenty factories');
-  const sourceHashes = { metrics: contentHash(metricsText), plan: contentHash(planText), testFactories: contentHash(casesText) };
-  const result = buildV2Replays(report, cases, { createdAt: new Date().toISOString(), graderHash: plan.graderHash, sourceHashes, models: plan.provenance?.models });
+  const allCases = casesText.trim().split('\n').map(line => JSON.parse(line) as OptimizerCase).sort((a, b) => a.id.localeCompare(b.id));
+  if (allCases.length !== 20) throw new Error('Expected twenty original factories');
+  const cases = includedIds ? allCases.filter(item => includedIds.includes(item.id)) : allCases;
+  if (includedIds && (cases.length !== 19 || allCases.filter(item => !includedIds.includes(item.id)).some(item => item.id !== cohort!.excludedFactories[0].id))) throw new Error('Dataset does not match the continuation selection');
+  const sourceHashes = { metrics: contentHash(metricsText), plan: contentHash(planText), testFactories: contentHash(casesText), ...extraHashes };
+  const result = buildV2Replays(report, cases, { createdAt: new Date().toISOString(), graderHash: plan.graderHash, sourceHashes, models: plan.provenance?.models, cohort });
   mkdirSync(output, { recursive: true });
   for (const [file, replay] of result.replays) writeFileSync(join(output, file), JSON.stringify(replay) + '\n', { flag: 'wx' });
   writeFileSync(join(output, 'catalog.json'), JSON.stringify(result.catalog, null, 2) + '\n', { flag: 'wx' });
-  writeFileSync(join(output, 'replay-export-receipt.json'), JSON.stringify({ verified: true, factories: cases.length, scenarioFiles: result.replays.size, modelSnapshotTraces: cases.length * 4 * 4 * 2, graderHash: plan.graderHash, sourceHashes }, null, 2) + '\n', { flag: 'wx' });
+  writeFileSync(join(output, 'replay-export-receipt.json'), JSON.stringify({ verified: true, cohort: result.catalog.cohort, factories: cases.length, scenarioFiles: result.replays.size, modelSnapshotTraces: cases.length * 4 * 4 * 2, graderHash: plan.graderHash, sourceHashes }, null, 2) + '\n', { flag: 'wx' });
   return { output, factories: cases.length, scenarioFiles: result.replays.size, defaultCaseId: result.catalog.defaultCaseId };
 }

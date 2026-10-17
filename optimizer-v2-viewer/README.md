@@ -15,4 +15,6 @@ Preview: http://127.0.0.1:5193. Output: `runs/optimizer-v2-viewer-dist`. Neither
 
 The exporter refuses incomplete evaluations before reading sealed factories, re-scores all saved snapshots, checks per-day metrics, and retains all twenty factories. Synthetic fixture tests run with `npx tsx --test optimizer-v2-viewer/replay.test.ts` and never read sealed test data.
 
+For an independently audited 19-factory continuation, add `--mode continuation` and point `--evaluation` at the continuation root. This reads `continuation-results.json` and verifies the manifest's nineteen included IDs plus the one excluded interrupted factory. A permanent banner discloses the original twenty-factory scope, exclusion, examined partial results and unresolved request. All headline rates use nineteen. The internal `engine/metrics.json` is refused in ordinary mode and is never presented as a completed twenty-factory comparison.
+
 This is a small synthetic benchmark. More accepted moves or a lower objective alone does not establish zero damage or full-goal completion. The geometric reference has extra rule knowledge and planning computation.

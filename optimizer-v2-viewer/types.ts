@@ -41,6 +41,16 @@ export interface Aggregate {
   zeroDamage: number;
   improvements: number;
 }
+export interface Cohort {
+  kind: 'completed' | 'continuation';
+  originalFactories: number;
+  includedFactories: number;
+  excludedFactories: { id: string; reason: string }[];
+  disclosure: string;
+  originalResolvedRequests?: number;
+  originalUnknownRequests?: number;
+  combinedModelCalls?: number;
+}
 export interface V2Catalog {
   schemaVersion: 2;
   mode: 'recorded' | 'synthetic';
@@ -54,6 +64,7 @@ export interface V2Catalog {
   models: Partial<Record<V2Model, V2ModelProvenance>>;
   aggregate: Record<V2Arm, Record<Snapshot, Aggregate>>;
   sourceHashes: Record<string, string>;
+  cohort: Cohort;
 }
 export interface V2Replay {
   caseId: string;

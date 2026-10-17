@@ -8,14 +8,14 @@ import type { V2Model } from '../src/training/optimizer-v2-evaluate';
 import { MODELS, BASELINES, LABELS, type Factory, type Snapshot, type V2Catalog, type V2Replay } from './types';
 
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id)! as T;
-el('app').innerHTML = `<header class="masthead"><div><div class="eyebrow">Factory N+1 / Separate optimizer v2 evaluation</div><h1>Better data, more epochs, or more attempts?</h1></div><span id="mode" class="pill">WAITING FOR VERIFIED REPLAYS</span></header>
+el('app').innerHTML = `<header class="masthead"><div><div class="eyebrow">Factory N+1 / Separate optimizer v2 evaluation</div><h1>Better data, more epochs, or more attempts?</h1></div><span id="mode" class="pill">WAITING FOR VERIFIED REPLAYS</span></header><section id="cohort-banner" class="cohort-banner" aria-label="Evaluation scope" hidden></section>
 <div class="workspace"><main class="main"><section class="comparison-top"><div class="comparison-title"><h2 id="case-title">Load a completed evaluation to compare</h2><span id="gain" class="gain"></span></div>
 <div class="pair-controls"><label>Left model<select id="left"></select></label><label>Right model<select id="right"></select></label><label>Retained layout<select id="snapshot"><option value="round3">After 3 proposals</option><option value="round12" selected>After 12 proposals</option></select></label></div>
 <div class="score-grid"><article class="score"><div><div id="left-label" class="label"></div><strong id="left-score">…</strong><small>Mean objective · four final days · lower is better</small></div><div id="left-sub" class="sub"></div></article><article class="score tuned"><div><div id="right-label" class="label"></div><strong id="right-score">…</strong><small>Mean objective · four final days · lower is better</small></div><div id="right-sub" class="sub"></div></article></div></section>
 <div class="scene-wrap"><div id="scene" class="hide-stations"></div><div class="scene-note" id="scene-note">MATCHED SCENARIO · SHARED CLOCK</div><div class="legend"><span style="--dot:#3b82f6">Zone A</span><span style="--dot:#a855f7">Zone B</span><span style="--dot:#14b8a6">Zone C</span><span style="--dot:#ef4444">Damaged</span><span>Drag to orbit · scroll to zoom</span></div><div id="error" class="error">Loading completed evaluation…</div></div>
 <div class="playback"><button id="play">Pause</button><button id="restart">Restart</button><select id="speed" aria-label="Replay speed"><option value="16">16×</option><option value="60" selected>60×</option><option value="120">120×</option></select><span id="clock" class="time"></span><input id="time" aria-label="Shared replay time" type="range" min="0" max="1" step="0.5" value="0"><button id="end">End</button><button id="fit">Fit view</button></div>
 <div class="statusbar">Saved model outputs and re-scored simulator traces. No live inference. The original hackathon demo is separate.</div>
-<section class="model-overview"><h2>All models, all test factories</h2><p class="micro">Same base checkpoint. Matched proposal opportunities. The original-data 3-epoch arm separates extra training from the new curriculum.</p><table><thead><tr><th>Model</th><th>Objective, 3</th><th>Objective, 12</th><th>Zero damage, 3 / 12</th><th>Full goal, 3 / 12</th></tr></thead><tbody id="models"></tbody></table></section></main>
+<section class="model-overview"><h2 id="aggregate-title">All models, all included test factories</h2><p class="micro">Same base checkpoint. Matched proposal opportunities. The original-data 3-epoch arm separates extra training from the new curriculum.</p><table><thead><tr><th>Model</th><th>Objective, 3</th><th>Objective, 12</th><th>Zero damage, 3 / 12</th><th>Full goal, 3 / 12</th></tr></thead><tbody id="models"></tbody></table></section></main>
 <aside class="sidebar"><section><h2>Choose the comparison</h2><label class="field">Fresh factory<select id="factory"></select></label><p id="selection" class="micro"></p><label class="field">Final demand day<select id="day"></select></label><p id="day-meta" class="micro"></p><label class="check"><input id="labels" type="checkbox">Show station labels</label></section>
 <section><h2>Displayed day</h2><table><thead><tr><th>Outcome</th><th>Left</th><th>Right</th></tr></thead><tbody id="day-scores"></tbody></table><p class="micro">Complete-day scores. Animation counters reflect the current shared replay time.</p></section>
 <section><h2>This factory, 3 vs 12</h2><table><thead><tr><th>Model</th><th>Objective, 3</th><th>Objective, 12</th></tr></thead><tbody id="factory-models"></tbody></table><p id="proposals" class="note"></p></section>
@@ -94,7 +94,7 @@ async function chooseFactory(id: string) {
   selected = catalog.cases.find(value => value.id === id) ?? catalog.cases.find(value => value.id === catalog.defaultCaseId)!;
   el<HTMLSelectElement>('factory').value = selected.id; el('case-title').textContent = selected.id;
   el('day').replaceChildren(...selected.replays.map(value => h('option', { value: value.profile }, value.profile)));
-  el('selection').textContent = selected.id === catalog.defaultCaseId ? 'Default: the upper-middle case across all v2 versus base gains at 12 proposals. Every loss and tie is included.' : 'User-selected factory. The default is the upper-middle v2 versus base result at 12 proposals.';
+  el('selection').textContent = selected.id === catalog.defaultCaseId ? `Default: the upper-middle case across all ${catalog.cases.length} included v2 versus base gains at 12 proposals. Every included loss and tie is retained.` : 'User-selected factory. The default is the upper-middle included v2 versus base result at 12 proposals.';
   el('factory-models').replaceChildren(...MODELS.map(arm => tableRow(LABELS[arm], num(selected.arms[arm].snapshots.round3.metrics.objective), num(selected.arms[arm].snapshots.round12.metrics.objective))));
   el('baselines').replaceChildren(...BASELINES.map(arm => tableRow(LABELS[arm], num(selected.arms[arm].snapshots.round3.metrics.objective), num(selected.arms[arm].snapshots.round12.metrics.objective))));
   const teacher = selected.arms['geometric-teacher'];
@@ -125,11 +125,17 @@ requestAnimationFrame(frame);
 void (async () => {
   try {
     catalog = await json<V2Catalog>('catalog.json');
-    el('mode').textContent = catalog.mode === 'synthetic' ? 'SYNTHETIC TEST FIXTURE · NOT RESULTS' : 'RECORDED · RE-SCORED TRACES';
+    el('mode').textContent = catalog.mode === 'synthetic' ? 'SYNTHETIC TEST FIXTURE · NOT RESULTS' : catalog.cohort.kind === 'continuation' ? `CONTINUATION · ${catalog.cases.length}/${catalog.cohort.originalFactories} FACTORIES` : 'RECORDED · RE-SCORED TRACES';
+    if (catalog.cohort.kind === 'continuation') {
+      const cohort = catalog.cohort;
+      el('cohort-banner').hidden = false;
+      el('cohort-banner').replaceChildren(h('strong', null, `${cohort.includedFactories} of the original ${cohort.originalFactories} factories completed. ${cohort.excludedFactories.length} interrupted factory excluded from every comparison.`), h('p', null, cohort.disclosure), h('p', null, `Excluded: ${cohort.excludedFactories.map(item => item.id).join(', ')}. Original run: ${cohort.originalResolvedRequests ?? '?'} resolved requests and ${cohort.originalUnknownRequests ?? '?'} unresolved. All scores and rates below use only the ${cohort.includedFactories} included factories.`));
+    }
+    el('aggregate-title').textContent = `All models, ${catalog.cases.length} included test factories`;
     el('factory').replaceChildren(...catalog.cases.map(value => h('option', { value: value.id }, `${value.id} · ${value.v2VsBasePercent > 0 ? '+' : ''}${num(value.v2VsBasePercent)}%`)));
     el('models').replaceChildren(...MODELS.map(arm => { const a = catalog.aggregate[arm].round3, b = catalog.aggregate[arm].round12; return tableRow(LABELS[arm], num(a.meanObjective), num(b.meanObjective), `${a.zeroDamage} / ${b.zeroDamage} of ${catalog.cases.length}`, `${a.goalPasses} / ${b.goalPasses} of ${catalog.cases.length}`); }));
-    el('scope').textContent = catalog.scope;
-    el('hash').textContent = `Grader ${catalog.graderHash.slice(0, 12)} · ${catalog.cases.length} factories · four final days each.`;
+    el('scope').textContent = `${catalog.scope} ${catalog.cohort.disclosure}`;
+    el('hash').textContent = `Grader ${catalog.graderHash.slice(0, 12)} · ${catalog.cases.length} included factories of ${catalog.cohort.originalFactories} original · four final days each.`;
     await chooseFactory(params.get('factory') ?? catalog.defaultCaseId);
   } catch (error) { el('error').textContent = error instanceof Error ? error.message : 'Evaluation not available'; }
 })();

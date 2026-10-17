@@ -32,6 +32,7 @@ interface AuditOptions {
   recovered?: { v1: string; old3: string; v2: string };
   bundle?: string;
   fixture?: boolean;
+  continuation?: { includedIds: string[]; excludedIds: string[]; originalEvents: any[]; primaryOverall: any };
 }
 
 function verifyTraining(plan: any, options: AuditOptions) {
@@ -85,15 +86,24 @@ function verifyTraining(plan: any, options: AuditOptions) {
 export function auditV2Results(directory: string, options: AuditOptions) {
   assert.equal(options.confirmedComplete, true, "Explicit completion confirmation is required before opening test data");
   const root = resolve(directory), reported = json(join(root, "metrics.json"));
-  assert.equal(reported.completed, true, "Audit complete comparisons only; interrupted results cannot establish a winner");
+  if (options.continuation) {
+    assert.equal(reported.internalOnly, true);
+    assert.equal(reported.completed, false, "Internal twenty-position result must not claim full completion");
+    assert.equal(reported.internalSearchCompleted, true, "Included continuation searches completed");
+  } else assert.equal(reported.completed, true, "Audit complete comparisons only; interrupted results cannot establish a winner");
   assert.equal(reported.terminalReason, null);
   const plan = json(join(root, "evaluation-plan.json")), checkpoint = json(join(root, "checkpoint.json"));
-  const events = jsonl(join(root, "events.jsonl"));
+  const events = [...(options.continuation?.originalEvents ?? []), ...jsonl(join(root, "events.jsonl"))];
   assert.equal(checkpoint.searchFinished, true); assert.equal(checkpoint.terminalReason, null);
   assert.ok(events.some(event => event.type === "all-searches-ended" && event.terminalReason === null), "Durable search completion marker required");
   const planHash = contentHash(plan);
   assert.equal(reported.planHash, planHash); assert.equal(checkpoint.planHash, planHash);
   assert.equal(plan.schemaVersion, 2); assert.equal(plan.live, true); assert.equal(plan.finalEval, true);
+  if (options.continuation) {
+    assert.equal(options.fixture, undefined);
+    assert.equal(options.continuation.includedIds.length, 19);
+    assert.equal(options.continuation.excludedIds.length, 1);
+  }
   assert.equal(plan.factoryLimit, options.fixture ? 2 : 20);
   assert.equal(plan.proposalsPerFactory, 12); assert.equal(plan.maxOutputTokens, 128); assert.equal(plan.temperature, 0); assert.equal(plan.automaticRetries, 0);
   eq(plan.snapshots, [3, 12], "Frozen 3/12 proposal snapshots"); eq(plan.modelAliases, MODELS, "Four prescribed model arms");
@@ -130,15 +140,18 @@ export function auditV2Results(directory: string, options: AuditOptions) {
   // already passed; none of its contents can feed a still-running search.
   const testPath = join(plan.dataDirectory, "test-factories.jsonl");
   assert.equal(hashFile(testPath), plan.datasetHash); assert.equal(readFileSync(testPath).length, plan.datasetBytes);
-  const cases = jsonl(testPath).sort((a, b) => a.id.localeCompare(b.id));
-  assert.equal(cases.length, plan.factoryLimit, "Every new factory remains in the denominator");
+  const allCases = jsonl(testPath).sort((a, b) => a.id.localeCompare(b.id));
+  assert.equal(allCases.length, options.fixture ? 2 : 20, "The original sealed population remains intact");
+  const cases = options.continuation ? allCases.filter(c => !options.continuation!.excludedIds.includes(c.id)) : allCases;
+  assert.equal(cases.length, options.continuation ? 19 : plan.factoryLimit, "Every included factory remains in the primary denominator");
+  if (options.continuation) eq(cases.map(c => c.id), options.continuation.includedIds, "Only the declared interruption-based exclusion is applied");
   const selection = json(join(root, "selection.json"));
-  assert.equal(selection.hash, contentHash(cases)); assert.equal(checkpoint.casesHash, contentHash(cases));
-  eq(selection.ids, cases.map(c => c.id), "Selection never sorts on score");
+  assert.equal(selection.hash, contentHash(allCases)); assert.equal(checkpoint.casesHash, contentHash(allCases));
+  eq(selection.ids, allCases.map(c => c.id), "Engine preserves original positions and never sorts on score");
   const seenBuildings = new Set([...(manifest.excludedBuildingHashes ?? []), ...manifest.splitBuildingHashes.train, ...manifest.splitBuildingHashes.validation]);
   const seenSeeds = new Set([...(manifest.excludedDemandSeeds ?? []), ...Object.values(SPLITS).flat().map(d => d.seed), ...manifest.splitDemandSeeds.train, ...manifest.splitDemandSeeds.validation]);
   const ids = new Set<string>(), layouts = new Set<string>();
-  for (const c of cases) {
+  for (const c of allCases) {
     assert.equal(c.split, "test"); assert.equal(c.buildingHash, buildingHash(c.task)); assert.equal(c.initialLayoutHash, layoutHash(c.initial));
     assert.ok(!seenBuildings.has(c.buildingHash) && !ids.has(c.id) && !layouts.has(c.initialLayoutHash), "New, unique factory geometry and initial layout");
     seenBuildings.add(c.buildingHash); ids.add(c.id); layouts.add(c.initialLayoutHash);
@@ -148,8 +161,8 @@ export function auditV2Results(directory: string, options: AuditOptions) {
       for (const day of days) { assert.ok(Number.isSafeInteger(day.seed) && !seenSeeds.has(day.seed)); assert.equal(day.count, 100); seenSeeds.add(day.seed); }
     }
   }
-  eq(cases.map(c => c.buildingHash).sort(), [...manifest.splitBuildingHashes.test].sort(), "Sealed geometry matches preflight metadata");
-  if (manifest.splitDemandSeeds.test) eq(cases.flatMap(c => [...c.feedbackDays, ...c.finalDays].map(d => d.seed)).sort((a, b) => a - b), [...manifest.splitDemandSeeds.test].sort((a, b) => a - b), "Sealed demand matches preflight metadata");
+  eq(allCases.map(c => c.buildingHash).sort(), [...manifest.splitBuildingHashes.test].sort(), "Sealed geometry matches preflight metadata");
+  if (manifest.splitDemandSeeds.test) eq(allCases.flatMap(c => [...c.feedbackDays, ...c.finalDays].map(d => d.seed)).sort((a, b) => a - b), [...manifest.splitDemandSeeds.test].sort((a, b) => a - b), "Sealed demand matches preflight metadata");
   const readReceipts = (name: string) => readdirSync(join(root, name)).filter(file => file.endsWith(".json")).map(file => {
     const value = json(join(root, name, file)); assert.equal(file, `${value.id}.json`); return value;
   });
@@ -157,7 +170,8 @@ export function auditV2Results(directory: string, options: AuditOptions) {
   const requestMap = new Map(requests.map(r => [r.id, r])), simulationMap = new Map(simulations.map(r => [r.id, r]));
   assert.equal(requestMap.size, requests.length); assert.equal(simulationMap.size, simulations.length);
   const usedRequests = new Set<string>(), usedSimulations = new Set<string>(), responseIds = new Set<string>();
-  const recordedStates = new Map(checkpoint.states.map((state: any) => [key(state.caseId, state.arm), state]));
+  const includedStates = checkpoint.states.filter((state: any) => !options.continuation?.excludedIds.includes(state.caseId));
+  const recordedStates = new Map(includedStates.map((state: any) => [key(state.caseId, state.arm), state]));
   assert.equal(recordedStates.size, cases.length * ARMS.length); eq(reported.cases, checkpoint.states, "Reported final states equal durable checkpoint");
   let directSimulatorCalls = 0;
   function direct(task: any, layout: any, days: any[]) {
@@ -199,7 +213,7 @@ export function auditV2Results(directory: string, options: AuditOptions) {
     const stepKey = `${key(event.caseId, event.arm)}:${event.round}`;
     if (recordedSteps.has(stepKey)) { eq(recordedSteps.get(stepKey), event, "Crash-replayed step must be identical"); duplicateSteps++; continue; }
     recordedSteps.set(stepKey, event);
-    const { c, arm } = state, caseIndex = cases.indexOf(c), round = event.round;
+    const { c, arm } = state, caseIndex = allCases.indexOf(c), round = event.round;
     assert.equal(state.stopped, false); assert.equal(round, state.nextRound); assert.ok(round >= 0 && round < 12);
     const rotation = (caseIndex + round) % 4, order = [...MODELS.slice(rotation), ...MODELS.slice(0, rotation), "random", "geometric-teacher"];
     const rank = caseIndex * 72 + round * 6 + order.indexOf(arm);
@@ -275,7 +289,7 @@ export function auditV2Results(directory: string, options: AuditOptions) {
       measurements[snapshot] = { ...snapshots[snapshot], meanInitialObjective: mean(initial.map(v => v.objective)), objectiveReductionPercent: 100 * (mean(initial.map(v => v.objective)) - snapshots[snapshot].meanObjective) / mean(initial.map(v => v.objective)), meanMakespan: mean(values.map(v => v.metrics.makespan)), meanDamagePerDay: mean(values.map(v => v.metrics.damaged)), totalDamagedAcrossFactoryDays: values.reduce((sum, v) => sum + v.days.reduce((n: number, d: any) => n + d.metrics.damaged, 0), 0), evaluatedFactoryDays: cases.length * 4, meanMissorts: mean(values.map(v => v.metrics.missorts)), meanUnshipped: mean(values.map(v => v.metrics.unshipped)), worseThanInitial: deltas.filter(d => d > 0).length, sameAsInitial: deltas.filter(d => d === 0).length };
     }
     const summary = { label: arm === "geometric-teacher" ? "Privileged deterministic planner plus gated replay" : arm === "random" ? "Seeded legal random moves" : arm, snapshots, completedSearches: rows.length, offeredProposals: cases.length * 12, attemptedProposals: rows.reduce((sum, s) => sum + s.nextRound, 0), acceptedMoves: rows.reduce((sum, s) => sum + s.accepted, 0), invalidActions: rows.reduce((sum, s) => sum + s.invalid, 0), modelCalls: calls.length, knownTokens: calls.reduce((sum, r) => sum + r.reply.usage.totalTokens, 0), reservedUnknownTokens: 0, latencyMs: calls.reduce((sum, r) => sum + r.latencyMs, 0), replaySimulations: sims.reduce((sum, r) => sum + r.attempts * r.dayCount, 0), planningSimulations: rows.reduce((sum, s) => sum + (s.teacher?.feedbackSimulationCalls ?? 0), 0), planningMs: rows.reduce((sum, s) => sum + (s.teacherMs ?? 0), 0), planningReceipts: rows.flatMap(s => s.teacher ? [{ caseId: s.c.id, ...s.teacher }] : []) };
-    eq(summary, reported.overall[arm], `Entire independently reconstructed aggregate ${arm}`);
+    eq(summary, (options.continuation?.primaryOverall ?? reported.overall)[arm], `Entire independently reconstructed aggregate ${arm}`);
     assert.ok(summary.modelCalls <= cases.length * 12 && summary.knownTokens <= plan.maxTokensPerArm && summary.replaySimulations <= plan.maxSimulationsPerArm);
     if (MODELS.includes(arm)) assert.equal(summary.modelCalls, summary.attemptedProposals);
     let cumulativeTokens = 0;
@@ -293,7 +307,7 @@ export function auditV2Results(directory: string, options: AuditOptions) {
   }
   assert.equal(graderHash(), GRADER);
   for (const [path, hash] of Object.entries(plan.sourceHashes)) assert.equal(hashFile(path), hash, `Source unchanged through audit ${path}`);
-  const result = { status: "passed", createdAt: new Date().toISOString(), evaluation: root, planHash, graderHash: GRADER, factories: cases.length, directSimulatorCalls, modelRequests: requests.length, duplicateIdenticalStepEvents: duplicateSteps, training, verifiedOverall, detail, paired, orderingEvidence: { feedbackOnlyPromptsVerified: true, everySearchEventPrecedesCompletionMarker: true, allSnapshotsRescoredAfterCompletion: true, limitation: "Simulation receipts contain no timestamps. Original final-scoring wall-clock order is supported by frozen source control flow and feedback-only prompt reconstruction, not independent per-simulation timing evidence." }, metricsHash: hashFile(join(root, "metrics.json")), checkpointHash: hashFile(join(root, "checkpoint.json")), requestReceiptsHash: contentHash(requests.sort((a, b) => a.id.localeCompare(b.id))), simulationReceiptsHash: contentHash(simulations.sort((a, b) => a.id.localeCompare(b.id))), fixture: Boolean(options.fixture) };
+  const result = { status: "passed", createdAt: new Date().toISOString(), evaluation: root, planHash, graderHash: GRADER, factories: cases.length, sealedPopulation: allCases.length, excludedFactoryIds: options.continuation?.excludedIds ?? [], directSimulatorCalls, modelRequests: requests.length, duplicateIdenticalStepEvents: duplicateSteps, training, verifiedOverall, detail, paired, orderingEvidence: { feedbackOnlyPromptsVerified: true, everySearchEventPrecedesCompletionMarker: true, allSnapshotsRescoredAfterCompletion: true, limitation: "Simulation receipts contain no timestamps. Original final-scoring wall-clock order is supported by frozen source control flow and feedback-only prompt reconstruction, not independent per-simulation timing evidence." }, metricsHash: hashFile(join(root, "metrics.json")), checkpointHash: hashFile(join(root, "checkpoint.json")), requestReceiptsHash: contentHash(requests.sort((a, b) => a.id.localeCompare(b.id))), simulationReceiptsHash: contentHash(simulations.sort((a, b) => a.id.localeCompare(b.id))), fixture: Boolean(options.fixture) };
   if (options.output) { assert.ok(!existsSync(options.output), "Never overwrite prior audit evidence"); writeFileSync(options.output, JSON.stringify(result, null, 2) + "\n", { flag: "wx" }); }
   return result;
 }

@@ -1,0 +1,152 @@
+{
+  "status": "training-complete-comparison-interrupted",
+  "models": {
+    "new-data-one-epoch": {
+      "schemaVersion": 1,
+      "trainingJobId": "vm-optimizer-5227acebded04a50b350a5142d15a7cc",
+      "baseModel": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+      "baseRevision": "54641c1611fcff44fa4865626462445e0a153fc7",
+      "promptProfile": "nemotron8b-thinking-off-v1",
+      "dataset": {
+        "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+        "files": {
+          "train.jsonl": "96361ea2bf2f3ae9dd222f7866e2924117487c7c88607e5344307a36d19de587",
+          "validation.jsonl": "9244d18c2d8f07bebe595541119bb5636183ea928002693b26a13f7769d4a137"
+        }
+      },
+      "smoke": false,
+      "epochs": 1,
+      "completedEpochs": 1,
+      "epochCheckpoints": [
+        {
+          "epoch": 1,
+          "optimizerSteps": 150,
+          "validationLoss": 0.11706851692358144,
+          "adapterHashes": {
+            "adapter_config.json": "c447971450a61141488bf2f8014ba9fb5187ba095db639623529d033c26a9315",
+            "adapter_model.safetensors": "b1d7a99bb87f702362272e1ab026521fddc12f0a1ab578ad3b52366a5973737a"
+          }
+        }
+      ],
+      "rank": 8,
+      "alpha": 16,
+      "seed": 20261017,
+      "status": "complete",
+      "taskProfile": "optimizer",
+      "optimizerSteps": 150,
+      "maxSeconds": 1200,
+      "maxSteps": 150,
+      "tokenLengths": {
+        "train": {
+          "rows": 1200,
+          "maximum": 1639,
+          "total": 1775950
+        },
+        "validation": {
+          "rows": 200,
+          "maximum": 1635,
+          "total": 295832
+        }
+      },
+      "trainableParameters": 6815744,
+      "gpu": {
+        "name": "NVIDIA A100 80GB PCIe",
+        "memoryBytes": 85097971712
+      },
+      "beforeValidationLoss": 0.4898106104765947,
+      "currentEpoch": 1,
+      "afterValidationLoss": 0.11706851692358144,
+      "adapterHashes": {
+        "adapter_config.json": "c447971450a61141488bf2f8014ba9fb5187ba095db639623529d033c26a9315",
+        "adapter_model.safetensors": "b1d7a99bb87f702362272e1ab026521fddc12f0a1ab578ad3b52366a5973737a"
+      },
+      "elapsedSeconds": 651.74,
+      "peakGpuMemoryBytes": 19167430144
+    },
+    "old-data-three-epochs": {
+      "schemaVersion": 1,
+      "trainingJobId": "vm-optimizer-760bae368e4d4d32bf23d3aff3835406",
+      "baseModel": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+      "baseRevision": "54641c1611fcff44fa4865626462445e0a153fc7",
+      "promptProfile": "nemotron8b-thinking-off-v1",
+      "dataset": {
+        "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+        "files": {
+          "train.jsonl": "39622e2529c53607ec890c587d2faa0ab41b2bd40b5048c8148e53725a9f6895",
+          "validation.jsonl": "11e7d2c849d50112af9fb7d986c704516c9c75e6c74ee6fc00eb34e2d4dac52c"
+        }
+      },
+      "smoke": false,
+      "epochs": 3,
+      "completedEpochs": 3,
+      "epochCheckpoints": [
+        {
+          "epoch": 1,
+          "optimizerSteps": 150,
+          "validationLoss": 0.32272349926907345,
+          "adapterHashes": {
+            "adapter_config.json": "f7165e680179615afdd94a1ea0c99e36fb588d632a4f7df571df6012149d9a42",
+            "adapter_model.safetensors": "4bddbb8bfbaa35eb5046d1d41acd6e8fd52612c8e37c08bcee7cd2499ef6b16a"
+          }
+        },
+        {
+          "epoch": 2,
+          "optimizerSteps": 300,
+          "validationLoss": 0.3096297218280726,
+          "adapterHashes": {
+            "adapter_config.json": "f7165e680179615afdd94a1ea0c99e36fb588d632a4f7df571df6012149d9a42",
+            "adapter_model.safetensors": "0985c50c21f55b1c8b6138b0c2bea7060fa45715f9f4d4ab6668b2bf0056ba35"
+          }
+        },
+        {
+          "epoch": 3,
+          "optimizerSteps": 450,
+          "validationLoss": 0.3090748920577639,
+          "adapterHashes": {
+            "adapter_config.json": "f7165e680179615afdd94a1ea0c99e36fb588d632a4f7df571df6012149d9a42",
+            "adapter_model.safetensors": "35c4611406306651a825fcf260d8d26dc6bf1d7ff3937f21e4186c0f61ca9b01"
+          }
+        }
+      ],
+      "rank": 8,
+      "alpha": 16,
+      "seed": 20261017,
+      "status": "complete",
+      "taskProfile": "optimizer",
+      "optimizerSteps": 450,
+      "maxSeconds": 2700,
+      "maxSteps": 450,
+      "tokenLengths": {
+        "train": {
+          "rows": 1200,
+          "maximum": 2072,
+          "total": 1873761
+        },
+        "validation": {
+          "rows": 200,
+          "maximum": 2071,
+          "total": 309301
+        }
+      },
+      "trainableParameters": 6815744,
+      "gpu": {
+        "name": "NVIDIA A100 80GB PCIe",
+        "memoryBytes": 85097971712
+      },
+      "beforeValidationLoss": 0.5262690003558335,
+      "currentEpoch": 3,
+      "afterValidationLoss": 0.3090748920577639,
+      "adapterHashes": {
+        "adapter_config.json": "f7165e680179615afdd94a1ea0c99e36fb588d632a4f7df571df6012149d9a42",
+        "adapter_model.safetensors": "35c4611406306651a825fcf260d8d26dc6bf1d7ff3937f21e4186c0f61ca9b01"
+      },
+      "elapsedSeconds": 2010.528,
+      "peakGpuMemoryBytes": 19955235840
+    }
+  },
+  "originalComparison": "runs/optimizer-eval/v2-live",
+  "originalComparisonComplete": false,
+  "failure": "SSH tunnel dropped; one request has unknown outcome; never retried",
+  "pendingDecision": "Continue 19 paired factories with the interrupted factory excluded, or stop.",
+  "claim": "No new held-out model-improvement claim is established yet."
+}
