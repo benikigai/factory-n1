@@ -55,6 +55,7 @@ export function createControls(
   );
 
   window.addEventListener("keydown", (e) => {
+    if(document.querySelector('dialog[open]'))return;
     if (e.code === "Space" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLButtonElement)) {
       e.preventDefault();
       on.toggle();

@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factory N+1</title>
     <meta name="description" content="Nemotron agents on Crusoe redesign a fulfillment floor; a frozen simulator decides what stays. Every number on this page is recomputed from recorded runs." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/landing.css" />
+    <link rel="stylesheet" href="./landing.css" />
+    <link rel="stylesheet" href="./argon-landing.css" />
   </head>
   <body>
     <nav class="nav">
@@ -18,27 +16,37 @@
         <a href="#tracks">Tracks</a>
         <a href="#sponsors">Stack</a>
         <a href="#log">Log</a>
-        <a href="/replay.html" class="nav-cta">Full replay ↗</a>
+        <a href="./replay.html?run=live-a-7" class="nav-cta">Open workbench</a>
         <a id="repo-link" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </nav>
 
-    <header class="hero" id="top">
+    <header class="hero hero-card" id="top">
       <div class="hero-copy">
         <p class="eyebrow">Recursive Agents Hackathon · Crusoe × Cerebral Valley</p>
-        <h1>Nemotron agents redesigned this factory.<br /><em>A frozen simulator decided what stayed.</em></h1>
-        <p class="lede">Same 100 packages, same peak day, one clock. Left: the starting floor. Right: the floor the agents built. Every package's motion is the exact trace that was scored.</p>
+        <h1>A factory that improves<br /><em>only when the evidence does.</em></h1>
+        <p class="lede">Nemotron agents research, redesign and test a fulfillment floor. A frozen simulator decides what stays. Watch the same 100 packages move through the starting layout and the agents’ best layout, on one clock.</p>
+        <div class="sponsor-pills"><span class="sponsor-pill"><b>Crusoe</b> Inference + prompt cache</span><span class="sponsor-pill"><b>NVIDIA</b> Nemotron 3.5</span><span class="sponsor-pill"><b>You.com</b> Grounded research</span></div>
+        <div class="hero-cta-row"><a class="btn-hero" href="./replay.html?run=live-a-7">Explore the recorded factory</a><a class="btn-secondary" href="./replay.html?run=live-a-7&amp;view=agents">Meet the agent team</a></div>
+        <div class="hero-result" id="hero-result"></div>
         <div class="hero-meta" id="hero-meta"></div>
       </div>
-      <div class="hero-stage">
+      <div class="hero-stage" aria-label="Recorded run live-a-7 comparison">
         <div class="hero-scene" id="hero-scene" aria-label="3D replay of the recorded hero run"></div>
-        <div class="hero-shade"></div>
+
         <div class="hero-tag left">Starting floor</div>
         <div class="hero-tag right">Agents' floor</div>
         <div class="hero-clock" id="hero-clock"></div>
       </div>
     </header>
 
+    <section class="architecture"><div class="wrap"><div class="section-header"><div><p class="section-kicker">Five stages, one measured feedback loop</p><h2>Research. Propose. Test. Keep. Remember.</h2></div><a class="btn-secondary" href="./replay.html?run=live-a-7&amp;view=agents">Inspect the hierarchy</a></div><div class="pipeline-grid">
+      <article class="pipeline-step"><span class="step-idx">01 / GOAL</span><h3>Executable checks</h3><p>Every package ships, within 25 minutes, with at most one mis-sort and nothing damaged.</p></article>
+      <article class="pipeline-step"><span class="step-idx">02 / RESEARCH</span><h3>Grounded hypotheses</h3><p>You.com sources become hypotheses. Isolated simulator tests decide which earn evidence.</p></article>
+      <article class="pipeline-step"><span class="step-idx">03 / DESIGN</span><h3>Competing lenses</h3><p>Flow, Capacity and Quality designers share a Playbook and test bounded layout proposals.</p></article>
+      <article class="pipeline-step"><span class="step-idx">04 / GATE</span><h3>Measured revisions</h3><p>Keep a change only after at least 1% validation gain and no goal-check regression.</p></article>
+      <article class="pipeline-step"><span class="step-idx">05 / MEMORY</span><h3>Receipts that persist</h3><p>Measured lessons, rejected edits and external hypotheses retain distinct evidence labels.</p></article>
+    </div></div></section>
     <section class="proof" id="proof">
       <div class="wrap">
         <div class="kpis" id="kpis"></div>
@@ -53,7 +61,7 @@
             <div class="card-kicker">Same task, same simulator budget</div>
             <h3>Agents vs a one-line heuristic vs blind search</h3>
             <div id="race"></div>
-            <p class="fine">Validation objective on 9 days the designers never trained on (lower is better). Blind search eventually beats this with about 3,000 simulator calls, and then fails unseen test days on both seeds: it overfits.</p>
+            <p class="fine">Validation objective on 9 selection days, separate from 6 training days. These days select the winner; they are not an untouched final test. Lower is better.</p>
           </div>
         </div>
       </div>
@@ -82,11 +90,11 @@
               <li>We audited the grader first: <b>98 of 100</b> package traces were scrambled by an indexing bug. Fixed with a regression test that fails if the bug returns, then frozen and hashed.</li>
               <li>A goal check that fails is shown as FAIL. Invalid runs are labeled INVALID, never scored.</li>
             </ul>
-            <p class="gap"><b>In progress:</b> compiling the one-line goal into checks with a planner, an auditor and feasibility proofs.</p>
+            <p class="gap"><b>Current limit:</b> the recorded hero uses the frozen four-check goal. Goal-compiler evidence is listed below when available.</p>
           </article>
           <article class="track">
             <div class="track-tag">Shared brain</div>
-            <h3>Memory with receipts, and a test that it helps.</h3>
+            <h3>Memory with receipts. Transfer failed this test.</h3>
             <div class="labels-legend">
               <span class="lbl l-untested">Untested web hypothesis</span>
               <span class="lbl l-iso">Intervention improved (isolated test)</span>
@@ -145,10 +153,11 @@
       </div>
     </section>
 
-    <section class="evidence">
+    <section class="evidence" id="evidence-section">
       <div class="wrap">
         <p class="section-kicker">Evidence</p>
         <div class="evidence-grid" id="evidence"></div>
+        <div id="goal-compiler" class="goal-compiler" hidden></div>
       </div>
     </section>
 
@@ -158,6 +167,6 @@
       </div>
     </footer>
 
-    <script type="module" src="/landing.ts"></script>
+    <script type="module" src="./landing.ts"></script>
   </body>
 </html>

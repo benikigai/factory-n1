@@ -6,9 +6,14 @@ import * as THREE from "three";
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import type { ReplaySide } from "../../src/replay.ts";
-import type { Station } from "../../src/sim/types.ts";
+import type { Layout, PackageTrace, Station } from "../../src/sim/types.ts";
 import { SERVICE_TOP, SIZE_EDGE, ZONE_COLORS, mats, packModel, receivingModel, shippingModel, sorterModel, stackLight, type StackLight } from "./machines.ts";
 import { frameAt, traceMeta, type Frame, type GridPos, type TraceMeta } from "./state.ts";
+
+import type { AgentNode } from "../runtime";
+
+export interface AgentFloor { layout: Layout; agents: AgentNode[] }
+export interface FloorOptions { onStation?(id:string):void; onAgent?(node:AgentNode):void }
 
 const BELT_TOP = 0.42;
 const STACK_PITCH = 0.42;
@@ -19,7 +24,7 @@ const COLOR_STRANDED = new THREE.Color("#b91c1c");
 
 export interface Floor {
   group: THREE.Group;
-  side: ReplaySide;
+  side: ReplaySide | AgentFloor;
   width: number;
   depth: number;
   originX: number;
@@ -81,9 +86,10 @@ function label(text: string, cls: string): CSS2DObject {
   return new CSS2DObject(el);
 }
 
-export function createFloor(side: ReplaySide, originX: number, title: string, accent: "base" | "improved"): Floor {
+export function createFloor(side: ReplaySide | AgentFloor, originX: number, title: string, accent: "base" | "improved", options:FloorOptions={}): Floor {
   const { layout } = side;
-  const traces = side.result.trace;
+  const agents = "agents" in side ? side.agents : null;
+  const traces:PackageTrace[] = "result" in side ? side.result.trace : [];
   const W = layout.grid.w;
   const H = layout.grid.h;
   const originZ = -H / 2;
@@ -181,6 +187,7 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
   // --- conveyors: one L-shaped strip per from->to pair actually used by legs (x first, then y)
   const pairs = new Set<string>();
   for (const p of traces) for (const l of p.legs) pairs.add(`${l.from}\u0000${l.to}`);
+  if(agents) for(let i=1;i<layout.stations.length;i++) pairs.add(`${layout.stations[i-1].id}\u0000${layout.stations[i].id}`);
   const unit = new Set<string>();
   for (const key of pairs) {
     const [fromId, toId] = key.split("\u0000");
@@ -230,7 +237,7 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
   const operators = new Map<string, THREE.Object3D>();
   const queueAnchor = new Map<string, { x: number; z: number; sx: number; sz: number }>();
   const labels: CSS2DObject[] = [];
-  const bottleneck = side.result.metrics.bottleneck;
+  const bottleneck = "result" in side ? side.result.metrics.bottleneck : null;
   for (const s of layout.stations) {
     const pos = new THREE.Vector3(wx(s.x), 0, wz(s.y));
     let model: THREE.Object3D;
@@ -250,6 +257,7 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
       // Operator stands on the far (north) side, facing the default camera.
       operators.set(s.id, m.operator);
     }
+    model.userData.stationId=s.id;
     model.position.copy(pos);
     group.add(model);
 
@@ -263,10 +271,18 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
     const sz = Math.sign(cz - s.y) || 1;
     queueAnchor.set(s.id, { x: s.x + sx * 1.15, z: s.y + sz * 1.15, sx, sz });
 
-    let text = s.id;
-    if (s.kind === "pack") text += `  ${(s.sizes ?? []).join("")} · ${(s.zones ?? []).join("")}`;
-    if (s.kind === "shipping") text += `  zone ${(s.zones ?? []).join("")}`;
+    const agent=agents?.find(n=>n.id===s.id);
+    let text = agent ? `${agent.name}${agent.children.length ? " ↗" : ""}` : s.id;
+    if (!agent && s.kind === "pack") text += `  ${(s.sizes ?? []).join("")} · ${(s.zones ?? []).join("")}`;
+    if (!agent && s.kind === "shipping") text += `  zone ${(s.zones ?? []).join("")}`;
     const l = label(text, `st-label st-${s.kind}${s.id === bottleneck ? " st-bottleneck" : ""}`);
+    l.element.setAttribute("role","button");l.element.tabIndex=0;
+    l.element.setAttribute("aria-label",agent?`${agent.children.length?'Enter':'Inspect'} ${agent.name}`:`Inspect ${accent==='base'?'baseline':'champion'} ${s.id}`);
+    l.element.title=agent?`${agent.role} · ${agent.children.length} children`:`Inspect ${s.id}`;
+    if(agent)l.element.dataset.status=agent.status;
+    const select=()=>agent?options.onAgent?.(agent):options.onStation?.(s.id);
+    l.element.addEventListener('click',e=>{e.stopPropagation();select();});
+    l.element.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();select();}});
     if (s.id === bottleneck) l.element.title = "bottleneck (most total wait) in this run";
     l.position.set(pos.x, s.kind === "receiving" || s.kind === "shipping" ? 2.75 : 2.5, pos.z);
     group.add(l);
@@ -291,12 +307,14 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
   const N = traces.length;
   const pkgMat = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.55, metalness: 0.05 });
   const pkgMesh = new THREE.InstancedMesh(mats().box, pkgMat, Math.max(1, N));
+  pkgMesh.count=N;
   pkgMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   pkgMesh.castShadow = true;
   pkgMesh.receiveShadow = true;
   pkgMesh.frustumCulled = false;
   const outlineMat = new THREE.MeshBasicMaterial({ color: "#ffffff", side: THREE.BackSide });
   const outline = new THREE.InstancedMesh(mats().box, outlineMat, Math.max(1, N));
+  outline.count=N;
   outline.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   outline.frustumCulled = false;
   group.add(pkgMesh, outline);
@@ -433,7 +451,8 @@ export function createFloor(side: ReplaySide, originX: number, title: string, ac
     },
     update,
     setCounters(text) {
-      if (titleCounters.textContent !== text) titleCounters.textContent = text;
+      const value=agents?`${agents.length} child entries · recorded workflow`:text;
+      if (titleCounters.textContent !== value) titleCounters.textContent = value;
     },
     dispose() {
       for (const l of labels) l.element.remove();

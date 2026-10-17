@@ -1,4 +1,4 @@
-import { createReadStream, realpathSync, statSync } from "node:fs";
+import { createReadStream, realpathSync, statSync, readdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -28,6 +28,13 @@ function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unkno
   const raw = req.url ?? "";
   const pathname = raw.split("?")[0];
   if (!pathname.startsWith("/runs/")) return next();
+  if (pathname === "/runs/index.json") {
+    const recorded = path.join(repoRoot, "recorded");
+    const runs = readdirSync(recorded).filter(id => existsSync(path.join(recorded, id, "replay.json")));
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ runs, default: "live-a-7", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(path.join(recorded, id)).filter(name => /\.(json|jsonl)$/.test(name))])) }));
+    return;
+  }
   if (req.method !== "GET" && req.method !== "HEAD") return fail(res, 405, "read-only");
   let rel: string;
   try {
@@ -69,6 +76,11 @@ function serveEvidence(req: IncomingMessage, res: ServerResponse, next: (err?: u
   if (!pathname.startsWith("/evidence/")) return next();
   const name = decodeURIComponent(pathname.slice("/evidence/".length));
   if (!/^[A-Za-z0-9._-]+$/.test(name) || name.startsWith(".")) return fail(res, 400, "bad path");
+  if (name === "index.json") {
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ files: [...readdirSync(evidenceDir).filter(file => /\.(json|md)$/.test(file)), "spec-as-built.md"] }));
+    return;
+  }
   const file = name === "spec-as-built.md" ? path.join(repoRoot, "docs", "specs", "factory-n1.md") : path.join(evidenceDir, name);
   try {
     if (!statSync(file).isFile()) return fail(res, 404, "not found");
@@ -95,6 +107,7 @@ function runsPlugin(): Plugin {
 }
 
 export default defineConfig({
+  base: "./",
   root: webDir,
   plugins: [runsPlugin()],
   server: {

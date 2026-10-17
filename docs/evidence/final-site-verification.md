@@ -1,0 +1,31 @@
+# Final-site verification
+
+Checked on October 17, 2026 in the isolated `codex/final-site` worktree, based on `bef0265f74b99ea62af3f31e4e8a8fada03cdc8d`.
+
+## Local review
+
+```sh
+npm ci --ignore-scripts
+npm test
+npm run typecheck
+npx tsc --noEmit -p web/tsconfig.json
+npm run build:static
+python3 -m http.server 5190 --bind 127.0.0.1 --directory web/dist
+```
+
+Open `http://127.0.0.1:5190/`. The build serves committed recordings and public evidence without API credentials or a backend. Browser checks covered the landing page, hero replay, agent hierarchy, Quality's four generations and tool receipts, the four fresh-factory memory comparisons, evidence links, and the separate offline/live compiler results. Desktop and 390-pixel mobile layouts were checked.
+
+The final test run passed 63 tests. Both TypeScript checks and the static build passed. The checkpoint test applies the integration patch in an isolated fixture when the source has not yet been integrated, then kills and resumes a child process. It verifies identical semantic artifacts, preserved uncertain charges, manifest refusal, and an idempotent completed restart.
+
+## Results the site may claim
+
+- Hero `live-a-7`: validation objective 18,061.11 to 6,083.44, a 66.3% reduction. The illustrated peak day has 14 damaged packages before and 4 after. The zero-damage goal remains unmet.
+- Shared memory: four losses in four valid paired comparisons on fresh factories, with equal per-arm caps. These are final-split results, separate from development and validation scores.
+- Goal compiler: 15 offline tests pass. The single authorized live round made four calls, cost $0.0004162, and rejected both goals. Its two validation issues were corrected offline. The corrected behavior has not been verified in another live round.
+- Feasibility bounds passed a separate check against 672 actual simulator runs. Passing a necessary bound does not prove an achievable factory layout.
+
+## Solver integration handoff
+
+Claude owns `src/loop/solve.ts`. The combined C1/C2 integration is supplied as `docs/integration/solve-checkpoint.patch`; the source is not edited on this branch pending the owner's integration or Ben's explicit override. `docs/integration/checkpoint-handoff.md` contains the patch hash and apply instructions.
+
+The patch binds the approved goal to checkpoints. Custom approved goals require `research:false` and `probes:0` until helper evaluations accept the same contract. A completed run that records ordinary provider failures stays completed on same-ID restart; deliberately retry it under a new run ID. Interrupted, uncommitted generations can resume while retaining consumed attempts and uncertain charges.

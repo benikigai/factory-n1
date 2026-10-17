@@ -36,19 +36,23 @@ type Spend = { authorizationUsd: number; totals: { returnedUsageInferenceUsd: nu
 ($("repo-link") as HTMLAnchorElement).href = REPO;
 
 const [bundle, summary, a8, mem, spend] = await Promise.all([
-  json<ReplayBundle>(`/runs/${HERO_RUN}/replay.json`),
-  json<Summary>(`/runs/${HERO_RUN}/summary.json`),
-  json<Summary>(`/runs/live-a-8/summary.json`),
-  json<MemResults>(`/runs/${MEMORY_EVAL}/results.json`),
-  json<Spend>(`/evidence/spend-accounting.json`),
+  json<ReplayBundle>(`./runs/${HERO_RUN}/replay.json`),
+  json<Summary>(`./runs/${HERO_RUN}/summary.json`),
+  json<Summary>(`./runs/live-a-8/summary.json`),
+  json<MemResults>(`./runs/${MEMORY_EVAL}/results.json`),
+  json<Spend>(`./evidence/spend-accounting.json`),
 ]);
 
 /* ---------- Hero: the real scored replay ---------- */
 const playback = { t: 0, end: 1, playing: true, speed: 16 };
 let frames: ReturnType<ReturnType<typeof createWarehouse>["render"]> = null;
 if (bundle) {
-  const world = createWarehouse($("hero-scene"));
+  const world = createWarehouse($("hero-scene"), () => {});
   world.setBundle(bundle);
+  $("hero-scene").querySelectorAll('[role="button"]').forEach(label => {
+    label.removeAttribute("role");
+    label.removeAttribute("tabindex");
+  });
   world.preset("overview", false);
   // The hero camera is fixed (no orbit), so refit it whenever the stage changes size.
   new ResizeObserver(() => world.preset("overview", false)).observe($("hero-scene"));
@@ -130,6 +134,7 @@ if (bundle) {
 
 /* ---------- KPIs ---------- */
 if (bundle && summary) {
+  $("hero-result").innerHTML = `<strong>${pct(summary.baseline.select, summary.champion.select)}</strong> validation objective <span>· Zero damage not reached</span>`;
   const b = bundle.baseline.result.metrics;
   const c = bundle.improved.result.metrics;
   const heur = summary.comparators.find((x) => x.label.startsWith("Code heuristic"))!;
@@ -200,8 +205,8 @@ if (mem) {
   $("memory-facts").innerHTML = [
     `Pre-registered test on two fresh factories: shared memory <b>${mem.wins} wins · ${mem.ties} ties · ${mem.losses} losses</b>, median <b>+${fmt(mem.medianDiffObjective)}</b> (worse), n = ${mem.n}.`,
     `Equal hard caps per arm (<b>${mem.armCaps.maxCalls} calls, ${mem.armCaps.maxSimEvals} simulator evals</b>), enforced at dispatch, and all held.`,
-    "Why: lessons carried one factory's coordinates. Memory arms made <b>7/24</b> invalid proposals vs 2/24.",
-    a8 ? `Upside that did hold: the byte-stable Playbook made <b>${fmt((a8.usage.cachedTokens / a8.usage.promptTokens) * 100)}%</b> of prompt tokens cache hits.` : "",
+    "Likely contributor: lessons carried one factory's coordinates. Memory arms made <b>7/24</b> invalid proposals vs 2/24.",
+    a8 ? `Observed in live-a-8: <b>${fmt((a8.usage.cachedTokens / a8.usage.promptTokens) * 100)}%</b> of prompt tokens were cache hits. Memory's causal effect on caching was not isolated.` : "",
   ].filter(Boolean).map((x) => `<li>${x}</li>`).join("");
 }
 
@@ -232,19 +237,33 @@ $("timeline").innerHTML = LOG.map(
   (l) => `<li class="${l.tag ?? ""}"><div class="tl-head"><span>${l.t}</span><a href="${REPO}/commit/${l.hash}" target="_blank" rel="noopener">${l.hash}</a></div><p>${esc(l.text)}</p></li>`,
 ).join("");
 const ev: [string, string, string][] = [
-  ["/replay.html", "Full replay viewer", "Hero run with diagnostics, receipts and lessons"],
-  [`/replay.html?run=${MEMORY_EVAL}-factory-g-r1`, "Memory vs no memory in 3D", "One of 4 valid pairs; final split labeled"],
-  ["/evidence/spec-as-built.md", "Spec (as built)", "Architecture, proof and work log"],
-  ["/evidence/memory-eval-valid.md", "Memory evaluation", "Design, caps, every pair, interpretation"],
-  ["/evidence/spend-accounting.json", "Spend accounting", "Returned usage vs unknown-charge reservations"],
-  ["/evidence/independent-verification-live-a-5.md", "Independent verification", "Codex re-scored and regenerated replays"],
-  ["/evidence/2026-10-17-live-roundtrip.md", "The fabricated re-run", "What Lightning claimed vs what the grader measured"],
+  ["./replay.html?run=live-a-7", "Full replay viewer", "Hero run with diagnostics, receipts and lessons"],
+  [`./replay.html?run=${MEMORY_EVAL}-factory-g-r1`, "Memory pair G1 in 3D", "Final split; recorded memory and no-memory arms"],
+  ["./evidence/spec-as-built.md", "Spec (as built)", "Architecture, proof and work log"],
+  ["./evidence/memory-eval-valid.md", "Memory evaluation", "Design, caps, every pair, interpretation"],
+  ["./evidence/spend-accounting.json", "Spend accounting", "Returned usage vs unknown-charge reservations"],
+  ["./evidence/independent-verification-live-a-5.md", "Independent verification", "Re-scoring procedure, saved layouts and seeds"],
+  ["./evidence/2026-10-17-live-roundtrip.md", "The fabricated re-run", "What Lightning claimed vs what the grader measured"],
+  ...["factory-f-r1", "factory-f-r2", "factory-g-r2"].map((pair): [string,string,string] => [`./replay.html?run=${MEMORY_EVAL}-${pair}`, `Memory pair ${pair.replace("factory-", "").replace("-r", "").toUpperCase()} in 3D`, "Final split; recorded memory and no-memory arms"]),
   [REPO, "Source on GitHub", "Simulator, agents, memory, viewer"],
 ];
 $("evidence").innerHTML = ev.map(([h, k, s]) => `<a class="ev" href="${h}"${h.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}><b>${esc(k)}</b><span>${esc(s)}</span></a>`).join("");
 $("foot-note").textContent = spend
-  ? `Every number on this page is read from recorded artifacts. The final evaluation split stays locked. Model-call spend: $${spend.totals.returnedUsageInferenceUsd.toFixed(3)} returned usage; $${spend.totals.conservativeCommittedUsd.toFixed(3)} counting unknown-charge reservations conservatively. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.`
+  ? `Every number on this page is read from recorded artifacts. The hero uses training and selection days. The memory study uses separate final days. Model-call spend: $${spend.totals.returnedUsageInferenceUsd.toFixed(3)} returned usage; $${spend.totals.conservativeCommittedUsd.toFixed(3)} counting unknown-charge reservations conservatively. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.`
   : "Every number on this page is read from recorded artifacts. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.";
 
 // Sections fill in after the data loads, so honor a #section link once they exist.
 if (location.hash) void document.fonts.ready.then(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" }));
+
+
+const evidenceIndex = await json<{files:string[]}>("./evidence/index.json");
+const compilerFiles = ["goal-compiler.offline.json", "goal-compiler.live.json"].filter(file=>evidenceIndex?.files.includes(file));
+type CompilerEvidence = {mode:string;results:{status:string;goal:string;approved:{hash:string}|null}[]};
+const compilerReceipts = (await Promise.all(compilerFiles.map(async file=>({file, data:await json<CompilerEvidence>(`./evidence/${file}`)})))).filter(receipt=>receipt.data);
+if (compilerReceipts.length) {
+  const panel = $("goal-compiler");
+  panel.hidden = false;
+  const live = compilerReceipts.find(receipt=>receipt.data?.mode==='live');
+  const needsFollowUp = live && !live.data!.results.every(result=>result.status==='approved');
+  panel.innerHTML = `<h3>Goal compiler: offline checked${needsFollowUp?"; live smoke needs follow-up":""}</h3><p>Separate from the historical hero run. Offline checks use mocked model responses. The live smoke is shown independently; an approved contract still does not prove that a layout achieves it.</p>${compilerReceipts.map(({file,data})=>`<div class="compiler-run"><h4>${data!.mode==='offline'?"OFFLINE · Mocked model responses":"LIVE · Recorded smoke test"}</h4><ul>${data!.results.map(r=>`<li><b>${esc(r.status.toUpperCase())}</b>: ${esc(r.goal)}${r.approved ? ` <code>${esc(r.approved.hash.slice(0,12))}</code>` : ""}</li>`).join("")}</ul><a href="./evidence/${file}">Read the ${data!.mode} receipt</a></div>`).join("")}<p><a href="./evidence/goal-compiler.md">Implementation, failure details and limits</a></p>`;
+}

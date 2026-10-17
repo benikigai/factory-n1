@@ -8,6 +8,8 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
 import type { ReplayBundle } from "../../src/replay.ts";
 import { createFloor, type Floor } from "./floor.ts";
+import type { AgentNode } from "../runtime";
+import { teamLayout } from "./team-layout";
 import type { Frame } from "./state.ts";
 
 const GAP = 10;
@@ -17,6 +19,7 @@ export type CameraPreset = "overview" | "closeup";
 
 export interface Warehouse {
   setBundle(bundle: ReplayBundle): void;
+  setAgents(scope:AgentNode):void;
   /** Advance both floors to sim time t and draw. Returns [baseline, improved] frames. */
   render(t: number, realTime: number): [Frame, Frame] | null;
   setCounters(base: string, improved: string): void;
@@ -24,7 +27,8 @@ export interface Warehouse {
   closeupTarget(): string | null;
 }
 
-export function createWarehouse(host: HTMLElement): Warehouse {
+export type Selection = {type:"station";side:"baseline"|"improved";id:string}|{type:"agent";node:AgentNode};
+export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)=>void): Warehouse {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
@@ -32,6 +36,7 @@ export function createWarehouse(host: HTMLElement): Warehouse {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.domElement.setAttribute("aria-label","Factory floors. Drag to orbit. Select a station label to inspect.");
   host.appendChild(renderer.domElement);
 
   const labelRenderer = new CSS2DRenderer();
@@ -74,7 +79,8 @@ export function createWarehouse(host: HTMLElement): Warehouse {
   controls.minDistance = 3;
   controls.maxDistance = 180;
 
-  let floors: [Floor, Floor] | null = null;
+  let floors: Floor[] = [];
+  let agentScope:AgentNode|null=null;
   let bundle: ReplayBundle | null = null;
   let tween: { from: THREE.Vector3; to: THREE.Vector3; tFrom: THREE.Vector3; tTo: THREE.Vector3; t0: number; dur: number } | null = null;
   let firstLayout = true;
@@ -91,9 +97,9 @@ export function createWarehouse(host: HTMLElement): Warehouse {
   resize();
 
   function presetPose(name: CameraPreset): { pos: THREE.Vector3; target: THREE.Vector3 } {
-    if (!floors) return { pos: new THREE.Vector3(0, 40, 50), target: new THREE.Vector3() };
-    const [a, b] = floors;
-    if (name === "closeup" && bundle) {
+    if (!floors.length) return { pos: new THREE.Vector3(0, 40, 50), target: new THREE.Vector3() };
+    const a=floors[0],b=floors.at(-1)!;
+    if (name === "closeup" && bundle && !agentScope) {
       const id = bundle.improved.result.metrics.bottleneck;
       const p = b.stationWorld(id);
       if (p) return { pos: p.clone().add(new THREE.Vector3(4.5, 7.5, 10.5)), target: p.clone().add(new THREE.Vector3(0.6, 0.5, 0.4)) };
@@ -123,11 +129,12 @@ export function createWarehouse(host: HTMLElement): Warehouse {
   }
 
   function setBundle(next: ReplayBundle) {
-    bundle = next;
+    const leavingAgents=!!agentScope;
+    bundle = next;agentScope=null;
     if (floors) for (const f of floors) f.dispose();
     const wa = next.baseline.layout.grid.w;
-    const base = createFloor(next.baseline, -GAP / 2 - wa, next.baseline.label || "Gen-0 baseline", "base");
-    const imp = createFloor(next.improved, GAP / 2, next.improved.label || "Improved", "improved");
+    const base = createFloor(next.baseline, -GAP / 2 - wa, next.baseline.label || "Gen-0 baseline", "base",{onStation:id=>onSelect({type:"station",side:"baseline",id})});
+    const imp = createFloor(next.improved, GAP / 2, next.improved.label || "Improved", "improved",{onStation:id=>onSelect({type:"station",side:"improved",id})});
     scene.add(base.group, imp.group);
     floors = [base, imp];
     // Fit the sun's shadow frustum to both floors.
@@ -138,11 +145,31 @@ export function createWarehouse(host: HTMLElement): Warehouse {
     cam.top = half;
     cam.bottom = -half;
     cam.updateProjectionMatrix();
-    if (firstLayout) {
+    if (firstLayout||leavingAgents) {
       preset("overview", false);
       firstLayout = false;
     }
   }
+
+  function setAgents(scope:AgentNode){
+    for(const f of floors)f.dispose();
+    agentScope=scope;
+    const layout=teamLayout(scope);
+    const floor=createFloor({layout,agents:scope.children},-layout.grid.w/2,scope.name,"improved",{onAgent:node=>onSelect({type:"agent",node})});
+    floors=[floor];scene.add(floor.group);floor.setCounters('');preset("overview",false);
+  }
+  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down:{x:number;y:number}|null=null;
+  renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};});
+  renderer.domElement.addEventListener('pointerup',e=>{
+    if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5){down=null;return;}down=null;
+    const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);
+    for(const hit of raycaster.intersectObjects(floors.map(f=>f.group),true)){
+      let obj:THREE.Object3D|null=hit.object;while(obj&&!obj.userData.stationId)obj=obj.parent;
+      if(!obj)continue;const id=obj.userData.stationId as string;
+      if(agentScope){const node=agentScope.children.find(n=>n.id===id);if(node)onSelect({type:"agent",node});}
+      else{const side=floors[0].group.getObjectById(obj.id)?"baseline":"improved";onSelect({type:"station",side,id});}break;
+    }
+  });
 
   function render(t: number, realTime: number): [Frame, Frame] | null {
     if (tween) {
@@ -154,20 +181,36 @@ export function createWarehouse(host: HTMLElement): Warehouse {
     }
     controls.update();
     let frames: [Frame, Frame] | null = null;
-    if (floors) frames = [floors[0].update(t, realTime), floors[1].update(t, realTime)];
+    if(floors.length===2)frames=[floors[0].update(t,realTime),floors[1].update(t,realTime)];
+    else floors[0]?.update(0,realTime);
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
+    if(agentScope){
+      const bounds=host.getBoundingClientRect(),crumbs=document.getElementById('breadcrumbs')?.getBoundingClientRect();
+      const top=Math.max(bounds.top+60,(crumbs?.bottom??bounds.top)+10),placed:DOMRect[]=[];
+      for(const label of Array.from(host.querySelectorAll<HTMLElement>('.st-label'))){
+        label.style.marginLeft='0px';label.style.marginTop='0px';const rect=label.getBoundingClientRect();
+        const offsets=[];for(let row=-12;row<=12;row++)for(let col=-3;col<=3;col++)offsets.push({x:col*(rect.width+6),y:row*(rect.height+6)});
+        offsets.sort((a,b)=>a.x*a.x+a.y*a.y-b.x*b.x-b.y*b.y);
+        for(const offset of offsets){const x=rect.x+offset.x,y=rect.y+offset.y;
+          if(x<bounds.left+6||x+rect.width>bounds.right-6||y<top||y+rect.height>bounds.bottom-120)continue;
+          if(placed.some(p=>x<p.right+4&&x+rect.width+4>p.left&&y<p.bottom+4&&y+rect.height+4>p.top))continue;
+          label.style.marginLeft=`${offset.x}px`;label.style.marginTop=`${offset.y}px`;placed.push(new DOMRect(x,y,rect.width,rect.height));break;
+        }
+      }
+    }
     return frames;
   }
 
   return {
     setBundle,
+    setAgents,
     render,
     setCounters(a, b) {
-      floors?.[0].setCounters(a);
-      floors?.[1].setCounters(b);
+      floors[0]?.setCounters(a);
+      floors[1]?.setCounters(b);
     },
     preset,
-    closeupTarget: () => bundle?.improved.result.metrics.bottleneck ?? null,
+    closeupTarget: () => agentScope?null:bundle?.improved.result.metrics.bottleneck ?? null,
   };
 }
