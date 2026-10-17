@@ -1,6 +1,6 @@
 # Demo script
 
-**Setup:** `npm run web` (or the static site), open the hero run `live-a-5`, 16× speed, overview camera. The badge must read **RECORDED**.
+**Setup:** `npm run web` (or the static site), open the hero run `live-a-7`, 16× speed, overview camera. The badge must read **RECORDED**.
 
 ## 3-minute live demo
 
@@ -26,21 +26,21 @@ Point at one rejected candidate and its reason.
 - Citing a web hypothesis in a winning proposal doesn't promote it. Only its own isolated test can."
 
 **2:10 Result (30 s).**
-- Validation goes from 18,061 to 10,733, **−40.6%**.
-- That beats the one-line code heuristic (13,194) and random search with the same 23 evaluations (13,092).
-- On this peak day: makespan 1,581 → 729 s, mis-sorts 16 → 0.
-- "Damage is still 13, so the goal check says FAIL, and we show it."
+- Validation goes from 18,061 to 6,083, **−66.3%**.
+- That beats the one-line code heuristic (13,194) and random search with the same 41 evaluations (13,099).
+- On this peak day: makespan 1,581 → 1,184 s, mis-sorts 16 → 0, damaged 14 → 4.
+- "Damage isn't zero yet, so the goal check says FAIL, and we show it."
 
-**2:40 What's next (20 s).** "Five factory layouts are ready to test whether the learned memory transfers to unseen factories. Every experiment is already logged as training data for a future Lightning fine-tune."
+**2:40 What's next (20 s).** "We built a locked memory vs no-memory test on fresh factories with equal hard budgets. Its one run failed for infrastructure reasons, so we make no memory claim. Every experiment is logged as training data for a future Lightning fine-tune."
 
 ## Likely questions
-- **Is it really learning?** Within a run, yes, measured by the gate. Transfer across factories hasn't been shown yet.
-- **Why not a genetic algorithm?** At equal evaluation budget, random search lands at 13,092 vs our 10,733. With about 3,000 evaluations it does better, and it overfits.
+- **Is it really learning?** Within a run, yes, measured by the gate. Transfer across factories: the test is built, but its only run was invalid, so it's not shown.
+- **Why not a genetic algorithm?** At equal evaluation budget, random search lands at 13,099 vs our 6,083. With about 3,000 evaluations it does better, and it overfits.
 - **What's real vs simulated?** The factory is a queueing simulation with synthetic rules. Model calls, searches, citations and scores are real and independently re-scored.
 
 ## 1-minute video beats
 1. 0–8 s: the goal line, then both floors starting together.
 2. 8–25 s: packages flowing; the left floor's queue builds; the right floor clears.
 3. 25–40 s: rail: research citation, rejected candidate with reason, accepted change with receipts.
-4. 40–52 s: before/after: −40.6% vs heuristic and equal-budget random search.
+4. 40–52 s: before/after: −66.3% vs heuristic and equal-budget random search.
 5. 52–60 s: "DoD still FAIL: damage remains. Every number re-scored independently."
