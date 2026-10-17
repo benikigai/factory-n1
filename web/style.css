@@ -249,3 +249,4 @@ details.more[open] > :not(summary) { margin-top: 10px; }
 #legend { left: 22px; bottom: 70px; gap: 6px 14px; color: #94a3b8; }
 #controls { left: 16px; right: 16px; bottom: 16px; background: #0d1117e6; }
 .work-key{margin:-4px 0 12px}
+#hud .brand { pointer-events: auto; cursor: pointer; } #hud .brand:hover { color: #fff; }
