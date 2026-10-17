@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-17 ~14:55 PT",
+  "asOf": "2026-10-17 ~15:22 PT",
   "authorizationUsd": 2.0,
   "policy": "Ben raised the ceiling to $1.00, then authorized spend as needed to finish the demo today; working ceiling $2.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
   "items": [
@@ -170,19 +170,27 @@
       "youSearches": 0,
       "actualBasis": "runs/live-demo-2/summary.json usage.usd",
       "unknownChargeReason": null
+    },
+    {
+      "item": "live-demo-2 visual inspection (Inspect button test)",
+      "returnedUsageUsd": 0.00317104,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "runs/live-demo-2/inspections/2026-10-17T22-20-15-031Z/inspection.json budget.usd (4 calls, image input verified)",
+      "unknownChargeReason": null
     }
   ],
   "totals": {
-    "returnedUsageInferenceUsd": 0.4411,
+    "returnedUsageInferenceUsd": 0.4443,
     "unknownChargeReservationsUsd": 0.4316,
     "youSearches": 20,
     "youSearchBaseUsd": 0.1,
     "unconfirmed": "highlight-extraction surcharge on 7 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2, live-a-8 x2); You.com docs say extraction may add cost",
-    "conservativeCommittedUsd": 0.9727,
-    "returnedUsagePlusSearchBaseUsd": 0.5411,
-    "remainingUnderAuthorizationUsd": 1.0273
+    "conservativeCommittedUsd": 0.9758,
+    "returnedUsagePlusSearchBaseUsd": 0.5443,
+    "remainingUnderAuthorizationUsd": 1.0242
   },
-  "status": "Within the $2.00 working ceiling on the conservative basis ($0.9727 committed). The A100 critic pilot is tracked under separateBudgets.",
+  "status": "Within the $2.00 working ceiling on the conservative basis ($0.9758 committed). The A100 critic pilot is tracked under separateBudgets.",
   "separateBudgets": [
     {
       "item": "Nemotron 8B critic fine-tune pilot (Crusoe A100 80GB VM, Codex)",
