@@ -6,7 +6,8 @@ import { defineConfig, type Plugin } from "vite";
 
 const webDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(webDir, "..");
-const runsDir = path.join(repoRoot, "runs");
+/** Local runs first, then committed public recordings (recorded/), so a fresh clone still plays the hero run. */
+const runRoots = [path.join(repoRoot, "runs"), path.join(repoRoot, "recorded")];
 
 const TYPES: Record<string, string> = {
   ".json": "application/json; charset=utf-8",
@@ -22,7 +23,7 @@ function fail(res: ServerResponse, code: number, msg: string) {
   res.end(msg);
 }
 
-/** Read-only GET /runs/** -> <repo>/runs/**. Rejects traversal, dotfiles, and symlinks escaping runs/. */
+/** Read-only GET /runs/** -> <repo>/runs/** or <repo>/recorded/**. Rejects traversal, dotfiles, and symlinks escaping those dirs. */
 function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) {
   const raw = req.url ?? "";
   const pathname = raw.split("?")[0];
@@ -38,15 +39,21 @@ function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unkno
   if (!rel || rel.includes("\0") || path.isAbsolute(rel) || parts.some((p) => p === "" || p === "." || p === ".." || p.startsWith("."))) {
     return fail(res, 400, "bad path");
   }
-  const file = path.resolve(runsDir, ...parts);
-  if (!file.startsWith(runsDir + path.sep)) return fail(res, 403, "forbidden");
-  let real: string;
-  try {
-    real = realpathSync(file);
-    if (!real.startsWith(realpathSync(runsDir) + path.sep) || !statSync(real).isFile()) return fail(res, 404, "not found");
-  } catch {
-    return fail(res, 404, "not found");
+  let real = "";
+  for (const root of runRoots) {
+    const file = path.resolve(root, ...parts);
+    if (!file.startsWith(root + path.sep)) return fail(res, 403, "forbidden");
+    try {
+      const r = realpathSync(file);
+      if (r.startsWith(realpathSync(root) + path.sep) && statSync(r).isFile()) {
+        real = r;
+        break;
+      }
+    } catch {
+      // not in this root; try the next one
+    }
   }
+  if (!real) return fail(res, 404, "not found");
   res.statusCode = 200;
   res.setHeader("Content-Type", TYPES[path.extname(real).toLowerCase()] ?? "application/octet-stream");
   res.setHeader("Cache-Control", "no-store");

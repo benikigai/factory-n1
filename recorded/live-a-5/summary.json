@@ -1,0 +1,103 @@
+{
+  "runId": "live-a-5",
+  "taskId": "factory-a",
+  "stopReason": "3 generations without an accepted change",
+  "simVersion": "1.1.0",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "simEvals": 23,
+  "baseline": {
+    "train": 18655.17,
+    "select": 18061.11,
+    "dodSelect": false
+  },
+  "champion": {
+    "id": "g1-flow",
+    "train": 11311.17,
+    "select": 10733.22,
+    "dodSelect": false
+  },
+  "improvementSelectPct": 40.57,
+  "comparators": [
+    {
+      "label": "Code heuristic: pack stations accept all sizes",
+      "train": 13905.17,
+      "select": 13194.44
+    },
+    {
+      "label": "Random hill-climber at equal budget (23 sim evals)",
+      "train": 13847.67,
+      "select": 13092
+    }
+  ],
+  "accepted": 1,
+  "rejected": 7,
+  "lessons": [
+    {
+      "id": "EXT-g3-1",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-3",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-plan-1",
+      "kind": "external",
+      "status": "retired",
+      "helped": 0,
+      "trials": 1
+    },
+    {
+      "id": "EXT-plan-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-plan-3",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g1",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g2-avoid",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    }
+  ],
+  "usage": {
+    "calls": 36,
+    "usd": 0.015306560000000002,
+    "promptTokens": 106398,
+    "cachedTokens": 31552,
+    "reservedUsd": 0,
+    "searches": {
+      "attempts": 2,
+      "estimatedUsd": 0.01
+    }
+  }
+}

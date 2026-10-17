@@ -1,0 +1,126 @@
+{
+  "name": "flow-v2",
+  "grid": {
+    "w": 24,
+    "h": 14
+  },
+  "stations": [
+    {
+      "id": "recv-1",
+      "kind": "receiving",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "id": "sort-1",
+      "kind": "sorter",
+      "x": 12,
+      "y": 7
+    },
+    {
+      "id": "pack-1",
+      "kind": "pack",
+      "x": 2,
+      "y": 2,
+      "zones": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M"
+      ]
+    },
+    {
+      "id": "pack-2",
+      "kind": "pack",
+      "x": 4,
+      "y": 11,
+      "zones": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M"
+      ]
+    },
+    {
+      "id": "pack-3",
+      "kind": "pack",
+      "x": 10,
+      "y": 2,
+      "zones": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "pack-4",
+      "kind": "pack",
+      "x": 10,
+      "y": 11,
+      "zones": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "pack-5",
+      "kind": "pack",
+      "x": 14,
+      "y": 7,
+      "zones": [
+        "A",
+        "B",
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "ship-A",
+      "kind": "shipping",
+      "x": 23,
+      "y": 13,
+      "zones": [
+        "A"
+      ]
+    },
+    {
+      "id": "ship-B",
+      "kind": "shipping",
+      "x": 0,
+      "y": 0,
+      "zones": [
+        "B"
+      ]
+    },
+    {
+      "id": "ship-C",
+      "kind": "shipping",
+      "x": 12,
+      "y": 0,
+      "zones": [
+        "C"
+      ]
+    }
+  ]
+}

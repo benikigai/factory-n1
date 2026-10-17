@@ -1,0 +1,153 @@
+{
+  "note": "Public copy: third-party search excerpts removed; URLs, titles, queries, retrieval times and receipt ids kept.",
+  "data": [
+    {
+      "gap": "Failing checks: Floor clears within 25 minutes (got 1689); At most 1 mis-sort per run (got 20); No damaged packages (got 34). Biggest queue at pack-1. Packages are damaged in transit and mis-sorted.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-plan-1",
+          "text": "Moving sorter stations to a different position reduces bottlenecks at receiving docks.",
+          "testableAs": "change sorter position",
+          "sources": [
+            {
+              "url": "https://rackusa.com/feeds/blog/warehouse-layout-optimization",
+              "title": "Warehouse Layout Optimization: 12 Tips to Improve Efficiency",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:02:02.643Z",
+          "toolReceiptId": "call_349eb5ab6f884316bbb12a6c"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-2",
+          "text": "Grouping frequently bought together items in neighboring slots reduces travel distance and picking errors.",
+          "testableAs": "adjust slotting strategy",
+          "sources": [
+            {
+              "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+              "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:02:02.643Z",
+          "toolReceiptId": "call_349eb5ab6f884316bbb12a6c"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-3",
+          "text": "Increasing the number of pack stations from 2 to 6 reduces mispicks during order fulfillment.",
+          "testableAs": "increase pack station count",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse ...",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:02:02.643Z",
+          "toolReceiptId": "call_349eb5ab6f884316bbb12a6c"
+        }
+      ],
+      "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+      "sources": [
+        {
+          "url": "https://rackusa.com/feeds/blog/warehouse-layout-optimization",
+          "title": "Warehouse Layout Optimization: 12 Tips to Improve Efficiency",
+          "excerpts": []
+        },
+        {
+          "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+          "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+          "excerpts": []
+        },
+        {
+          "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+          "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse ...",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_349eb5ab6f884316bbb12a6c",
+      "citationRepairs": 0,
+      "dropped": []
+    },
+    {
+      "gap": "Stalled. Still failing: No damaged packages (got 26). Bottleneck pack-3.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-g3-1",
+          "text": "Increasing the number of pack stations from 2 to 6 will reduce average sorting cycle time by at least 25% due to reduced congestion and parallel processing capacity.",
+          "testableAs": "Increase the number of pack stations from 2 to 6",
+          "sources": [
+            {
+              "url": "https://www.sendfromchina.com/NewsCenter/guide-to-warehouse-sorting.html",
+              "title": "The Ultimate Guide to Warehouse Sorting for Modern Logistics ...",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce mis-sort and damage rates in high-volume package sorting",
+          "retrievedAt": "2026-10-17T19:02:32.388Z",
+          "toolReceiptId": "call_9b80f8e97bcc4345bd2f8c74"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g3-2",
+          "text": "Positioning pack stations in Zone A rather than Zone C will decrease average travel distance per sort by at least 15% because Zone A contains the highest volume of inbound SKUs.",
+          "testableAs": "Move pack stations to Zone A",
+          "sources": [
+            {
+              "url": "https://mugele.com/blog/everything-you-need-to-know-about-warehouse-sorting/",
+              "title": "What Is Warehouse Sorting? Methods, Benefits & Best Practices",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce mis-sort and damage rates in high-volume package sorting",
+          "retrievedAt": "2026-10-17T19:02:32.388Z",
+          "toolReceiptId": "call_9b80f8e97bcc4345bd2f8c74"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g3-3",
+          "text": "Configuring all pack stations to accept only Small and Medium package sizes will increase sort accuracy by 2 percentage points compared to accepting Large sizes, as smaller packages have fewer mis-route incidents.",
+          "testableAs": "Restrict pack station package sizes to S and M",
+          "sources": [
+            {
+              "url": "https://www.sendfromchina.com/NewsCenter/guide-to-warehouse-sorting.html",
+              "title": "The Ultimate Guide to Warehouse Sorting for Modern Logistics ...",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce mis-sort and damage rates in high-volume package sorting",
+          "retrievedAt": "2026-10-17T19:02:32.388Z",
+          "toolReceiptId": "call_9b80f8e97bcc4345bd2f8c74"
+        }
+      ],
+      "query": "warehouse layout practices to reduce mis-sort and damage rates in high-volume package sorting",
+      "sources": [
+        {
+          "url": "https://toyota-automated-logistics.com/technology/sortation-systems",
+          "title": "Sortation Systems for Warehouse Automation | Toyota Automated ...",
+          "excerpts": []
+        },
+        {
+          "url": "https://mugele.com/blog/everything-you-need-to-know-about-warehouse-sorting/",
+          "title": "What Is Warehouse Sorting? Methods, Benefits & Best Practices",
+          "excerpts": []
+        },
+        {
+          "url": "https://www.sendfromchina.com/NewsCenter/guide-to-warehouse-sorting.html",
+          "title": "The Ultimate Guide to Warehouse Sorting for Modern Logistics ...",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_9b80f8e97bcc4345bd2f8c74",
+      "citationRepairs": 0,
+      "dropped": []
+    }
+  ]
+}

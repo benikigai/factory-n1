@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import type { ReplayBundle } from "../src/replay.ts";
 import type { PackageTrace } from "../src/sim/types.ts";
 import { damagedAt, frameAt, legPosition, playbackEnd, stateAt } from "../web/world/state.ts";
 
-const bundle = JSON.parse(readFileSync("runs/sample/replay.json", "utf8")) as ReplayBundle;
+// Local regenerated fixture if present, else the committed public copy (fresh clones have no runs/).
+const fixture = existsSync("runs/sample/replay.json") ? "runs/sample/replay.json" : "recorded/sample/replay.json";
+const bundle = JSON.parse(readFileSync(fixture, "utf8")) as ReplayBundle;
 const layout = bundle.baseline.layout;
 const trace = bundle.baseline.result.trace;
 const pkg = (id: number) => trace.find((p) => p.id === id)!;
