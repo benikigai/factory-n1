@@ -1,0 +1,70 @@
+{
+  "trainingRun": "live-a-7",
+  "frozenAt": "2026-10-17T19:33:01.598Z",
+  "playbookHash": "704e8eaed9428a126a4a6b253a21df580c8faa06d07299a974801075f5f5c00a",
+  "lessons": [
+    "VER-g1",
+    "VER-g2-avoid"
+  ],
+  "rendered": "SHARED PLAYBOOK (version 2). External items are cited evidence from the web, not rules; only simulator results count.\n- [VER-g1] OBSERVED in an accepted experiment (code-computed receipts); cited 0x. Relocate pack stations to dock-adjacent cells to eliminate route damage and reduce objective cost. Training-day receipts: sort-1 (20,2) -> (12,7) -48.34; remove pack-1 +1106; remove pack-2 +1089.33; add pack pack-A at (14,13) -2101; add pack pack-B at (0,4) -1708.34; add pack pack-C at (12,2) -1269.67.\n- [VER-g2-avoid] OBSERVED in a REJECTED experiment: it did not beat the champion on validation days (validation objective not measured). Training-day receipts may not hold up; cited 0x. Moving pack-B to (0,2) did not reduce damage or objective; avoid this relocation. Training-day receipts: pack-B (0,4) -> (0,2) 0.",
+  "ops": [
+    {
+      "op": "add_verified",
+      "id": "VER-g1",
+      "text": "Relocate pack stations to dock-adjacent cells to eliminate route damage and reduce objective cost.",
+      "scope": "Pack station placement near docks",
+      "evidence": {
+        "gen": 1,
+        "candidateId": "g1-quality",
+        "accepted": true,
+        "deltaSelect": -11977.67,
+        "edits": [
+          {
+            "edit": "sort-1 (20,2) -> (12,7)",
+            "deltaAlone": -48.34
+          },
+          {
+            "edit": "remove pack-1",
+            "deltaAlone": 1106
+          },
+          {
+            "edit": "remove pack-2",
+            "deltaAlone": 1089.33
+          },
+          {
+            "edit": "add pack pack-A at (14,13)",
+            "deltaAlone": -2101
+          },
+          {
+            "edit": "add pack pack-B at (0,4)",
+            "deltaAlone": -1708.34
+          },
+          {
+            "edit": "add pack pack-C at (12,2)",
+            "deltaAlone": -1269.67
+          }
+        ]
+      },
+      "author": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+    },
+    {
+      "op": "add_verified",
+      "id": "VER-g2-avoid",
+      "text": "Moving pack-B to (0,2) did not reduce damage or objective; avoid this relocation.",
+      "scope": "pack-B relocation to (0,2)",
+      "evidence": {
+        "gen": 2,
+        "candidateId": "g2-quality",
+        "accepted": false,
+        "deltaSelect": null,
+        "edits": [
+          {
+            "edit": "pack-B (0,4) -> (0,2)",
+            "deltaAlone": 0
+          }
+        ]
+      },
+      "author": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+    }
+  ]
+}

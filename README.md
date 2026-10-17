@@ -31,9 +31,11 @@ Objective is lower-is-better: makespan seconds + 300 per mis-sort + 600 per dama
 - The remaining damage comes from one long sorter→pack route.
 - The grader was frozen throughout (`493a1b03…`), and the run cost 61 model calls, $0.0288 inference plus 2 searches.
 
-**Memory vs no-memory: no valid result.**
-- The paired evaluation on two fresh factories (`memeval-2026-10-17T19-33-01-589Z`) failed for infrastructure reasons. A transient connection error retained a worst-case spend reservation that starved later arms of calls. It is labeled INVALID and is not evidence.
-- Rerunning was not possible within the $0.50 authorization once uncertain reservations are counted conservatively. See the [status and reconciliation](docs/evidence/budget-and-memory-eval-status.md).
+**Memory vs no-memory: valid, and negative.**
+- On two fresh factories, under equal hard caps (26 call attempts and 60 simulator evaluations per arm, all held), shared learned memory **lost all 4 pairs**. The median final-split objective was **+2,357** (worse), n = 4 ([details](docs/evidence/memory-eval-valid.md)).
+- Memory arms made more invalid proposals: 7 of 24 vs 2 of 24.
+- The likely cause is lessons tied to one factory, which transferred badly.
+- An earlier attempt failed for infrastructure reasons and is kept labeled INVALID.
 
 ## How it works
 
@@ -78,7 +80,7 @@ one-line goal
   - identical hard per-arm caps, enforced at model-call dispatch and simulator evaluation;
   - a locked final split.
 
-  Its one run was invalid (see above).
+  The valid run showed **no benefit, in fact a loss** (see above). The earlier attempt was invalid.
 
 ## Why Nemotron is load-bearing here
 - **Nemotron 3.5 Super VL** writes every layout through typed tool calls. In `live-a-5`, 8 of 8 proposals arrived as valid tool calls; 6 needed one repair after the task validator returned rule violations.
@@ -93,7 +95,7 @@ one-line goal
 - A queueing simulation with synthetic rules (for example, fragile packages are damaged on conveyor legs over 12 cells). Not calibrated to a real facility.
 - The goal checks still fail: damage remains. No completed-task claim.
 - n is small: seven live runs on factory A ranged from −33% to −66% on validation. Runs 1–4 predate the memory-label fixes, and their lessons show as legacy labels.
-- **Spend:** returned usage is $0.156 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.669 committed against the $0.50 authorization ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
+- **Spend:** returned usage is $0.156 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.744 committed against the $1.00 authorization (raised from $0.50) ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
 - In `live-a-5`, none of the six web hypotheses improved the floor in an isolated test. Three couldn't be tested because of malformed JSON, which is now retried once.
 - The 20-seed final split was never unlocked. No fine-tuning was run; experiment records are saved for later.
 

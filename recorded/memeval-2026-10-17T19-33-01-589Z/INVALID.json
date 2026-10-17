@@ -1,0 +1,4 @@
+{
+  "status": "INVALID: infrastructure-failed",
+  "reason": "Pair factory-f r1: NOMEM made 18 successful calls; MEM made 6 before a transient connection error retained a $0.1062576 reservation under the billing-unknown policy, pushing committed spend to the $0.21 process cap. All later calls were refused: the remaining 6 arms made 0 model calls and scored their Gen-0 layouts. The 1 loss and 3 ties are infrastructure artifacts, not memory evidence. Independently confirmed by Codex (runs/verification/codex-2026-10-17/memeval-19-33-01-validity.json)."
+}

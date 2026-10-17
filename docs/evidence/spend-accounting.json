@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-17 ~13:00 PT",
-  "authorizationUsd": 0.5,
-  "policy": "Uncertain reservations are counted at their recorded bound and are NOT released without per-request billing evidence.",
+  "asOf": "2026-10-17 ~13:30 PT",
+  "authorizationUsd": 1.0,
+  "policy": "Ben raised the total ceiling to $1.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
   "items": [
     {
       "item": "live-a-1",
@@ -106,17 +106,25 @@
       "youSearches": 2,
       "actualBasis": "docs/evidence/you-com-ab-check.md",
       "unknownChargeReason": null
+    },
+    {
+      "item": "memeval-2026-10-17T19-41-04-350Z (valid rerun, 4 pairs)",
+      "returnedUsageUsd": 0.072058,
+      "unknownChargeReservationUsd": 0.002578,
+      "youSearches": 0,
+      "actualBasis": "results.json totalSpend.usd",
+      "unknownChargeReason": "retained byte-bounded reservation(s) from a failed/uncertain request"
     }
   ],
   "totals": {
-    "returnedUsageInferenceUsd": 0.1557,
-    "unknownChargeReservationsUsd": 0.4232,
+    "returnedUsageInferenceUsd": 0.2278,
+    "unknownChargeReservationsUsd": 0.4258,
     "youSearches": 18,
     "youSearchBaseUsd": 0.09,
     "unconfirmed": "highlight-extraction surcharge on 5 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2); You.com docs say extraction may add cost",
-    "conservativeCommittedUsd": 0.6689,
-    "overAuthorizationUsd": 0.1689,
-    "returnedUsagePlusSearchBaseUsd": 0.2457
+    "conservativeCommittedUsd": 0.7436,
+    "returnedUsagePlusSearchBaseUsd": 0.3178,
+    "remainingUnderAuthorizationUsd": 0.2564
   },
-  "status": "Over the $0.50 authorization on the conservative basis. No further paid calls (Ben declined a cap increase)."
+  "status": "Within the $1.00 authorization on the conservative basis."
 }

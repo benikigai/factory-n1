@@ -1,0 +1,562 @@
+{
+  "evalId": "memeval-2026-10-17T19-33-01-589Z",
+  "trainingRun": "live-a-7",
+  "playbookHash": "704e8eaed9428a126a4a6b253a21df580c8faa06d07299a974801075f5f5c00a",
+  "armCaps": {
+    "maxCalls": 26,
+    "maxSimEvals": 60
+  },
+  "simVersion": "1.1.0",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "finalSeeds": [
+    9001,
+    9002,
+    9003,
+    9004,
+    9005,
+    9006,
+    9007,
+    9008,
+    9009,
+    9010,
+    9011,
+    9012,
+    9013,
+    9014,
+    9015,
+    9016,
+    9017,
+    9018,
+    9019,
+    9020
+  ],
+  "factories": [
+    "factory-f",
+    "factory-g"
+  ],
+  "repeats": 2,
+  "gens": 3,
+  "probes": 1,
+  "factoryHashes": {
+    "factory-f": "446462dfa0a7846a",
+    "factory-g": "65dfad1d1eeeb7ed"
+  },
+  "armSettings": {
+    "lenses": "flow 0.3 / quality 0.5 / capacity 0.8 (Super VL)",
+    "research": false,
+    "isolatedTests": false,
+    "reflector": false,
+    "gate": ">=1% validation, no DoD regression",
+    "stop": "3 stalls or gens"
+  },
+  "models": {
+    "designers": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+  },
+  "n": 4,
+  "wins": 0,
+  "ties": 3,
+  "losses": 1,
+  "medianDiffObjective": 0,
+  "minDiff": 0,
+  "maxDiff": 4543,
+  "dodPass": {
+    "MEM": 0,
+    "NOMEM": 0
+  },
+  "zeroDamage": {
+    "MEM": 0,
+    "NOMEM": 0
+  },
+  "pairs": [
+    {
+      "factory": "factory-f",
+      "rep": 1,
+      "order": [
+        "NOMEM",
+        "MEM"
+      ],
+      "MEM": {
+        "arm": "MEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-f-r1-MEM",
+        "final": {
+          "objective": 14103.5,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 13748.17,
+        "select": 13059.44,
+        "calls": 6,
+        "usd": 0.0029866400000000005,
+        "simEvals": 5,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 2,
+              "scenarioSims": 12
+            },
+            "gate": {
+              "evaluations": 1,
+              "scenarioSims": 9
+            },
+            "probe": {
+              "evaluations": 2,
+              "scenarioSims": 12
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 5,
+              "scenarioSims": 30
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 12,
+          "scenarioSims": 86,
+          "chargedToCap": 10
+        },
+        "wallMs": 40193,
+        "accepted": 1,
+        "stopReason": "reached 3 generations"
+      },
+      "NOMEM": {
+        "arm": "NOMEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-f-r1-NOMEM",
+        "final": {
+          "objective": 9560.5,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 191,
+          "scenarios": 20
+        },
+        "train": 8651.5,
+        "select": 9340.22,
+        "calls": 18,
+        "usd": 0.00950534,
+        "simEvals": 11,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 5,
+              "scenarioSims": 30
+            },
+            "gate": {
+              "evaluations": 1,
+              "scenarioSims": 9
+            },
+            "probe": {
+              "evaluations": 5,
+              "scenarioSims": 30
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 6,
+              "scenarioSims": 36
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 6
+            }
+          },
+          "evaluations": 19,
+          "scenarioSims": 126,
+          "chargedToCap": 17
+        },
+        "wallMs": 36803,
+        "accepted": 1,
+        "stopReason": "call budget: 18 used, next generation could need 12 (max 26)"
+      },
+      "diffObjective": 4543,
+      "outcome": "loss"
+    },
+    {
+      "factory": "factory-f",
+      "rep": 2,
+      "order": [
+        "MEM",
+        "NOMEM"
+      ],
+      "MEM": {
+        "arm": "MEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-f-r2-MEM",
+        "final": {
+          "objective": 20841,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18580.33,
+        "select": 17983.22,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 85,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "NOMEM": {
+        "arm": "NOMEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-f-r2-NOMEM",
+        "final": {
+          "objective": 20841,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18580.33,
+        "select": 17983.22,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 80,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "diffObjective": 0,
+      "outcome": "tie"
+    },
+    {
+      "factory": "factory-g",
+      "rep": 1,
+      "order": [
+        "NOMEM",
+        "MEM"
+      ],
+      "MEM": {
+        "arm": "MEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-g-r1-MEM",
+        "final": {
+          "objective": 20860.45,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18609.83,
+        "select": 17997.56,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 83,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "NOMEM": {
+        "arm": "NOMEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-g-r1-NOMEM",
+        "final": {
+          "objective": 20860.45,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18609.83,
+        "select": 17997.56,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 79,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "diffObjective": 0,
+      "outcome": "tie"
+    },
+    {
+      "factory": "factory-g",
+      "rep": 2,
+      "order": [
+        "MEM",
+        "NOMEM"
+      ],
+      "MEM": {
+        "arm": "MEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-g-r2-MEM",
+        "final": {
+          "objective": 20860.45,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18609.83,
+        "select": 17997.56,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 69,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "NOMEM": {
+        "arm": "NOMEM",
+        "runId": "memeval-2026-10-17T19-33-01-589Z-factory-g-r2-NOMEM",
+        "final": {
+          "objective": 20860.45,
+          "dodPassed": false,
+          "allShipped": true,
+          "zeroDamage": false,
+          "damagedTotal": 361,
+          "scenarios": 20
+        },
+        "train": 18609.83,
+        "select": 17997.56,
+        "calls": 0,
+        "usd": 0,
+        "simEvals": 0,
+        "simCalls": {
+          "byPurpose": {
+            "baseline": {
+              "evaluations": 2,
+              "scenarioSims": 15
+            },
+            "candidate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "gate": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "probe": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "hypothesis-test": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "attribution": {
+              "evaluations": 0,
+              "scenarioSims": 0
+            },
+            "replay": {
+              "evaluations": 0,
+              "scenarioSims": 8
+            }
+          },
+          "evaluations": 2,
+          "scenarioSims": 23,
+          "chargedToCap": 0
+        },
+        "wallMs": 60,
+        "accepted": 0,
+        "stopReason": "3 generations without an accepted change"
+      },
+      "diffObjective": 0,
+      "outcome": "tie"
+    }
+  ],
+  "totalSpend": {
+    "calls": 25,
+    "usd": 0.012491979999999998,
+    "promptTokens": 84999,
+    "cachedTokens": 23936,
+    "reservedUsd": 0.10625760000000001
+  },
+  "note": "Objective diff = MEM - NOMEM on the final split (negative favors memory). Win/loss require >=1% difference; otherwise tie.",
+  "status": "INVALID: infrastructure-failed",
+  "invalidReason": "Pair factory-f r1: NOMEM made 18 successful calls; MEM made 6 before a transient connection error retained a $0.1062576 reservation under the billing-unknown policy, pushing committed spend to the $0.21 process cap. All later calls were refused: the remaining 6 arms made 0 model calls and scored their Gen-0 layouts. The 1 loss and 3 ties are infrastructure artifacts, not memory evidence. Independently confirmed by Codex (runs/verification/codex-2026-10-17/memeval-19-33-01-validity.json)."
+}
