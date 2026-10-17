@@ -4,15 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factory N+1</title>
-    <meta name="description" content="NVIDIA Nemotron agents on Crusoe redesigned a warehouse floor 82% better for 4 cents. Nothing shipped unless a frozen simulator proved it." />
+    <meta name="description" content="NVIDIA Nemotron agents on Crusoe shipped a warehouse floor 82% better for 4 cents. Nothing ships unless a frozen simulator proves it." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./landing.css" />
   </head>
   <body>
     <nav class="nav wrap">
-      <a class="wordmark" href="#top">Factory <span>N+1</span></a>
+      <a class="wordmark" href="#top">Factory N+1</a>
       <div class="nav-links">
         <a href="#revisions">Revisions</a>
         <a href="#inspection">Proof</a>
@@ -23,68 +23,76 @@
       </div>
     </nav>
 
-    <header class="hero" id="top">
-      <div class="wrap">
-        <p class="kicker">Recursive Agents Hackathon · Crusoe × Cerebral Valley</p>
-        <h1>Agents redesigned this warehouse <em id="h-pct">82%</em> better for <span id="h-cost">4¢</span>.</h1>
-        <p class="sub">Nothing ships unless a frozen simulator proves it.</p>
-      </div>
+    <main class="wrap">
+      <!-- The hero is a drawing sheet on the table. Its title block is the release label every revision gets before it ships. -->
+      <article class="sheet hero" id="top">
+        <header class="sheet-head">
+          <span class="tiny">Factory N+1 · Fulfillment floor A · 24 × 14 cells</span>
+          <h1>Agents shipped this floor <mark id="h-pct">82%</mark> better for <span id="h-cost">4¢</span>.</h1>
+          <p class="sub">Nothing ships unless a frozen simulator proves it.</p>
+        </header>
 
-      <div class="stage-wrap wrap">
-        <div class="stage-labels"><span><b>Rev 0</b> Original floor <i id="cnt-0"></i></span><span><b>Rev 11</b> Agents' floor <i id="cnt-1"></i></span></div>
-        <div class="stage">
-          <div class="stage-scene" id="hero-scene" aria-label="3D replay: original floor and the agents' revision, same 100 packages, same clock"></div>
+        <div class="drawing">
+          <div class="stage-labels"><span><b>Rev 0</b> original floor <i id="cnt-0"></i></span><span><b>Rev 11</b> agents' floor <i id="cnt-1"></i></span></div>
+          <div class="stage"><div class="stage-scene" id="hero-scene" aria-label="3D replay: the original floor and the agents' revision, same 100 packages, same clock"></div></div>
+          <div class="clock" id="hero-clock"></div>
         </div>
-        <div class="clock" id="hero-clock"></div>
-      </div>
 
-      <div class="under wrap">
-        <div class="inspect">
-          <p class="label">Live inspection · the goal, checked as code on the replay clock</p>
-          <table id="dod"></table>
-          <p class="fine">Same 100 packages on the peak day, replayed from the exact traces the simulator scored.</p>
+        <div class="sheet-foot">
+          <div class="inspect">
+            <span class="tiny">Inspection · the goal, checked as code on the replay clock</span>
+            <table id="dod"></table>
+          </div>
+          <div class="label titleblock" id="titleblock">
+            <div class="tb-row tb-top"><div class="tb-rev"><span class="tiny">Rev</span><b>11</b></div><div class="tb-main"><span class="tiny">Release label</span><b id="tb-result"></b></div></div>
+            <div class="tb-row"><span class="tiny">Drawn by</span><span id="tb-drawn"></span></div>
+            <div class="tb-row"><span class="tiny">Checked by</span><span id="tb-checked"></span></div>
+            <div class="tb-row tb-code"><div class="barcode" id="barcode" aria-hidden="true"></div><span class="bc-text" id="bc-text"></span></div>
+            <div class="tb-row tb-verdict" id="tb-verdict"></div>
+          </div>
         </div>
-        <table class="titleblock" id="titleblock"></table>
-      </div>
-    </header>
+      </article>
+      <p class="scope">Demonstrated on a fulfillment floor. The loop is built for anything a simulator can score.</p>
+      <div id="run-live-slot"></div>
 
-    <section id="revisions" class="wrap">
-      <div class="sec-head"><span>01</span><h2>Revision history</h2></div>
-      <p class="sec-sub">Each revision is a change the agents proposed and the simulator accepted. Lower objective is better.</p>
-      <table class="rows" id="revtable"></table>
-      <p class="fine" id="rev-note"></p>
-    </section>
+      <section id="revisions">
+        <h2>Revision history</h2>
+        <p class="sec-sub">Each revision is a change the agents proposed and the simulator accepted. Lower objective is better.</p>
+        <div class="tags" id="revtags"></div>
+        <p class="fine" id="rev-note"></p>
+      </section>
 
-    <section id="inspection" class="wrap">
-      <div class="sec-head"><span>02</span><h2>Why it can be trusted</h2></div>
-      <div class="proofs" id="stamps"></div>
-      <p class="fine"><a href="./replay.html?run=live-a-11&amp;view=visual">Open the Nemotron visual inspector</a> to review the verified image input, findings and deterministic tool receipts.</p>
-    </section>
+      <section id="inspection">
+        <h2>Why it can be trusted</h2>
+        <div class="proofs" id="stamps"></div>
+        <p class="fine"><a href="./replay.html?run=live-a-11&amp;view=visual">Open the Nemotron visual inspector</a> to review the verified image input, findings and deterministic tool receipts.</p>
+      </section>
 
-    <section id="process" class="wrap">
-      <div class="sec-head"><span>03</span><h2>The loop</h2></div>
-      <p class="sec-sub">The model proposes. Code decides.</p>
-      <ol class="flow">
-        <li><b>Goal</b>4 executable checks</li>
-        <li><b>Research</b>You.com, cited</li>
-        <li><b>Design</b>Nemotron, typed tools</li>
-        <li><b>Simulate</b>Frozen grader</li>
-        <li><b>Gate</b>≥1% on held-out days</li>
-        <li><b>Remember</b>Evidence-labeled memory</li>
-      </ol>
-    </section>
+      <section id="process">
+        <h2>Route</h2>
+        <p class="sec-sub">Every change takes the same route. The model proposes; code decides.</p>
+        <ol class="route sheet">
+          <li><b>Goal</b><span>4 executable checks</span></li>
+          <li><b>Research</b><span>You.com, cited</span></li>
+          <li><b>Design</b><span>Nemotron, typed tools</span></li>
+          <li><b>Simulate</b><span>Frozen grader</span></li>
+          <li><b>Gate</b><span>≥1% on held-out days</span></li>
+          <li><b>Remember</b><span>Evidence-labeled memory</span></li>
+        </ol>
+      </section>
 
-    <section id="bom" class="wrap">
-      <div class="sec-head"><span>04</span><h2>Bill of materials</h2></div>
-      <p class="sec-sub">What each part of the stack did, measured.</p>
-      <table class="rows" id="bomtable"></table>
-    </section>
+      <section id="bom">
+        <h2>Packing slip</h2>
+        <p class="sec-sub">What each part of the stack did, measured.</p>
+        <div class="label slip"><table id="bomtable"></table></div>
+      </section>
 
-    <section id="evidence" class="wrap">
-      <div class="sec-head"><span>05</span><h2>Evidence</h2></div>
-      <p class="sec-sub">Every number on this page is read from these recorded files.</p>
-      <div class="evlist" id="evlist"></div>
-    </section>
+      <section id="evidence">
+        <h2>Manifest</h2>
+        <p class="sec-sub">Every number on this page is read from these recorded files.</p>
+        <div class="label manifest" id="evlist"></div>
+      </section>
+    </main>
 
     <footer class="foot wrap" id="foot-note"></footer>
     <script type="module" src="./landing.ts"></script>
