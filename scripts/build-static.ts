@@ -1,9 +1,13 @@
 // Static site for hosting: the built viewer plus the committed recorded runs it replays.
 // No server code, no functions, no environment variables, no keys.
 import { execFileSync } from "node:child_process";
+import { findForbidden } from "./static-guard.ts";
 import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 
 execFileSync("npx", ["vite", "build", "--config", "web/vite.config.ts"], { stdio: "inherit" });
+// Replay-only guarantee: the dev-server "Run live" code must never reach the hosted site.
+const leaks = findForbidden("web/dist");
+if (leaks.length) throw new Error(`static build contains live-run code:\n${leaks.join("\n")}`);
 const dirs = existsSync("recorded") ? readdirSync("recorded").filter((d) => !d.startsWith(".")) : [];
 // Copy every recorded folder (replay bundles and the memory-evaluation results the landing page reads);
 // only folders with a replay bundle are listed as replayable runs.

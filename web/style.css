@@ -159,3 +159,13 @@ dialog{color:var(--text);background:var(--panel);border:1px solid #465669;border
 @media(max-width:900px){#rail{flex:none;overflow:visible}}
 
 .brand{text-decoration:none;color:var(--text)}.artifact-links{display:flex;flex-wrap:wrap;gap:7px 12px;padding:12px 0;border-top:1px solid var(--line);font-size:11px}.small{line-height:1.5}#rail{--muted:#a8b3bf}#hud{--muted:#a8b3bf}.run-actions a{text-decoration:none}.st-label{max-width:270px;overflow:hidden;text-overflow:ellipsis}.run-controls a{font-size:11px}
+
+/* Run live (dev server only; the control is compiled out of static builds) */
+.run-live { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 18px; font: 12px var(--mono, ui-monospace, monospace); }
+.run-live .rl-title { font-weight: 600; }
+.run-live .rl-presets { display: inline-flex; gap: 8px; }
+.run-live button { font: inherit; cursor: pointer; padding: 5px 10px; border: 1px solid currentColor; background: transparent; color: inherit; }
+.run-live button:disabled { opacity: 0.4; cursor: default; }
+.run-live .rl-state { opacity: 0.8; }
+.run-live .rl-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #f2541b; margin-right: 6px; animation: rl 1.2s infinite; }
+@keyframes rl { 50% { opacity: 0.25; } }

@@ -113,7 +113,14 @@ test('the deployable viewer imports stay within this checkout and require no bac
   const { resolve, dirname, sep } = await import('node:path');
   const root = resolve('.');
   const walk = (dir: string): string[] => readdirSync(dir, {withFileTypes: true}).flatMap(entry => entry.isDirectory() && entry.name !== 'dist' ? walk(`${dir}/${entry.name}`) : entry.isFile() && entry.name.endsWith('.ts') ? [`${dir}/${entry.name}`] : []);
-  for (const file of walk('web').filter(file => !file.endsWith('vite.config.ts'))) {
+  // Dev-server-only modules: vite.config.ts and live-runner.ts run in Node; run-live.ts is loaded only behind
+  // import.meta.env.DEV. scripts/static-guard.ts checks the built output itself for any of this code.
+  const devOnly = ['vite.config.ts', 'live-runner.ts', 'run-live.ts'];
+  for (const file of walk('web')) {
+    const source = readFileSync(file, 'utf8');
+    for (const line of source.split('\n').filter(l => /import\(['"]\.\/run-live/.test(l))) assert.match(line, /import\.meta\.env\.DEV/, `${file} loads run-live outside a DEV guard`);
+  }
+  for (const file of walk('web').filter(file => !devOnly.some(name => file.endsWith(name)))) {
     const source = readFileSync(file, 'utf8');
     assert.doesNotMatch(source, /['"`]\/api\//, `${file} requires a backend API`);
     assert.doesNotMatch(source, /fetch\s*\(\s*['"`]https?:/, `${file} fetches an external origin`);

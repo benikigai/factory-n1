@@ -66,7 +66,7 @@ function renderInspection(){
 function renderData(){
   if(!snapshot)return;
   $('mode-badge').textContent=modeText[snapshot.mode];$('mode-badge').className=`mode mode-${snapshot.mode==='fixture'?'synthetic':snapshot.mode==='live'?'live':'recorded'}`;
-  $('run-status').textContent=snapshot.generations?`Complete · ${snapshot.generations} recorded generations`:'Recorded comparison';
+  $('run-status').textContent=snapshot.state==='running'?`Live · ${snapshot.generations} generation${snapshot.generations===1?'':'s'} scored so far · refreshing every 2 s`:snapshot.generations?`Complete · ${snapshot.generations} recorded generations`:'Recorded comparison';
   const option=Array.from(($('run-select') as HTMLSelectElement).options).find(o=>o.value===snapshot!.id);if(option)option.textContent=`${snapshot.id} · ${modeText[snapshot.mode].toLowerCase()}`;
   $('empty-scene').hidden=!!snapshot.replay||view==='agents';
   ($('download') as HTMLButtonElement).disabled=!snapshot.replay;
@@ -89,18 +89,35 @@ function apply(data:RunSnapshot){
   playback.end=data.replay?Math.max(1,playbackEnd(data.replay.baseline.result.trace,data.replay.improved.result.trace)):1;playback.t=Math.min(playback.t,playback.end);controls.setEnd(playback.end);
   renderNavigation();renderData();renderInspection();
 }
+/** Fetch one run. Live runs grow while we watch, so every file is optional and fetched fresh. */
+async function fetchRun(id:string){
+  const base=`./runs/${encodeURIComponent(id)}`;
+  const available=artifacts[id]??['replay.json'];
+  const live=/^live-demo-\d+$/.test(id);
+  const has=(name:string)=>live||available.includes(name);
+  const optional=async<T>(url:string)=>{const r=await fetch(url,{cache:'no-store'});return r.ok?(await r.json()) as T:null;};
+  const [replay,events,experiments,summary]=await Promise.all([
+    json<ReplayBundle>(`${base}/replay.json`),has('events.jsonl')?lines<BackendEvent>(`${base}/events.jsonl`):[],has('experiments.jsonl')?lines<Experiment>(`${base}/experiments.jsonl`):[],
+    has('summary.json')?optional<{runId:string;stopReason?:string;usage?:{calls:number;usd:number;reservedUsd?:number}}>(`${base}/summary.json`):null
+  ]);
+  return buildSnapshot(id,replay,events,experiments,summary);
+}
+let pollTimer:ReturnType<typeof setTimeout>|undefined;
+/** While the loaded run is live, re-fetch it every 2 s. apply() keeps the camera, view and selection. */
+function poll(id:string){
+  clearTimeout(pollTimer);
+  if(snapshot?.id!==id||snapshot.state!=='running')return;
+  pollTimer=setTimeout(async()=>{const v=version;try{const data=await fetchRun(id);if(v===version)apply(data);}catch{/* keep the last good frame */}poll(id);},2000);
+}
 async function choose(id:string){
-  const v=++version;message(null);
+  const v=++version;message(null);clearTimeout(pollTimer);
   try{
     const base=`./runs/${encodeURIComponent(id)}`;
     const available=artifacts[id]??['replay.json'];
-    const has=(name:string)=>available.includes(name);
-    const [replay,events,experiments,summary]=await Promise.all([
-      json<ReplayBundle>(`${base}/replay.json`),has('events.jsonl')?lines<BackendEvent>(`${base}/events.jsonl`):[],has('experiments.jsonl')?lines<Experiment>(`${base}/experiments.jsonl`):[],
-      has('summary.json')?json<{runId:string;stopReason?:string;usage?:{calls:number;usd:number;reservedUsd?:number}}>(`${base}/summary.json`):null
-    ]);
+    const data=await fetchRun(id);
     if(v!==version)return;
-    apply(buildSnapshot(id,replay,events,experiments,summary));
+    apply(data);
+    poll(id);
     const url=new URL(location.href);url.searchParams.set('run',id);history.replaceState(null,'',url);
     ($('run-select') as HTMLSelectElement).value=id;
     const params=new URLSearchParams(location.search);const requested=params.get('view');const nodeId=params.get('node');if(requested==='agents')setView('agents');
@@ -121,4 +138,15 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&view==='agents'&&!doc
 let last=performance.now(),lastUi=0;
 function tick(now:number){const dt=Math.min(.1,(now-last)/1000);last=now;if(playback.playing&&snapshot?.replay)playback.t=Math.min(playback.end,playback.t+dt*playback.speed);const frames=world.render(playback.t,now/1000);if(now-lastUi>100){lastUi=now;controls.sync(playback);if(frames){const [a,b]=frames;world.setCounters(`shipped ${a.shipped}/${a.views.length} · queue ${a.queued} · damaged ${a.damaged}`,`shipped ${b.shipped}/${b.views.length} · queue ${b.queued} · damaged ${b.damaged}`);counters?.update(a,b);}}requestAnimationFrame(tick);}
 requestAnimationFrame(tick);
-void(async()=>{try{await loadList();const requested=new URLSearchParams(location.search).get('run');const id=requested&&entries.some(r=>r.id===requested)?requested:'live-a-11';await choose(id);}catch(e){message((e as Error).message);}})();
+void(async()=>{try{
+  await loadList();const requested=new URLSearchParams(location.search).get('run');
+  // A live run that was just started has no replay yet: wait for its first write instead of falling back.
+  if(requested&&/^live-demo-\d+$/.test(requested)&&!entries.some(r=>r.id===requested)){
+    message(`Starting ${requested} on Crusoe… waiting for the first replay`);
+    for(let i=0;i<90&&!entries.some(r=>r.id===requested);i++){await new Promise(r=>setTimeout(r,2000));await loadList();}
+    message(null);
+  }
+  const id=requested&&entries.some(r=>r.id===requested)?requested:'live-a-11';await choose(id);
+}catch(e){message((e as Error).message);}})();
+// Localhost-only live control; compiled out of production builds.
+if(import.meta.env.DEV)void import('./run-live').then(m=>m.mountRunLive(document.querySelector('.run-controls')!));

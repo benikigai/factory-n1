@@ -154,3 +154,13 @@ table.rows { width: 100%; border-collapse: collapse; font-size: 15px; }
 #bomtable td.m { white-space: normal; font-size: 14px; }
 #bomtable td:first-child { width: 220px; }
 @media (max-width: 640px) { #bomtable td:first-child { width: auto; } }
+
+/* Run live (dev server only; the control is compiled out of static builds) */
+.run-live { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 18px; font: 12px var(--mono, ui-monospace, monospace); }
+.run-live .rl-title { font-weight: 600; }
+.run-live .rl-presets { display: inline-flex; gap: 8px; }
+.run-live button { font: inherit; cursor: pointer; padding: 5px 10px; border: 1px solid currentColor; background: transparent; color: inherit; }
+.run-live button:disabled { opacity: 0.4; cursor: default; }
+.run-live .rl-state { opacity: 0.8; }
+.run-live .rl-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #f2541b; margin-right: 6px; animation: rl 1.2s infinite; }
+@keyframes rl { 50% { opacity: 0.25; } }

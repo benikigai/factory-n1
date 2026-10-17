@@ -214,3 +214,6 @@ $("foot-note").textContent =
   "Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.";
 
 if (location.hash) void document.fonts.ready.then(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" }));
+
+// Localhost-only live control; compiled out of production builds.
+if (import.meta.env.DEV) void import("./run-live.ts").then((m) => m.mountRunLive(document.querySelector(".hero .wrap")!));

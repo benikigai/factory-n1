@@ -9,8 +9,9 @@ function node(id:string,name:string,role:string,color:string,output:string,statu
 }
 
 export function buildSnapshot(id:string,replay:ReplayBundle|null,events:BackendEvent[],experiments:Experiment[],summary:Summary|null):RunSnapshot {
-  const mode:RunMode=replay?.mode==='synthetic'?'fixture':'recorded';
-  const state:RunSnapshot['state']='complete';
+  const live=replay?.mode==='live';
+  const mode:RunMode=live?'live':replay?.mode==='synthetic'?'fixture':'recorded';
+  const state:RunSnapshot['state']=live?'running':'complete';
   const status:Status='done';
   const start=events.find(e=>e.type==='run_started');const models=(start?.models??{}) as Record<string,string>;
   const modelRun=mode!=='fixture';
@@ -46,6 +47,6 @@ export function buildSnapshot(id:string,replay:ReplayBundle|null,events:BackendE
     return {time:Math.max(0,(e.ts-firstTs)/1000),agent,nodeId,message,kind};
   }).reverse();
   const generations=events.filter(e=>e.type==='generation').length;
-  const revision=`${id}:${events.length}:${experiments.length}`;
+  const revision=`${id}:${events.length}:${experiments.length}:${replay?.mode}:${replay?.usage?.calls??0}`;
   return {id,mode,state,revision,replay,tree:root,events:normalized,generations,stopReason:summary?.stopReason??'',checks,activePhase:'Recorded run complete',error:null,reservedUsd:summary?.usage?.reservedUsd??null};
 }

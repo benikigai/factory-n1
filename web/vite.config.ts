@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { defineConfig, type Plugin } from "vite";
+import { liveRunner } from "./live-runner.ts";
 
 const webDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(webDir, "..");
@@ -30,9 +31,17 @@ function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unkno
   if (!pathname.startsWith("/runs/")) return next();
   if (pathname === "/runs/index.json") {
     const recorded = path.join(repoRoot, "recorded");
-    const runs = readdirSync(recorded).filter(id => existsSync(path.join(recorded, id, "replay.json")));
+    const local = path.join(repoRoot, "runs");
+    // Live demo runs (dev only, local runs/) first, newest first; then the committed public recordings.
+    const live = existsSync(local)
+      ? readdirSync(local).filter(id => /^live-demo-\d+$/.test(id) && existsSync(path.join(local, id, "replay.json"))).sort((a, b) => Number(b.split("-")[2]) - Number(a.split("-")[2]))
+      : [];
+    const rec = readdirSync(recorded).filter(id => existsSync(path.join(recorded, id, "replay.json")));
+    const dirOf = (id: string) => (live.includes(id) ? path.join(local, id) : path.join(recorded, id));
+    const runs = [...live, ...rec];
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ runs, default: "live-a-11", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(path.join(recorded, id)).filter(name => /\.(json|jsonl)$/.test(name))])) }));
+    res.setHeader("Cache-Control", "no-store");
+    res.end(JSON.stringify({ runs, default: "live-a-11", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(dirOf(id)).filter(name => /\.(json|jsonl)$/.test(name))])) }));
     return;
   }
   if (req.method !== "GET" && req.method !== "HEAD") return fail(res, 405, "read-only");
@@ -97,6 +106,8 @@ function runsPlugin(): Plugin {
   return {
     name: "factory-n1-runs",
     configureServer(server) {
+      // Dev server only: localhost "Run live" endpoints. Not registered for preview, absent from the static build.
+      server.middlewares.use(liveRunner(repoRoot));
       server.middlewares.use(serveRuns);
       server.middlewares.use(serveEvidence);
     },
