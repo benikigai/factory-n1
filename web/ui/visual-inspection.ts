@@ -44,7 +44,7 @@ function raw(value: unknown): HTMLElement {
 export function renderVisualInspection(container: HTMLElement, state: InspectionState, seek: (seconds: number) => void): void {
   container.replaceChildren(
     h('div', { class: 'inspection-heading' }, h('span', { class: 'inspection-kicker' }, 'Recorded inspection'), h('h2', null, 'Nemotron visual inspector')),
-    h('p', { class: 'small' }, 'Visual observations are checked with deterministic tools. This inspection does not change the layout or the frozen grader, and did not produce the run 11 improvement.'),
+    h('p', { class: 'small' }, `Post-run inspection. Visual observations are checked with deterministic tools. This inspection does not change the layout or the frozen grader${state.runId === 'live-a-11' ? ', and did not produce the run 11 improvement' : ''}.`),
   );
   if (state.status !== 'ready') {
     container.append(h('p', { class: state.status === 'error' ? 'fail' : 'small', role: 'status' },

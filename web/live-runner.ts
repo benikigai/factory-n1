@@ -7,6 +7,8 @@
  *   POST /api/run/stop    -> sends SIGINT to the running solve
  *   POST /api/run/resume  -> body {"runId"} -> re-spawns solve with the same runId, preset and caps; the solver's
  *                            checkpoint resumes at the next generation and refuses if its manifest no longer matches
+ *   GET  /api/inspect/status, POST /api/inspect -> body {runId, marker, time, image} -> one post-run Super VL visual
+ *                            inspection (scripts/visual-inspect.ts) at 4 calls / $0.11, fresh folder, never retried
  *
  * Locked down: loopback peers only, a loopback Host and Origin (blocks cross-site and DNS-rebinding requests),
  * one run at a time, explicit spend caps on every run. The Crusoe/You.com keys are read by the child process
@@ -115,12 +117,54 @@ export function latestResumable(runsDir: string) {
 
 // Kept on globalThis so a Vite config reload (which re-imports this module in the same process) does not
 // forget a running child: otherwise status would say idle, a second run could start, and Stop would not work.
+type InspectResult = { runId: string; ok: boolean; message: string; verified?: boolean; findings?: number; calls?: number; usd?: number };
 type LiveState = {
+  inspect?: { child: ChildProcess | null; current: { runId: string; startedAt: number } | null; last: InspectResult | null };
   child: ChildProcess | null;
   current: { runId: string; preset: string; startedAt: number } | null;
   last: { runId: string; exitCode: number | null; signal: string | null; message: string } | null;
 };
 const state: LiveState = ((globalThis as { __factoryLive?: LiveState }).__factoryLive ??= { child: null, current: null, last: null });
+const inspect = (state.inspect ??= { child: null, current: null, last: null });
+
+/** Caps for one visual inspection. scripts/visual-inspect.ts refuses anything above these. */
+export const INSPECT_CAPS = { calls: 4, usd: 0.11 };
+const INSPECT_RUN = /^(live-a-\d+|live-demo-\d+)$/;
+
+/** Validate an inspection request and decode its PNG. Pure, so it is unit-tested. */
+export function parseInspectRequest(body: unknown, hasReplay: (runId: string) => boolean):
+  | { ok: true; runId: string; marker: string; time: number; png: Buffer }
+  | { ok: false; error: string } {
+  const b = (body ?? {}) as { runId?: unknown; marker?: unknown; time?: unknown; image?: unknown };
+  const runId = String(b.runId ?? "");
+  if (!INSPECT_RUN.test(runId)) return { ok: false, error: "Pick a recorded or live run to inspect." };
+  if (!hasReplay(runId)) return { ok: false, error: `${runId} has no replay yet.` };
+  const marker = String(b.marker ?? "");
+  if (!/^[A-Z0-9]{6,12}$/.test(marker)) return { ok: false, error: "Bad verification marker." };
+  const time = Number(b.time);
+  if (!Number.isFinite(time) || time < 0 || time > 100000) return { ok: false, error: "Bad replay time." };
+  const m = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(String(b.image ?? ""));
+  if (!m) return { ok: false, error: "Expected a PNG frame." };
+  const png = Buffer.from(m[1], "base64");
+  if (png.length > 8_000_000 || !png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return { ok: false, error: "Frame must be a PNG under 8 MB." };
+  return { ok: true, runId, marker, time, png };
+}
+
+/** Summarize a finished inspection folder from the inspector's own files (inspection.json or failure.json). */
+export function readInspectResult(runId: string, dir: string): InspectResult {
+  try {
+    const a = JSON.parse(readFileSync(path.join(dir, "inspection.json"), "utf8")) as { imageInput?: { verified?: boolean }; findings?: unknown[]; budget?: { calls?: number; usd?: number } };
+    return { runId, ok: true, message: "finished", verified: Boolean(a.imageInput?.verified), findings: a.findings?.length ?? 0, calls: a.budget?.calls, usd: a.budget?.usd };
+  } catch {
+    try {
+      const f = JSON.parse(readFileSync(path.join(dir, "failure.json"), "utf8")) as { message?: string; usage?: { calls?: number; usd?: number } };
+      return { runId, ok: false, message: f.message ?? "Inspection stopped.", calls: f.usage?.calls, usd: f.usage?.usd };
+    } catch {
+      return { runId, ok: false, message: "Inspection exited before writing a result." };
+    }
+  }
+}
+
 
 function send(res: ServerResponse, code: number, body: unknown) {
   res.statusCode = code;
@@ -141,11 +185,11 @@ function lastLine(logFile: string): string {
   }
 }
 
-async function readBody(req: IncomingMessage): Promise<string> {
+async function readBody(req: IncomingMessage, limit = 1024): Promise<string> {
   let body = "";
   for await (const chunk of req) {
     body += chunk;
-    if (body.length > 1024) break;
+    if (body.length > limit) break;
   }
   return body;
 }
@@ -177,7 +221,7 @@ export function liveRunner(repoRoot: string) {
   };
   return async (req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) => {
     const pathname = (req.url ?? "").split("?")[0];
-    if (!pathname.startsWith("/api/run")) return next();
+    if (!pathname.startsWith("/api/run") && !pathname.startsWith("/api/inspect")) return next();
     const method = req.method ?? "GET";
     if (!isLocalRequest(req, method)) return send(res, 403, { error: "Run live is available only from this machine." });
     const configured = Boolean(process.env.FACTORY_ENV_FILE && existsSync(process.env.FACTORY_ENV_FILE));
@@ -241,6 +285,58 @@ export function liveRunner(repoRoot: string) {
       start(runId, record); // same runId, preset and caps; the solver checks its manifest and refuses on any mismatch
       return send(res, 202, { runId, resumedFromGeneration: info.fromGeneration });
     }
+    if (pathname === "/api/inspect/status" && method === "GET") {
+      return send(res, 200, { running: Boolean(inspect.current), runId: inspect.current?.runId ?? null, caps: INSPECT_CAPS, last: inspect.last });
+    }
+
+    if (pathname === "/api/inspect" && method === "POST") {
+      if (inspect.current) return send(res, 409, { error: `Already inspecting ${inspect.current.runId}. One inspection at a time.` });
+      if (!configured) return send(res, 412, { error: "Set FACTORY_ENV_FILE to the 1Password env mount before starting the dev server." });
+      let body: unknown;
+      try {
+        body = JSON.parse(await readBody(req, 12_000_000));
+      } catch {
+        return send(res, 400, { error: "Body must be JSON." });
+      }
+      const hasReplay = (id: string) => existsSync(path.join(runsDir, id, "replay.json")) || existsSync(path.join(repoRoot, "recorded", id, "replay.json"));
+      const r = parseInspectRequest(body, hasReplay);
+      if (!r.ok) return send(res, 400, { error: r.error });
+      // A fresh private folder per click: the inspector refuses to reuse one. The viewer reads runs/<id>/inspection/.
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const dir = path.join(runsDir, r.runId, "inspections", stamp);
+      if (existsSync(dir)) return send(res, 409, { error: "Inspection folder already exists; try again in a second." });
+      mkdirSync(dir, { recursive: true });
+      const frame = path.join(dir, "frame.png");
+      writeFileSync(frame, r.png);
+      const log = openSync(path.join(dir, "inspect.log"), "a");
+      const proc = spawn(
+        process.execPath,
+        [`--env-file=${process.env.FACTORY_ENV_FILE}`, "--import", "tsx", "scripts/visual-inspect.ts", frame, r.marker, String(Math.round(r.time))],
+        {
+          cwd: repoRoot,
+          env: {
+            ...process.env,
+            INSPECT_RUN_ID: r.runId,
+            INSPECT_OUT_DIR: dir,
+            INSPECT_PUBLIC_DIR: path.join(runsDir, r.runId, "inspection"),
+            CALL_BUDGET: String(INSPECT_CAPS.calls),
+            SPEND_CAP_USD: String(INSPECT_CAPS.usd),
+          },
+          stdio: ["ignore", log, log],
+        },
+      );
+      closeSync(log);
+      inspect.child = proc;
+      inspect.current = { runId: r.runId, startedAt: Date.now() };
+      // One attempt only: whatever happens, the result is reported, never retried.
+      proc.on("exit", () => {
+        inspect.last = readInspectResult(r.runId, dir);
+        inspect.child = null;
+        inspect.current = null;
+      });
+      return send(res, 202, { runId: r.runId, caps: INSPECT_CAPS });
+    }
+
     return send(res, 404, { error: "Unknown endpoint." });
   };
 }
