@@ -10,7 +10,7 @@ const dirs = existsSync("recorded") ? readdirSync("recorded").filter((d) => !d.s
 for (const id of dirs) cpSync(`recorded/${id}`, `web/dist/runs/${id}`, { recursive: true });
 const runs = dirs.filter((d) => existsSync(`recorded/${d}/replay.json`));
 mkdirSync("web/dist/runs", { recursive: true });
-writeFileSync("web/dist/runs/index.json", JSON.stringify({ runs, default: "live-a-7", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(`recorded/${id}`).filter(name => /\.(json|jsonl)$/.test(name))])) }, null, 2));
+writeFileSync("web/dist/runs/index.json", JSON.stringify({ runs, default: "live-a-11", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(`recorded/${id}`).filter(name => /\.(json|jsonl)$/.test(name))])) }, null, 2));
 // Public evidence files the landing page links to.
 mkdirSync("web/dist/evidence", { recursive: true });
 for (const f of readdirSync("docs/evidence").filter(name => /\.(md|json)$/.test(name))) {

@@ -5,7 +5,7 @@
  */
 export const REPO = "https://github.com/benikigai/factory-n1";
 
-export const HERO_RUN = "live-a-7";
+export const HERO_RUN = "live-a-11";
 export const MEMORY_EVAL = "memeval-2026-10-17T19-41-04-350Z";
 
 /** Validation objective per live run on factory A (lower is better). Source: runs/<id>/summary.json. */
@@ -16,8 +16,11 @@ export const RUNS: { id: string; change: string; select: number | null; note: st
   { id: "live-a-4", change: "exploration + stall reflection", select: 12013.56, note: "gate refused 0.6–0.7% gains" },
   { id: "live-a-5", change: "isolated hypothesis tests", select: 10733.22, note: "0/7 refuted · independently verified" },
   { id: "live-a-6", change: "QUALITY lens + inspection fix", select: 9816.78, note: "mislabeled rejected lesson repeated 4×" },
-  { id: "live-a-7", change: "rejected-lesson labels", select: 6083.44, note: "hero · independently verified" },
+  { id: "live-a-7", change: "rejected-lesson labels", select: 6083.44, note: "equal-budget proof · independently verified" },
   { id: "live-a-8", change: "continue from a-7", select: 6083.44, note: "no further gain · 49% prompt cache hits" },
+  { id: "live-a-9", change: "continue from a-7", select: 6083.44, note: "no further gain" },
+  { id: "live-a-10", change: "route-fixer lens", select: 6083.44, note: "no further gain · designers mis-measure legs" },
+  { id: "live-a-11", change: "ruler tool", select: 3283.44, note: "goal met · hero" },
 ];
 export const GEN0_SELECT = 18061.11;
 

@@ -32,7 +32,7 @@ function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unkno
     const recorded = path.join(repoRoot, "recorded");
     const runs = readdirSync(recorded).filter(id => existsSync(path.join(recorded, id, "replay.json")));
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ runs, default: "live-a-7", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(path.join(recorded, id)).filter(name => /\.(json|jsonl)$/.test(name))])) }));
+    res.end(JSON.stringify({ runs, default: "live-a-11", artifacts: Object.fromEntries(runs.map(id => [id, readdirSync(path.join(recorded, id)).filter(name => /\.(json|jsonl)$/.test(name))])) }));
     return;
   }
   if (req.method !== "GET" && req.method !== "HEAD") return fail(res, 405, "read-only");

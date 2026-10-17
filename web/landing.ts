@@ -23,8 +23,8 @@ async function json<T>(url: string): Promise<T | null> {
 }
 
 type Summary = {
-  baseline: { train: number; select: number };
-  champion: { train: number; select: number };
+  baseline: { train: number; select: number; dodSelect: boolean };
+  champion: { train: number; select: number; dodSelect: boolean };
   comparators: { label: string; train: number; select: number }[];
   usage: { calls: number; usd: number; promptTokens: number; cachedTokens: number };
   simEvals: number;
@@ -35,9 +35,10 @@ type Spend = { authorizationUsd: number; totals: { returnedUsageInferenceUsd: nu
 
 ($("repo-link") as HTMLAnchorElement).href = REPO;
 
-const [bundle, summary, a8, mem, spend] = await Promise.all([
+const [bundle, summary, a7, a8, mem, spend] = await Promise.all([
   json<ReplayBundle>(`./runs/${HERO_RUN}/replay.json`),
   json<Summary>(`./runs/${HERO_RUN}/summary.json`),
+  json<Summary>(`./runs/live-a-7/summary.json`),
   json<Summary>(`./runs/live-a-8/summary.json`),
   json<MemResults>(`./runs/${MEMORY_EVAL}/results.json`),
   json<Spend>(`./evidence/spend-accounting.json`),
@@ -104,7 +105,12 @@ if (bundle) {
     ($("clock-t") as HTMLElement).textContent = mmss(t);
   };
   $("dod-note").textContent =
-    "Checks are code over the simulator's output, never the model's report. The agents' floor fixes mis-sorts and speed but still damages fragile packages, so its goal check fails, and we show it.";
+    "Checks are code over the simulator's output, never the model's report. Run 7 failed on damage. " +
+    (summary
+      ? summary.champion.dodSelect
+        ? "Run 11 passes all four checks on all 15 development days. The final split stays locked."
+        : "The hero has not met the goal on validation days."
+      : "The hero's validation goal status is unavailable.");
 
   let last = performance.now();
   let lastUi = 0;
@@ -131,29 +137,45 @@ if (bundle) {
 
 /* ---------- KPIs ---------- */
 if (bundle && summary) {
-  $("hero-result").innerHTML = `<strong>${pct(summary.baseline.select, summary.champion.select)}</strong> validation objective <span>· Zero damage not reached</span>`;
+  const goalMet = summary.champion.dodSelect;
+  $("hero-result").innerHTML = `<strong>${pct(summary.baseline.select, summary.champion.select)}</strong> validation objective <span>· ${goalMet ? "goal met on all 15 development days" : "goal not met on validation days"} · final split locked</span>`;
   const b = bundle.baseline.result.metrics;
   const c = bundle.improved.result.metrics;
-  const heur = summary.comparators.find((x) => x.label.startsWith("Code heuristic"))!;
-  const rand = summary.comparators.find((x) => x.label.startsWith("Random"))!;
   const kpi = (v: string, cls: string, k: string, s: string) => `<div class="kpi"><div class="kpi-v ${cls}">${v}</div><div class="kpi-k">${k}</div><div class="kpi-s">${s}</div></div>`;
   $("kpis").innerHTML = [
-    kpi(pct(summary.baseline.select, summary.champion.select), "pos", "Validation objective", `${fmt(summary.baseline.select)} → ${fmt(summary.champion.select)} on 9 days. Heuristic ${fmt(heur.select)}, equal-budget search ${fmt(rand.select)}.`),
-    kpi(`${b.missorts} → ${c.missorts}`, "pos", "Mis-sorted packages", "On this peak day. Zero on all 15 development and validation days."),
-    kpi(`${fmt(b.makespan)}→${fmt(c.makespan)}s`, "pos", "Time to clear the floor", `${pct(b.makespan, c.makespan)} on the same 100 packages, same day.`),
-    kpi(`${c.damaged} dmg`, "neg", "Goal: FAIL", "Zero damage is not reached. One long sorter→pack route still breaks fragile boxes."),
+    kpi(pct(summary.baseline.select, summary.champion.select), "pos", "Validation objective", `${fmt(summary.baseline.select)} → ${fmt(summary.champion.select)} on 9 validation days. Continued from run 7; final split locked.`),
+    kpi(`${b.missorts} → ${c.missorts}`, "pos", "Mis-sorted packages", "On this peak day. Zero on all 15 development days. The code heuristic also fixes the size-acceptance issue."),
+    kpi(`${fmt(b.makespan)}→${fmt(c.makespan)}s`, "pos", "Time to clear the floor", `${pct(b.makespan, c.makespan)} on the same day. Shorter routes: ${fmt(b.travelCells)} → ${fmt(c.travelCells)} cells.`),
+    kpi(`${c.damaged} dmg`, c.damaged === 0 ? "pos" : "neg", `Goal: ${goalMet ? "PASS" : "FAIL"}`, goalMet ? "All four checks pass on all 15 development days. Final split locked." : "The full goal is not met on validation days."),
   ].join("");
+}
 
+/* ---------- Equal-budget proof belongs to run 7 ---------- */
+if (a7) {
+  const heur = a7.comparators.find((x) => x.label.startsWith("Code heuristic"))!;
+  const rand = a7.comparators.find((x) => x.label.startsWith("Random"))!;
   const rows = [
-    { k: "Starting floor", s: "Gen-0", v: summary.baseline.select },
+    { k: "Starting floor", s: "Gen 0", v: a7.baseline.select },
     { k: "One-line code heuristic", s: "pack stations accept all sizes", v: heur.select },
-    { k: "Blind random search", s: `same ${summary.simEvals} simulator calls`, v: rand.select },
-    { k: "Nemotron agents", s: `${HERO_RUN}, independently re-scored`, v: summary.champion.select, win: true },
+    { k: "Blind random search", s: `same ${a7.simEvals} search evaluations`, v: rand.select },
+    { k: "Nemotron agents", s: "run 7, independently re-scored", v: a7.champion.select, win: true },
   ];
   const max = Math.max(...rows.map((r) => r.v));
   $("race").innerHTML = rows
     .map((r) => `<div class="bar-row ${r.win ? "win" : ""}"><div class="bar-label">${r.k}<small>${r.s}</small></div><div class="bar"><i style="width:${(r.v / max) * 100}%"></i></div><div class="bar-val">${fmt(r.v)}</div></div>`)
     .join("");
+
+  if (summary) {
+    $("lineage").innerHTML = `<div class="lineage-heading"><span class="card-kicker">Version N+1</span><span class="fine">Validation objective · lower is better</span></div>
+      <div class="lineage-steps">
+        <div class="lineage-step"><span>Gen 0</span><strong>${fmt(a7.baseline.select)}</strong><small>Starting floor</small></div>
+        <span class="lineage-arrow" aria-hidden="true">→</span>
+        <a class="lineage-step" href="./replay.html?run=live-a-7"><span>Run 7 <b class="st ${a7.champion.dodSelect ? "pass" : "fail"}">Goal ${a7.champion.dodSelect ? "PASS" : "FAIL"}</b></span><strong>${fmt(a7.champion.select)}</strong><small>4 damaged on the peak day</small></a>
+        <span class="lineage-arrow" aria-hidden="true">→</span>
+        <a class="lineage-step lineage-champion" href="./replay.html?run=${HERO_RUN}"><span>Run 11 <b class="st ${summary.champion.dodSelect ? "pass" : "fail"}">Goal ${summary.champion.dodSelect ? "PASS" : "FAIL"}</b></span><strong>${fmt(summary.champion.select)}</strong><small>${summary.champion.dodSelect ? "0 damaged on all 15 development days" : "Full goal not yet met"}</small></a>
+      </div>
+      <p class="fine">Run 11 continued from run 7's champion and memory, with a route-measuring tool added after runs 8–10 stalled. Development days only; final split locked. <a href="./evidence/zero-damage-feasibility.md">Read the evidence</a>.</p>`;
+  }
 }
 
 /* ---------- Version N+1: runs chart ---------- */
@@ -174,9 +196,9 @@ if (bundle && summary) {
     ${bars}</svg>
     <div class="chart-key"><span>Validation objective per live run · lower is better · dashed line = starting floor</span></div>`;
   $("n1-facts").innerHTML = [
-    `Best run: <b>${fmt(GEN0_SELECT)} → 6,083</b> on validation days; every run beat the one-line heuristic.`,
+    `Best run: <b>${fmt(GEN0_SELECT)} → ${fmt(summary?.champion.select ?? 3283.44)}</b> on validation days; every run beat the one-line heuristic.`,
     "A change is kept only if it is <b>≥1% better on 9 validation days</b> with no goal-check regression. The gate refused real but tiny gains.",
-    "Runs can <b>continue from an earlier champion and its memory</b>: Version N+1 across runs.",
+    "Run 11 <b>continued from run 7's champion and memory</b>. A route-measuring tool and an interior-placement rule preceded the next gain; their effects were not isolated.",
   ].map((x) => `<li>${x}</li>`).join("");
 }
 
@@ -217,7 +239,7 @@ if (mem) {
     ["All inference today", spend ? `$${spend.totals.returnedUsageInferenceUsd.toFixed(3)}` : "n/a"],
   ]);
   $("sp-nvidia").innerHTML = kv([
-    ["Best layout (Super VL)", "−66.3%"],
+    ["Best layout (Super VL)", summary ? pct(summary.baseline.select, summary.champion.select) : "n/a"],
     ["Valid tool calls (a5)", "8 / 8"],
     ["Predictions refuted", "4/7 → 0/7"],
   ]);
@@ -234,19 +256,21 @@ $("timeline").innerHTML = LOG.map(
   (l) => `<li class="${l.tag ?? ""}"><div class="tl-head"><span>${l.t}</span><a href="${REPO}/commit/${l.hash}" target="_blank" rel="noopener">${l.hash}</a></div><p>${esc(l.text)}</p></li>`,
 ).join("");
 const ev: [string, string, string][] = [
-  ["./replay.html?run=live-a-7", "Full replay viewer", "Hero run with diagnostics, receipts and lessons"],
+  [`./replay.html?run=${HERO_RUN}`, "Full replay viewer", "Hero run with diagnostics, receipts and lessons"],
+  ["./replay.html?run=live-a-7", "Run 7: equal-budget proof", "Earlier champion: 41 search evaluations, goal FAIL"],
+  ["./evidence/zero-damage-feasibility.md", "Run 11: zero-damage goal", "The continued run, route ruler and development-day checks"],
   [`./replay.html?run=${MEMORY_EVAL}-factory-g-r1`, "Memory pair G1 in 3D", "Final split; recorded memory and no-memory arms"],
   ["./evidence/spec-as-built.md", "Spec (as built)", "Architecture, proof and work log"],
   ["./evidence/memory-eval-valid.md", "Memory evaluation", "Design, caps, every pair, interpretation"],
   ["./evidence/spend-accounting.json", "Spend accounting", "Returned usage vs unknown-charge reservations"],
-  ["./evidence/independent-verification-live-a-5.md", "Independent verification", "Re-scoring procedure, saved layouts and seeds"],
+  ["./evidence/independent-verification-live-a-11.md", "Independent hero verification", "Re-scoring procedure, saved layouts and seeds"],
   ["./evidence/2026-10-17-live-roundtrip.md", "The fabricated re-run", "What Lightning claimed vs what the grader measured"],
   ...["factory-f-r1", "factory-f-r2", "factory-g-r2"].map((pair): [string,string,string] => [`./replay.html?run=${MEMORY_EVAL}-${pair}`, `Memory pair ${pair.replace("factory-", "").replace("-r", "").toUpperCase()} in 3D`, "Final split; recorded memory and no-memory arms"]),
   [REPO, "Source on GitHub", "Simulator, agents, memory, viewer"],
 ];
 $("evidence").innerHTML = ev.map(([h, k, s]) => `<a class="ev" href="${h}"${h.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}><b>${esc(k)}</b><span>${esc(s)}</span></a>`).join("");
 $("foot-note").textContent = spend
-  ? `Every number on this page is read from recorded artifacts. The hero uses training and selection days. The memory study uses separate final days. Model-call spend: $${spend.totals.returnedUsageInferenceUsd.toFixed(3)} returned usage; $${spend.totals.conservativeCommittedUsd.toFixed(3)} counting unknown-charge reservations conservatively. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.`
+  ? `Every number on this page is read from recorded artifacts. The hero uses 15 development days (6 training, 9 validation); its final split stays locked. The memory study uses separate final days. Project spend: $${spend.totals.returnedUsageInferenceUsd.toFixed(3)} returned inference, $0.100 search base; $${spend.totals.conservativeCommittedUsd.toFixed(3)} including reservations conservatively. See spend accounting for unconfirmed extraction charges. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.`
   : "Every number on this page is read from recorded artifacts. Built at the Crusoe × Cerebral Valley Recursive Agents Hackathon, 2026-10-17.";
 
 // Sections fill in after the data loads, so honor a #section link once they exist.

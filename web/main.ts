@@ -121,4 +121,4 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&view==='agents'&&!doc
 let last=performance.now(),lastUi=0;
 function tick(now:number){const dt=Math.min(.1,(now-last)/1000);last=now;if(playback.playing&&snapshot?.replay)playback.t=Math.min(playback.end,playback.t+dt*playback.speed);const frames=world.render(playback.t,now/1000);if(now-lastUi>100){lastUi=now;controls.sync(playback);if(frames){const [a,b]=frames;world.setCounters(`shipped ${a.shipped}/${a.views.length} · queue ${a.queued} · damaged ${a.damaged}`,`shipped ${b.shipped}/${b.views.length} · queue ${b.queued} · damaged ${b.damaged}`);counters?.update(a,b);}}requestAnimationFrame(tick);}
 requestAnimationFrame(tick);
-void(async()=>{try{await loadList();const requested=new URLSearchParams(location.search).get('run');const id=requested&&entries.some(r=>r.id===requested)?requested:'live-a-7';await choose(id);}catch(e){message((e as Error).message);}})();
+void(async()=>{try{await loadList();const requested=new URLSearchParams(location.search).get('run');const id=requested&&entries.some(r=>r.id===requested)?requested:'live-a-11';await choose(id);}catch(e){message((e as Error).message);}})();

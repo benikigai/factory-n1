@@ -12,10 +12,10 @@ const experiments = parseLines<Experiment>(read('experiments.jsonl'));
 const events = parseLines<BackendEvent>(read('events.jsonl'));
 const summary = JSON.parse(read('summary.json'));
 
-test('hero hierarchy includes Quality, its accepted proposal, and exact tool receipts', () => {
+test('run 7 hierarchy retains Quality, its accepted proposal, and exact tool receipts', () => {
   const snapshot = buildSnapshot('live-a-7', replay, events, experiments, summary);
   const quality = flatten(snapshot.tree).find(node => node.id === 'designer-quality');
-  assert.ok(quality, 'Quality produced the hero champion and must not disappear');
+  assert.ok(quality, 'Quality produced the run 7 champion and must not disappear');
   assert.equal(quality.name, 'Quality designer');
   const champion = quality.children.find(node => node.id === 'g1-quality');
   assert.ok(champion);
@@ -37,7 +37,7 @@ test('hierarchy derives new designer roles from records and keeps hypothesis tes
   assert.ok(!team.children.some(node => node.id.includes('hypothesis-test')));
 });
 
-test('static projection preserves scored layouts and trace counters for the hero', () => {
+test('run 7 projection preserves scored layouts and trace counters', () => {
   const before = JSON.stringify(replay);
   const snapshot = buildSnapshot('live-a-7', replay, events, experiments, summary);
   assert.equal(JSON.stringify(snapshot.replay), before);
@@ -48,6 +48,53 @@ test('static projection preserves scored layouts and trace counters for the hero
     assert.equal(frame.damaged, side.result.metrics.damaged);
   }
   assert.equal(replay.improved.select.dodPassed, false);
+});
+
+const heroRead = (file: string) => readFileSync(`recorded/live-a-11/${file}`, 'utf8');
+const heroReplay = JSON.parse(heroRead('replay.json')) as ReplayBundle;
+const heroExperiments = parseLines<Experiment>(heroRead('experiments.jsonl'));
+const heroEvents = parseLines<BackendEvent>(heroRead('events.jsonl'));
+const heroSummary = JSON.parse(heroRead('summary.json'));
+
+test('run 11 hierarchy derives the Route designer and exposes its accepted champion and ruler receipts', () => {
+  const snapshot = buildSnapshot('live-a-11', heroReplay, heroEvents, heroExperiments, heroSummary);
+  const team = flatten(snapshot.tree).find(node => node.id === 'designers')!;
+  assert.deepEqual(new Set(team.children.map(node => node.id)), new Set(['designer-route', 'designer-quality', 'designer-flow']));
+  const route = team.children.find(node => node.id === 'designer-route')!;
+  assert.equal(route.name, 'Route designer');
+  const champion = route.children.find(node => node.id === heroSummary.champion.id);
+  assert.ok(champion);
+  assert.equal(champion.id, 'g1-route');
+  assert.match(champion.output, /Code decision: accepted/);
+  assert.match(champion.output, /3283.44/);
+  const receipts = heroExperiments.find(e => e.candidateId === champion.id)!.toolReceipts!;
+  assert.ok(receipts.some(receipt => receipt.name === 'measure_legs'));
+  assert.equal(champion.children.length, receipts.length);
+  for (const receipt of receipts) {
+    assert.ok(champion.children.some(node => node.name === receipt.name && node.output.includes(receipt.id)));
+  }
+  const damage = snapshot.checks.find(check => check.id === 'damaged');
+  assert.deepEqual(damage && {actual: damage.actual, passed: damage.passed}, {actual: 0, passed: true});
+});
+
+test('run 11 keeps the original baseline and replays its zero-damage champion from scored traces', () => {
+  assert.deepEqual(heroReplay.baseline, replay.baseline);
+  assert.deepEqual(heroReplay.scenario, replay.scenario);
+  const before = JSON.stringify(heroReplay);
+  const snapshot = buildSnapshot('live-a-11', heroReplay, heroEvents, heroExperiments, heroSummary);
+  assert.equal(JSON.stringify(snapshot.replay), before);
+  const end = playbackEnd(heroReplay.baseline.result.trace, heroReplay.improved.result.trace);
+  for (const side of [heroReplay.baseline, heroReplay.improved]) {
+    const frame = frameAt(side.result.trace, side.layout, end);
+    assert.equal(frame.shipped, side.result.metrics.shipped);
+    assert.equal(frame.damaged, side.result.metrics.damaged);
+  }
+  const championFrame = frameAt(heroReplay.improved.result.trace, heroReplay.improved.layout, end);
+  assert.equal(championFrame.shipped, 100);
+  assert.equal(championFrame.damaged, 0);
+  assert.ok(heroReplay.improved.result.trace.every(trace => !trace.missorted && !trace.damaged));
+  assert.equal(heroReplay.improved.select.dodPassed, true);
+  assert.equal(heroReplay.improved.select.objective, 3283.44);
 });
 
 test('all four memory comparisons retain arm names and final-split evidence', () => {
