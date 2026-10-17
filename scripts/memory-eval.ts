@@ -71,6 +71,13 @@ for (const factory of factories) {
         log: (l) => console.log(`[${factory} r${rep} ${arm}] ${l}`),
       });
       const used = usageLedger.slice(ledger0);
+      if (s.providerFailures > 0) {
+        // Never score a starved arm: abort the whole evaluation and mark it incomplete.
+        const reason = `arm ${runId} had ${s.providerFailures} provider/budget-failed proposals (${s.stopReason}); evaluation aborted and marked incomplete`;
+        writeFileSync(`${dir}/INCOMPLETE.json`, JSON.stringify({ status: "INCOMPLETE: provider/budget failure", reason, completedPairs: pairs.length, spend: spend() }, null, 2));
+        console.error(reason);
+        process.exit(2);
+      }
       const champion = JSON.parse(readFileSync(`runs/${runId}/champion.json`, "utf8")) as Layout;
       res[arm] = { arm, runId, final: scoreFinal(champion), train: s.champion.train, select: s.champion.select, calls: used.length, usd: used.reduce((a, u) => a + u.usd, 0), simEvals: s.simEvals, simCalls: s.simCalls, wallMs: s.wallMs, accepted: s.accepted, stopReason: s.stopReason, champion };
       console.log(`[${factory} r${rep} ${arm}] final objective ${res[arm]!.final.objective} dod ${res[arm]!.final.dodPassed} zeroDamage ${res[arm]!.final.zeroDamage}`);
@@ -94,8 +101,8 @@ for (const factory of factories) {
     const bundle: ReplayBundle = {
       runId: `${evalId}-${factory}-r${rep}`, mode: "recorded", createdAt: new Date().toISOString(), simVersion: SIM_VERSION, graderHash: grader,
       task: { id: factory, goal: task.goal }, scenario: { id: scenario.id, seed: scenario.seed, profile: scenario.profile },
-      baseline: side("No memory (NOMEM) champion", N.champion, N), improved: side("Shared learned memory (MEM) champion", M.champion, M),
-      comparators: [{ label: `Gen-0 ${factory} (final split)`, train: gen0.objective, select: gen0.objective }],
+      baseline: side("No memory", N.champion, N), improved: side("Shared memory", M.champion, M),
+      comparators: [{ label: `Gen-0 ${factory}`, train: evaluate(task.initial, "train").objective, select: evaluate(task.initial, "select").objective }],
       accepted: [], rejected: [], lessons: [], curve: [],
       usage: { calls: M.calls + N.calls, usd: M.usd + N.usd, searches: 0, searchUsd: 0 },
     };

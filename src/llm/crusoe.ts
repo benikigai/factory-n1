@@ -102,6 +102,16 @@ export function spend() {
   };
 }
 
+const MAX_CONTEXT_TOKENS = 1_048_576;
+const TEMPLATE_ALLOWANCE_TOKENS = 4_096;
+
+/** Upper bound on input tokens for a request (see chat()). Exported for tests. */
+export function inputTokenBound(params: Pick<ChatCompletionCreateParamsNonStreaming, "messages" | "tools">): number {
+  const body = JSON.stringify({ messages: params.messages, tools: params.tools ?? [] });
+  if (body.includes('"image_url"') || body.includes('"input_audio"')) return MAX_CONTEXT_TOKENS;
+  return Math.min(MAX_CONTEXT_TOKENS, Buffer.byteLength(body, "utf8") + TEMPLATE_ALLOWANCE_TOKENS);
+}
+
 export type ChatParams = ChatCompletionCreateParamsNonStreaming & {
   /** Crusoe passes this through to the model's chat template (e.g. enable_thinking). */
   chat_template_kwargs?: Record<string, unknown>;
@@ -111,9 +121,12 @@ export async function chat(agent: string, params: ChatParams): Promise<ChatCompl
   const maxTokens = params.max_completion_tokens ?? params.max_tokens ?? 2048;
   if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 65_536) throw new Error("max output tokens must be 1..65536");
   const [pin, pout, pcache] = price(params.model);
-  // Reserve a full 1M-token input, covering our catalog models including image inputs.
-  // Release unused capacity only when usage arrives. Other processes have their own caps.
-  const reservation = budget.reserve((1_048_576 * Math.max(pin, pcache) + maxTokens * pout) / 1e6);
+  // Reserve a provable upper bound on billable tokens before dispatch. Byte-level tokenizers emit at most
+  // one token per UTF-8 byte, so the request's byte size (messages + tools) plus a chat-template allowance
+  // bounds the input for text-only requests. Image inputs fall back to the full 1M-token bound.
+  // A failed request keeps this reservation (billing unknown), so the bound must be safe, but it no longer
+  // locks ~$0.106 of a small budget per transient network error.
+  const reservation = budget.reserve((inputTokenBound(params) * Math.max(pin, pcache) + maxTokens * pout) / 1e6);
   const t0 = Date.now();
   const res = await crusoe().chat.completions.create({
     ...(params.max_completion_tokens === undefined ? { max_tokens: maxTokens } : {}), ...params,

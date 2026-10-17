@@ -76,3 +76,12 @@ test("tool budget blocks extra operations and errors do not expose tool internal
   assert.deepEqual(result.receipts.map(r => r.status), ["execution_failed", "budget_exhausted"]);
   assert.doesNotMatch(JSON.stringify(result), /secret credential/);
 });
+
+test("input token bound is the request's UTF-8 bytes plus template allowance; images use the full context", async () => {
+  const { inputTokenBound } = await import("../src/llm/crusoe.ts");
+  const text = { messages: [{ role: "user" as const, content: "héllo".repeat(100) }] };
+  const bytes = Buffer.byteLength(JSON.stringify({ messages: text.messages, tools: [] }), "utf8");
+  assert.equal(inputTokenBound(text), bytes + 4096);
+  const image = { messages: [{ role: "user" as const, content: [{ type: "image_url" as const, image_url: { url: "data:image/png;base64,AAAA" } }] }] };
+  assert.equal(inputTokenBound(image as never), 1_048_576);
+});
