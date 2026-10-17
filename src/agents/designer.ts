@@ -12,6 +12,7 @@ import { DEFAULT_DOD } from "../sim/dod.ts";
 import { meteredEvaluate } from "../loop/meter.ts";
 import { observe } from "../loop/observe.ts";
 import { retryOn429 } from "./retry.ts";
+import { guardedChat } from "./call-guard.ts";
 
 export interface Prediction {
   objective?: number;
@@ -167,6 +168,7 @@ export async function propose(opts: {
   const turn = (msgs: ChatCompletionMessageParam[]) =>
     retryOn429(() => runToolTurn({
       agent: `designer:${opts.lens.id}`,
+      call: guardedChat,
       tools: probes ? [countingTool, probeTool(opts.task, probes, probesUsed)] : [countingTool],
       maxRounds: probes ? probes + 3 : 1,
       maxToolCalls: probes ? probes + 2 : 1,

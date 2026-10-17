@@ -5,7 +5,8 @@
  * dropped. Hypotheses enter memory as EXTERNAL and can never change the grader, the
  * goal floor, or the evaluation splits.
  */
-import { chat, MODELS, parseJson } from "../llm/crusoe.ts";
+import { MODELS, parseJson } from "../llm/crusoe.ts";
+import { guardedChat as chat } from "../agents/call-guard.ts";
 import { retryOn429 } from "../agents/retry.ts";
 import { runToolTurn } from "../llm/tools.ts";
 import { createYouSearch, validateResearchCitations, type ResearchResult } from "../llm/you-search.ts";
@@ -37,6 +38,7 @@ export async function research(opts: {
 
   const turn = await retryOn429(() => runToolTurn({
     agent: "researcher",
+    call: chat,
     tools: [opts.search.tool],
     maxRounds: 1,
     maxToolCalls: 1,

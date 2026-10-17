@@ -4,7 +4,8 @@
  * deltas); the model only supplies wording and scope, and is told not to claim causes
  * the receipts don't show.
  */
-import { chat, MODELS, parseJson } from "../llm/crusoe.ts";
+import { MODELS, parseJson } from "../llm/crusoe.ts";
+import { guardedChat as chat } from "./call-guard.ts";
 import type { Evidence, MemoryOp } from "../memory/store.ts";
 import { retryOn429 } from "./retry.ts";
 

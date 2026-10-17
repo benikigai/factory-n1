@@ -5,7 +5,8 @@
  * can promote a hypothesis. Web text never touches the grader.
  */
 import { retryOn429 } from "../agents/retry.ts";
-import { chat, MODELS, parseJson } from "../llm/crusoe.ts";
+import { MODELS, parseJson } from "../llm/crusoe.ts";
+import { guardedChat as chat } from "../agents/call-guard.ts";
 import { DEFAULT_DOD } from "../sim/dod.ts";
 import type { Evaluation } from "../sim/evaluate.ts";
 import { meteredEvaluate } from "../loop/meter.ts";

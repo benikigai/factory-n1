@@ -16,8 +16,23 @@ const zero = (): Counts => ({
   attribution: { evaluations: 0, scenarioSims: 0 }, replay: { evaluations: 0, scenarioSims: 0 },
 });
 let counts = zero();
+let cap: number | null = null;
+let used = 0;
+
+export class SimCapError extends Error {}
+
+/** Hard per-run simulator cap: the next evaluate()/simulate() call past the cap is refused. */
+export function setSimCap(max: number | null) {
+  cap = max;
+  used = 0;
+}
+const charge = () => {
+  if (cap !== null && used >= cap) throw new SimCapError(`run simulator cap reached (${used}/${cap})`);
+  used++;
+};
 
 export function meteredEvaluate(purpose: SimPurpose, layout: Layout, split: Split, dod?: DefinitionOfDone): Evaluation {
+  if (purpose !== "replay" && purpose !== "baseline") charge();
   const e = evaluate(layout, split, dod);
   counts[purpose].evaluations++;
   counts[purpose].scenarioSims += e.results.length;
@@ -28,6 +43,9 @@ export function meteredSimulate(purpose: SimPurpose, layout: Layout, scenario: S
   counts[purpose].scenarioSims++;
   return simulate(layout, scenario);
 }
+
+/** Evaluations charged against the current run's simulator cap (excludes baseline and replay rendering). */
+export const simUsed = () => used;
 
 export function meterSnapshot(): Counts {
   return JSON.parse(JSON.stringify(counts));

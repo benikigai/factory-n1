@@ -15,7 +15,8 @@ import { MODELS, spend, usageLedger } from "../llm/crusoe.ts";
 import { createYouSearch } from "../llm/you-search.ts";
 import { attribute, diffLayouts } from "../memory/attribution.ts";
 import { observe } from "./observe.ts";
-import { meterDelta, meteredEvaluate, meteredSimulate, meterSnapshot } from "./meter.ts";
+import { meterDelta, meteredEvaluate, meteredSimulate, meterSnapshot, setSimCap, simUsed } from "./meter.ts";
+import { runCalls } from "../agents/call-guard.ts";
 import { research } from "../memory/research.ts";
 import { testHypothesis } from "../memory/hypothesis-test.ts";
 import { reduce, render, retirements, toCited, type Evidence, type MemoryOp } from "../memory/store.ts";
@@ -112,6 +113,9 @@ export async function solve(opts: SolveOptions) {
   const startedAt = Date.now();
   const meter0 = meterSnapshot();
   const calls0 = spend().calls;
+  // Hard caps enforced at the point of use (refuse the next call/evaluation), plus the generation-start check below.
+  runCalls.setCap(opts.maxCalls ?? null);
+  setSimCap(opts.maxSimEvals ?? null);
   const dir = `runs/${runId}`;
   mkdirSync(dir, { recursive: true });
   const grader = graderHash();
@@ -225,8 +229,8 @@ export async function solve(opts: SolveOptions) {
   const worstSimsPerGen = LENSES.length * ((opts.probes ?? 0) + 1) + 1 + 16 + (opts.reflect !== false ? 16 : 0);
   try {
   for (let gen = 1; gen <= generations; gen++) {
-    const callsUsed = spend().calls - calls0;
-    const simsUsed = meterDelta(meter0).evaluations;
+    const callsUsed = runCalls.used();
+    const simsUsed = simUsed();
     if (opts.maxCalls !== undefined && callsUsed + worstCallsPerGen > opts.maxCalls) {
       stopReason = `call budget: ${callsUsed} used, next generation could need ${worstCallsPerGen} (max ${opts.maxCalls})`;
       break;
@@ -388,7 +392,10 @@ export async function solve(opts: SolveOptions) {
   }
 
   // All simulator calls this run made (candidates, gate, probes, tests, attribution, replay), before comparators.
-  const simCalls = meterDelta(meter0);
+  const simCalls = { ...meterDelta(meter0), chargedToCap: simUsed() };
+  const callsCharged = runCalls.used();
+  runCalls.setCap(null);
+  setSimCap(null);
   // Comparators computed by code at the same simulator-evaluation budget.
   const heuristic: Layout = { ...task.initial, name: "code-heuristic", stations: task.initial.stations.map((s) => (s.kind === "pack" ? { ...s, sizes: ["S", "M", "L"] } : s)) };
   const climb = hillclimb(task, Math.max(1, simEvals), 1);
@@ -403,7 +410,7 @@ export async function solve(opts: SolveOptions) {
   writeFileSync(`${dir}/research.json`, JSON.stringify(researchLog, null, 2));
   const s = spend();
   const summary = {
-    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: spend().calls - calls0,
+    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: callsCharged, providerAttempts: spend().calls - calls0,
     caps: { maxCalls: opts.maxCalls ?? null, maxSimEvals: opts.maxSimEvals ?? null }, wallMs: Date.now() - startedAt,
     baseline: { train: baselineTrain.objective, select: baselineSelect.objective, dodSelect: baselineSelect.dod!.passed },
     champion: { id: champId, train: champTrain.objective, select: champSelect.objective, dodSelect: champSelect.dod!.passed },
