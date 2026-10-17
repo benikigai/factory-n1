@@ -12,7 +12,7 @@ The default dataset is saved in ignored `runs/finetune-data/critic-v1/`. Its man
 
 The existing 1Password-backed API key successfully authenticated against `https://api.intelligence.crusoecloud.com/v1`. The catalog returned one Nemotron base model marked `fine_tuning_available: true`, named `crusoeai/NVIDIA-Nemotron-3.5-Nano-30B-A3B-BF16-07292026`. Crusoe's public fine-tuning list instead names `nvidia/nemotron-3.5-lightning-30b-a3b`.
 
-Both dataset uploads completed and their remote byte counts matched the local files. The price-estimate request initially rejected batch size 8, so the request now pins the supported size 16. After that correction, the estimate endpoint returned HTTP 404 for the catalog registry ID, its exact model name, and the documented public model name. The latter two responses explicitly said the model was not found.
+Both dataset uploads completed and their remote byte counts matched the local files. The price-estimate request initially rejected batch size 8, so the request now pins the supported size 16. After that correction, the estimate endpoint returned HTTP 404 for the catalog registry ID, its exact model name, the documented public model name, and the exact working serverless-inference model ID. Those name-based responses explicitly said the model was not found. The signed-in console independently shows "No published training rate for this base model yet" for Nemotron 3.5 Lightning; its generated API code uses the same registry ID as the CLI.
 
 No estimate, training job, checkpoint, or hosted adapter exists yet. Preserve this distinction in the demo. Resolving the catalog/estimate mismatch and approving a training/hosting budget are required before launch.
 
