@@ -12,6 +12,8 @@ import { DEFAULT_DOD } from "../sim/dod.ts";
 import { meteredEvaluate } from "../loop/meter.ts";
 import { observe } from "../loop/observe.ts";
 import { retryOn429 } from "./retry.ts";
+import { legsAt, moved, possibleLegs } from "./legs.ts";
+import { schemaErrors } from "../sim/layout.ts";
 import { guardedChat } from "./call-guard.ts";
 
 export interface Prediction {
@@ -67,6 +69,51 @@ function probeTool(task: Task, budget: number, used: Proposal["probes"]): AgentT
       const ev = meteredEvaluate("probe", layout, "train", DEFAULT_DOD);
       used.push({ objective: ev.objective, errors: [] });
       return { ok: true, testsLeft: budget - used.length, observation: observe(ev) };
+    },
+  };
+}
+
+/** Free ruler: leg lengths for a draft, and optionally one station's legs at candidate cells. No simulator run. */
+export function rulerTool(task: Task, budget: number, used: { n: number }): AgentTool {
+  return {
+    definition: {
+      type: "function",
+      function: {
+        name: "measure_legs",
+        description: `Free, deterministic ruler (no simulator run, no evaluation budget). Lists every conveyor leg in a layout with its length in cells (|dx|+|dy|, the distance packages travel), longest first. Optionally pass one station id and up to 40 candidate cells to see that station's in and out legs at each cell, and whether the moved layout is valid. Use it instead of computing distances by hand. ${budget} uses per turn.`,
+        parameters: {
+          type: "object",
+          required: ["layout"],
+          properties: {
+            layout: { type: "object", description: "A complete layout in the same format as propose_layout." },
+            station: { type: "string", description: "Optional: id of one station to try at the candidate cells." },
+            cells: { type: "array", items: { type: "object", properties: { x: { type: "integer" }, y: { type: "integer" } } }, description: "Optional: candidate cells for that station (max 40)." },
+          },
+        },
+      },
+    },
+    parse(input) {
+      const v = input as { layout?: unknown; station?: unknown; cells?: unknown };
+      if (!v || typeof v !== "object" || !v.layout || typeof v.layout !== "object") throw new Error("layout required");
+      return v;
+    },
+    execute(input) {
+      const v = input as { layout: Layout; station?: string; cells?: { x: number; y: number }[] };
+      if (used.n >= budget) return { error: "ruler uses spent; submit with propose_layout" };
+      used.n++;
+      const shape = schemaErrors(v.layout);
+      if (shape.length) return { ok: false, errors: shape };
+      const fmt = (l: { from: string; to: string; cells: number }) => `${l.from}->${l.to} ${l.cells}`;
+      const out: Record<string, unknown> = { legs: possibleLegs(v.layout).map(fmt) };
+      if (v.station && Array.isArray(v.cells)) {
+        if (!v.layout.stations.some((s) => s.id === v.station)) return { ...out, error: `no station ${v.station}` };
+        const cells = v.cells.filter((c) => Number.isInteger(c?.x) && Number.isInteger(c?.y)).slice(0, 40);
+        out.candidates = legsAt(v.layout, v.station, cells).map((c) => {
+          const errors = validateForTask(moved(v.layout, v.station!, c.x, c.y), task);
+          return { cell: [c.x, c.y], valid: !errors.length, ...(errors.length ? { why: errors[0] } : {}), legs: c.legs.map(fmt), longest: c.longest };
+        });
+      }
+      return out;
     },
   };
 }
@@ -156,6 +203,8 @@ export async function propose(opts: {
   model?: string;
   /** Draft tests allowed before submitting (0 = submit blind). */
   probes?: number;
+  /** Free measure_legs ruler uses per turn (0 = no ruler). */
+  ruler?: number;
 }): Promise<Proposal> {
   const model = opts.model ?? MODELS.super;
   const sink: { last?: { args: any; errors: string[] } } = {};
@@ -163,19 +212,22 @@ export async function propose(opts: {
   const receipts: Proposal["toolReceipts"] = [];
   const probes = opts.probes ?? 0;
   const probesUsed: Proposal["probes"] = [];
+  const ruler = opts.ruler ?? 0;
+  const rulerUsed = { n: 0 };
+  const multi = probes > 0 || ruler > 0;
   let proposeCalls = 0;
   const countingTool: AgentTool = { ...tool, execute: (x) => (proposeCalls++, tool.execute(x)) };
   const messages: ChatCompletionMessageParam[] = [
     { role: "system", content: opts.sharedPrefix },
-    { role: "user", content: `${opts.lens.instructions}\n\n${opts.state}\n\n${probes ? `You may test up to ${probes} draft layouts with simulate_layout first, then submit. ` : ""}If your change follows a SHARED PLAYBOOK item, list its id in appliedLessons. Predict the simulator result honestly; your prediction is checked. Never resubmit the champion unchanged: if your tests found nothing better, submit your most promising untested idea. The validation gate protects the factory from bad changes. Call propose_layout exactly once with your best complete layout.` },
+    { role: "user", content: `${opts.lens.instructions}\n\n${opts.state}\n\n${ruler ? `Use the free measure_legs ruler (up to ${ruler} times) to measure leg lengths and candidate cells instead of computing them by hand. ` : ""}${probes ? `You may test up to ${probes} draft layouts with simulate_layout first, then submit. ` : ""}If your change follows a SHARED PLAYBOOK item, list its id in appliedLessons. Predict the simulator result honestly; your prediction is checked. Never resubmit the champion unchanged: if your tests found nothing better, submit your most promising untested idea. The validation gate protects the factory from bad changes. Call propose_layout exactly once with your best complete layout.` },
   ];
   const turn = (msgs: ChatCompletionMessageParam[]) =>
     retryOn429(() => runToolTurn({
       agent: `designer:${opts.lens.id}`,
       call: guardedChat,
-      tools: probes ? [countingTool, probeTool(opts.task, probes, probesUsed)] : [countingTool],
-      maxRounds: probes ? probes + 3 : 1,
-      maxToolCalls: probes ? probes + 2 : 1,
+      tools: [countingTool, ...(probes ? [probeTool(opts.task, probes, probesUsed)] : []), ...(ruler ? [rulerTool(opts.task, ruler, rulerUsed)] : [])],
+      maxRounds: multi ? probes + ruler + 3 : 1,
+      maxToolCalls: multi ? probes + ruler + 2 : 1,
       params: { model, messages: msgs, max_tokens: 3500, temperature: opts.lens.temperature ?? 0.4, chat_template_kwargs: { enable_thinking: false } },
     }));
 
@@ -213,7 +265,7 @@ export async function propose(opts: {
     }
   }
   if (sink.last && !sink.last.errors.length) return build(proposeCalls > 1 ? "tool_after_repair" : "tool");
-  if (probes) return { ...build("failed"), errors: sink.last?.errors.length ? sink.last.errors : ["tested drafts but never submitted with propose_layout"] };
+  if (multi) return { ...build("failed"), errors: sink.last?.errors.length ? sink.last.errors : ["used test tools but never submitted with propose_layout"] };
 
   // One repair: same conversation, the tool's errors are already in the transcript.
   try {

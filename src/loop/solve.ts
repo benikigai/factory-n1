@@ -40,6 +40,8 @@ export interface SolveOptions {
   log?: (line: string) => void;
   /** Draft tests each designer may run with simulate_layout per generation (each counts as a sim eval). */
   probes?: number;
+  /** Free measure_legs ruler uses per designer turn (geometry only; 0 = off). */
+  ruler?: number;
   /**
    * Run designers one at a time. Same snapshot and semantics; keeps the client's worst-case
    * spend reservation (~$0.106 per in-flight Super VL call) inside small caps.
@@ -106,7 +108,7 @@ GOAL: ${task.goal}
 
 FIXED BY THE BUILDING (copy these exactly, never move or change them): ${JSON.stringify(fixed)}
 YOU MAY EDIT: ${task.editable.sorter[0]}-${task.editable.sorter[1]} sorter stations and ${task.editable.pack[0]}-${task.editable.pack[1]} pack stations: their positions, and for pack stations the zones and sizes they accept.
-RULES: grid ${task.initial.grid.w}x${task.initial.grid.h} (x 0..${task.initial.grid.w - 1}, y 0..${task.initial.grid.h - 1}); integer coordinates; any two stations at least 2 cells apart in x or y (Chebyshev distance >= 2); unique ids; capex cap $${task.capexCap} (sorter $50k, pack $20k, dock $30k).
+RULES: grid ${task.initial.grid.w}x${task.initial.grid.h} (x 0..${task.initial.grid.w - 1}, y 0..${task.initial.grid.h - 1}); integer coordinates; any two stations at least 2 cells apart in x or y (Chebyshev distance >= 2); unique ids; receiving and shipping docks sit on the outer wall, but sorters and pack stations may go on any free interior cell; capex cap $${task.capexCap} (sorter $50k, pack $20k, dock $30k).
 SCORING (lower is better, averaged over several package days): makespan seconds + 300 per mis-sorted package + 600 per damaged package + 3600 per unshipped package + capex/100. A proposal is kept only if it beats the current champion by at least 1% on separate validation days.
 
 ${memory}`;
@@ -233,7 +235,7 @@ export async function solve(opts: SolveOptions) {
   writeReplay("live", []);
 
   // Worst case for one generation: every designer uses all rounds; probes, candidate and gate evals; attribution allowance.
-  const worstCallsPerGen = LENSES.length * ((opts.probes ?? 0) + 3) + (opts.reflect !== false ? 1 : 0);
+  const worstCallsPerGen = LENSES.length * ((opts.probes ?? 0) + (opts.ruler ?? 0) + 3) + (opts.reflect !== false ? 1 : 0);
   const worstSimsPerGen = LENSES.length * ((opts.probes ?? 0) + 1) + 1 + 16 + (opts.reflect !== false ? 16 : 0);
   try {
   for (let gen = 1; gen <= generations; gen++) {
@@ -253,7 +255,7 @@ export async function solve(opts: SolveOptions) {
     const state = stateText(champion, champTrain, rejected);
     const ledgerStart = usageLedger.length;
     log(`gen ${gen}: ${LENSES.length} designers reading playbook v${memory.version} (${memory.lessons.filter((l) => l.status !== "retired").length} lessons)`);
-    const ask = (lens: (typeof LENSES)[number]) => proposeFn({ task, lens, sharedPrefix: prefix, state, probes: opts.probes ?? 0 });
+    const ask = (lens: (typeof LENSES)[number]) => proposeFn({ task, lens, sharedPrefix: prefix, state, probes: opts.probes ?? 0, ruler: opts.ruler ?? 0 });
     const proposals: Proposal[] = [];
     if (opts.sequentialDesigners) for (const lens of LENSES) proposals.push(await ask(lens));
     else proposals.push(...(await Promise.all(LENSES.map(ask))));
