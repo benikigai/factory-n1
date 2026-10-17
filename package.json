@@ -1,0 +1,21 @@
+{
+  "name": "factory-n1",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An agent swarm on Crusoe that designs a 3D fulfillment floor, writes its own definition of done, and keeps a layout change only if it wins on unseen package days.",
+  "type": "module",
+  "scripts": {
+    "roundtrip": "tsx scripts/roundtrip.ts",
+    "score": "tsx scripts/score.ts",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "openai": "^5.23.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

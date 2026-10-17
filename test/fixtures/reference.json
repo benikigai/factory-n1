@@ -1,0 +1,15 @@
+{
+  "name": "hand-built-reference",
+  "grid": { "w": 24, "h": 14 },
+  "stations": [
+    { "id": "recv-1", "kind": "receiving", "x": 0, "y": 7 },
+    { "id": "sort-1", "kind": "sorter", "x": 10, "y": 7 },
+    { "id": "pack-A1", "kind": "pack", "x": 17, "y": 2, "zones": ["A"], "sizes": ["S", "M", "L"] },
+    { "id": "pack-A2", "kind": "pack", "x": 17, "y": 5, "zones": ["A"], "sizes": ["S", "M", "L"] },
+    { "id": "pack-B", "kind": "pack", "x": 17, "y": 8, "zones": ["B"], "sizes": ["S", "M", "L"] },
+    { "id": "pack-C", "kind": "pack", "x": 17, "y": 11, "zones": ["C"], "sizes": ["S", "M", "L"] },
+    { "id": "ship-A", "kind": "shipping", "x": 23, "y": 3, "zones": ["A"] },
+    { "id": "ship-B", "kind": "shipping", "x": 23, "y": 8, "zones": ["B"] },
+    { "id": "ship-C", "kind": "shipping", "x": 23, "y": 12, "zones": ["C"] }
+  ]
+}
