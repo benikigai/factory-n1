@@ -76,7 +76,7 @@ function renderInspection(){
 function renderData(){
   if(!snapshot)return;
   $('mode-badge').textContent=modeText[snapshot.mode];$('mode-badge').className=`mode mode-${snapshot.mode==='fixture'?'synthetic':snapshot.mode==='live'?'live':'recorded'}`;
-  $('run-status').textContent=snapshot.state==='running'?`Live · ${snapshot.generations} generation${snapshot.generations===1?'':'s'} scored so far · refreshing every 2 s`:snapshot.generations?`Complete · ${snapshot.generations} recorded generations`:'Recorded comparison';
+  $('run-status').textContent=snapshot.state==='running'?`Live · ${snapshot.generations} generation${snapshot.generations===1?'':'s'} scored so far${resumeNote} · refreshing every 2 s`:snapshot.generations?`Complete · ${snapshot.generations} recorded generations${resumeNote}`:'Recorded comparison';
   const option=Array.from(($('run-select') as HTMLSelectElement).options).find(o=>o.value===snapshot!.id);if(option)option.textContent=`${snapshot.id} · ${modeText[snapshot.mode].toLowerCase()}`;
   $('empty-scene').hidden=!!snapshot.replay||view==='agents';
   ($('download') as HTMLButtonElement).disabled=!snapshot.replay;
@@ -110,9 +110,13 @@ async function fetchRun(id:string){
     json<ReplayBundle>(`${base}/replay.json`),has('events.jsonl')?lines<BackendEvent>(`${base}/events.jsonl`):[],has('experiments.jsonl')?lines<Experiment>(`${base}/experiments.jsonl`):[],
     has('summary.json')?optional<{runId:string;stopReason?:string;usage?:{calls:number;usd:number;reservedUsd?:number}}>(`${base}/summary.json`):null
   ]);
+  // Live runs started on this machine keep a launch record beside the run; it lists any resumes.
+  const record=live?await optional<{resumes?:{fromGeneration:number}[]}>(`./runs/${encodeURIComponent(id)}.live.json`).catch(()=>null):null;
+  const r=record?.resumes?.at(-1);resumeNote=r?` · resumed from gen ${r.fromGeneration}`:'';
   return buildSnapshot(id,replay,events,experiments,summary);
 }
 let pollTimer:ReturnType<typeof setTimeout>|undefined;
+let resumeNote='';
 /** While the loaded run is live, re-fetch it every 2 s. apply() keeps the camera, view and selection. */
 function poll(id:string){
   clearTimeout(pollTimer);

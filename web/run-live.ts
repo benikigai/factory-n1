@@ -10,6 +10,7 @@ type Status = {
   caps: { calls: number; usd: number };
   presets: Record<string, string>;
   last: { runId: string; exitCode: number | null; message: string } | null;
+  resumable: { runId: string; fromGeneration: number } | null;
 };
 
 const API = "/api/run";
@@ -40,6 +41,9 @@ export async function mountRunLive(host: HTMLElement) {
     const presets = Object.entries(s.presets)
       .map(([id, label]) => `<button type="button" data-preset="${id}" ${s.running || !s.configured ? "disabled" : ""}>${label}</button>`)
       .join("");
+    const resume = !s.running && s.configured && s.resumable
+      ? ` <button type="button" data-resume="${s.resumable.runId}">Resume ${s.resumable.runId} from gen ${s.resumable.fromGeneration}</button>`
+      : "";
     const state = s.running
       ? `<span class="rl-dot"></span><a href="./replay.html?run=${s.runId}">${s.runId}</a> running <button type="button" data-stop>Stop</button>`
       : !s.configured
@@ -47,7 +51,7 @@ export async function mountRunLive(host: HTMLElement) {
         : s.last
           ? `Last: <a href="./replay.html?run=${s.last.runId}">${s.last.runId}</a> ${s.last.exitCode === 0 ? "finished" : `stopped: ${s.last.message.replace(/</g, "&lt;")}`}`
           : `Caps per run: ${s.caps.calls} calls, $${s.caps.usd.toFixed(2)}.`;
-    box.innerHTML = `<span class="rl-title">Run live on Crusoe</span><span class="rl-presets">${presets}</span><span class="rl-state">${note || state}</span>`;
+    box.innerHTML = `<span class="rl-title">Run live on Crusoe</span><span class="rl-presets">${presets}</span><span class="rl-state">${note || state}${resume}</span>`;
   };
   render(first);
   box.addEventListener("click", async (e) => {
@@ -55,6 +59,9 @@ export async function mountRunLive(host: HTMLElement) {
     try {
       if (t.dataset.preset) {
         const { runId } = await post(API, { preset: t.dataset.preset });
+        location.href = `./replay.html?run=${encodeURIComponent(runId!)}`;
+      } else if (t.dataset.resume) {
+        const { runId } = await post(`${API}/resume`, { runId: t.dataset.resume });
         location.href = `./replay.html?run=${encodeURIComponent(runId!)}`;
       } else if (t.dataset.stop !== undefined) {
         await post(`${API}/stop`);
