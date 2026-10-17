@@ -77,7 +77,7 @@ small { color: var(--muted); font-size: 0.82em; }
 .missing { padding: 20px; font-family: var(--mono); }
 
 /* In-scene labels: ink chips on paper */
-.stage-scene .st-label { font: 500 10px/1 var(--mono); color: var(--ink); background: var(--paper); border: 1px solid var(--hair); padding: 3px 5px; white-space: nowrap; }
+.stage-scene .st-label { display: none; font: 500 10px/1 var(--mono); color: var(--ink); background: var(--paper); border: 1px solid var(--hair); padding: 3px 5px; white-space: nowrap; }
 .stage-scene .st-bottleneck { border-color: var(--blue); color: var(--blue); }
 .stage-scene .floor-title { text-align: center; padding: 5px 10px; background: var(--paper); border: 1px solid var(--rule); white-space: nowrap; }
 .stage-scene .floor-improved { border-color: var(--orange); }
