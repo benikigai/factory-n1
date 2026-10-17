@@ -122,7 +122,9 @@ export async function solve(opts: SolveOptions) {
   const researchLog: object[] = [];
   let stalled = 0;
   let stopReason = `reached ${generations} generations`;
-  event("run_started", { taskId: task.id, goal: task.goal, models: MODELS, generations, simVersion: SIM_VERSION, graderHash: grader });
+  // Only the models this loop actually calls (the Goal Planner/Auditor are not part of this loop).
+  const modelsUsed = { designers: MODELS.super, reflector: MODELS.super, researcher: MODELS.lightning, hypothesisTests: MODELS.lightning };
+  event("run_started", { taskId: task.id, goal: task.goal, models: modelsUsed, generations, simVersion: SIM_VERSION, graderHash: grader });
   log(`[${runId}] gen0 champion: train ${champTrain.objective}, select ${champSelect.objective}, DoD ${champSelect.dod!.passed ? "pass" : "fail"}`);
 
   let simEvals = 0;

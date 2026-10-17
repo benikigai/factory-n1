@@ -17,17 +17,31 @@ export interface Task {
   capexCap: number;
 }
 
-export function loadTaskA(): Task {
-  const initial = JSON.parse(readFileSync(new URL("../../layouts/baseline.json", import.meta.url), "utf8")) as Layout;
+const GOAL = "Ship all 100 packages within 25 minutes with at most 1 mis-sort and nothing damaged.";
+
+/** Factory geometries. A/B are for learning, C gates solver-policy changes, D/E are held out for the final test. */
+export const FACTORIES = {
+  "factory-a": "baseline.json",
+  "factory-b": "factory-b-crossdock.json",
+  "factory-c": "factory-c-uflow.json",
+  "factory-d": "factory-d-lflow.json",
+  "factory-e": "factory-e-twoinbound.json",
+} as const;
+export type FactoryId = keyof typeof FACTORIES;
+
+export function loadTask(id: FactoryId): Task {
+  const initial = JSON.parse(readFileSync(new URL(`../../layouts/${FACTORIES[id]}`, import.meta.url), "utf8")) as Layout;
   return {
-    id: "factory-a",
-    goal: "Ship all 100 packages within 25 minutes with at most 1 mis-sort and nothing damaged.",
+    id,
+    goal: GOAL,
     initial,
     fixed: initial.stations.filter((s) => s.kind === "receiving" || s.kind === "shipping").map((s) => s.id),
     editable: { sorter: [1, 2], pack: [2, 6] },
     capexCap: 300_000,
   };
 }
+
+export const loadTaskA = () => loadTask("factory-a");
 
 const same = (a: Station, b: Station) =>
   a.kind === b.kind && a.x === b.x && a.y === b.y && JSON.stringify(a.zones ?? []) === JSON.stringify(b.zones ?? []);

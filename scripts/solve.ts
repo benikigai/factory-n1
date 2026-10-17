@@ -7,7 +7,7 @@ import { loadTaskA } from "../src/tasks/task.ts";
 if (!process.env.CALL_BUDGET || !process.env.SPEND_CAP_USD) throw new Error("set CALL_BUDGET and SPEND_CAP_USD explicitly");
 const [gens = "5", runId, probes = "0"] = process.argv.slice(2);
 resolveModels((await crusoe().models.list()).data.map((m) => m.id));
-console.log(`models: ${JSON.stringify(MODELS)} | caps: ${LIMITS.calls} calls, $${LIMITS.usd}`);
+console.log(`models: designers+reflector ${MODELS.super}, research+tests ${MODELS.lightning} | caps: ${LIMITS.calls} calls, $${LIMITS.usd}`);
 const summary = await solve({ task: loadTaskA(), generations: Number(gens), runId, probes: Number(probes) });
 console.log(JSON.stringify(summary, null, 2));
 console.log(`\nreplay: http://localhost:5173/?run=${summary.runId}`);
