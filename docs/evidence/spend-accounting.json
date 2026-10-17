@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-17 ~13:45 PT",
+  "asOf": "2026-10-17 ~14:15 PT",
   "authorizationUsd": 2.0,
   "policy": "Ben raised the ceiling to $1.00, then authorized spend as needed to finish the demo today; working ceiling $2.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
   "items": [
@@ -146,17 +146,25 @@
       "youSearches": 0,
       "actualBasis": "runs/live-a-10/summary.json usage.usd",
       "unknownChargeReason": null
+    },
+    {
+      "item": "live-a-11",
+      "returnedUsageUsd": 0.0422056,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "runs/live-a-11/summary.json usage.usd",
+      "unknownChargeReason": null
     }
   ],
   "totals": {
-    "returnedUsageInferenceUsd": 0.3127,
+    "returnedUsageInferenceUsd": 0.3549,
     "unknownChargeReservationsUsd": 0.4316,
     "youSearches": 20,
     "youSearchBaseUsd": 0.1,
     "unconfirmed": "highlight-extraction surcharge on 7 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2, live-a-8 x2); You.com docs say extraction may add cost",
-    "conservativeCommittedUsd": 0.8442,
-    "returnedUsagePlusSearchBaseUsd": 0.4127,
-    "remainingUnderAuthorizationUsd": 1.1558
+    "conservativeCommittedUsd": 0.8864,
+    "returnedUsagePlusSearchBaseUsd": 0.4549,
+    "remainingUnderAuthorizationUsd": 1.1136
   },
-  "status": "Within the $2.00 working ceiling on the conservative basis ($0.8442 committed)."
+  "status": "Within the $2.00 working ceiling on the conservative basis ($0.8864 committed)."
 }

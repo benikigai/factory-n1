@@ -4,15 +4,15 @@ A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a
 
 Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
 
-## Where we are (14:20 PT)
+## Where we are (13:50 PT)
 
 | Question | Answer | Proof |
 |---|---|---|
-| Do the agents improve the floor? | **Yes, by 66%.** Validation score 18,061 → 6,083 (lower is better). That beats a one-line code fix (13,194) and random search with the same 41 simulator runs (13,099). | Run `live-a-7`, re-scored independently by Codex |
-| Did they reach the goal? | **No.** The champion ships 100/100 with 0 mis-sorts, but 4–12 packages are still damaged per training day, all on one 15-cell route. | `live-a-8`, `live-a-9` and `live-a-10` made no further progress. A $0 simulator sweep shows one pack-B move reaches the goal on all 15 development days; the designers mis-measured route lengths and never left the dock wall ([why](docs/evidence/zero-damage-feasibility.md)) |
+| Do the agents improve the floor? | **Yes, by 82%.** Validation score 18,061 → 3,283 (lower is better). At −66% (`live-a-7`) they already beat a one-line code fix (13,194) and random search with the same 41 simulator runs (13,099). | `live-a-7` re-scored independently by Codex; `live-a-11` re-scored from its saved layout |
+| Did they reach the goal? | **Yes, on all 15 development days** (the final split stays locked): 100/100 shipped, 0 mis-sorts, 0 damaged, every day under 25 minutes. Three runs failed first because the designers mis-measured route lengths. With a ruler tool (`measure_legs`), one move of one pack station fixed it. | `live-a-11`: 54 calls, $0.042 ([why it took a ruler](docs/evidence/zero-damage-feasibility.md)) |
 | Does shared memory help on new factories? | **No, it hurt.** Memory lost all 4 paired tests on two fresh factories (median score +2,357, worse). | [memory-eval-valid.md](docs/evidence/memory-eval-valid.md), n = 4 |
 | Can the numbers be trusted? | One frozen grader (hash `493a1b03…`) scores everything. Agents never score themselves, and every claim they make is checked. | Replays regenerate exactly |
-| What did it cost? | `live-a-7`: 61 model calls, $0.029. All runs: $0.313 inference plus $0.10 search; $0.844 counting uncertain reservations at their bound, inside a $2.00 ceiling. | [spend-accounting.json](docs/evidence/spend-accounting.json) |
+| What did it cost? | `live-a-7`: 61 model calls, $0.029. All runs: $0.355 inference plus $0.10 search; $0.886 counting uncertain reservations at their bound, inside a $2.00 ceiling. | [spend-accounting.json](docs/evidence/spend-accounting.json) |
 
 ## How it works
 

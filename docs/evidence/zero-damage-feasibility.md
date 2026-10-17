@@ -1,4 +1,4 @@
-# Zero damage: why the agents missed a one-move fix
+# Zero damage: why the agents missed a one-move fix, and the ruler that fixed it
 
 **Date:** 2026-10-17, about 13:45 PT. **Grader:** SIM 1.1.0, hash `493a1b03…` (unchanged).
 **Data:** train (6 days) and select (9 days) only. The final split stays locked.
@@ -36,3 +36,28 @@ The search space contains the fix, and the designers had the right rule. They fa
 Better wording did not close the gap: route lenses v1 and v2 both failed. The fix that matches the project's thesis is a measuring tool: code computes leg lengths for any draft, the same way code already computes the score. That has not been built or run yet.
 
 Reproduce: run the pack-B sweep against `runs/live-a-7/champion.json` with `evaluate(layout, "train" | "select")` from `src/sim/evaluate.ts`.
+
+## Result: `live-a-11` with a ruler
+
+Two changes went in together (commit `fd29078`), so their effects aren't separated:
+- `measure_legs`, a deterministic tool for designers. It lists every conveyor leg with its length and tries one station at candidate cells. It does geometry only: no simulator run, no grader threshold, and no evaluation budget.
+- One sentence in the rules: sorters and pack stations may sit on any free interior cell.
+
+Run settings: continue from `live-a-7`; route, quality and flow designers; 3 draft tests; 4 ruler uses per turn; research off; caps 200 calls / $0.30.
+
+| | live-a-7 champion | live-a-11 champion |
+|---|---|---|
+| Change | — | pack-B (0,4) → (3,5); nothing else moved |
+| Longest leg | 15 (sort-1 → pack-B) | 12 (recv-1 → sort-1); pack-B legs 11 / 8 |
+| Training (6 days) | 6,945.5, damaged on every day | **3,345.5, 0 damaged, 0 mis-sorts, 100/100** |
+| Validation (9 days) | 6,083.44, goal fails | **3,283.44, goal passes on every day**, slowest day 1,471 s |
+| Replay day peak-202 | 1,184 s, 4 damaged | **1,184 s, 0 damaged** |
+
+- The route designer called the ruler twice, tested one draft and submitted. It was accepted in generation 1.
+- Its rationale's arithmetic was correct: "cutting sort-1→pack-B from 15 to 11 cells … pack-B→ship-B at 8 cells".
+- No claim was refuted in the run.
+- The run used 54 calls and $0.042, with no retained reservations. It stopped on "goal met on validation days and no further gains for 2 generations".
+
+Re-scored from `runs/live-a-11/champion.json` with grader `493a1b03…` (unchanged): train 3,345.5 and select 3,283.44, with 0 damaged, 0 mis-sorts and 100 shipped on all 15 days. The final split was not used.
+
+Published as `recorded/live-a-11`.

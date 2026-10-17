@@ -16,11 +16,11 @@
 | Agents beat a code heuristic and blind search at the **same simulator budget** | ✅ every run with comparators | `live-a-7`: validation **18,061 → 6,083 (−66.3%)** vs heuristic 13,194 and random search 13,099 with the same 41 evaluations. Independently re-scored (Codex) |
 | One frozen grader everywhere | ✅ | SIM 1.1.0, hash `493a1b03…` in every record; replays regenerate exactly |
 | Model claims are checked, not trusted | ✅ | CLAIM REFUTED: **4/7** blind predictions (`live-a-1`) vs **0/7** after designers test drafts (`live-a-5`) |
-| Zero damage | ❌ **not reached yet** | Best champion ships 100/100 with 0 mis-sorts on all 15 days; damage 4–12 per training day, all from one 15-cell route. `live-a-8` and `live-a-9` made no progress: the route fixer shortened sorter→pack-B but created a 17-cell pack-B→ship leg, so damage moved. `live-a-10` (lens revised to bound both legs) also made no change; 6 of 9 proposals were duplicates. A local sweep shows the fix exists: 47 of 295 pack-B cells give zero damage, exactly those with both legs ≤ 12, and pack-B at (6,4) passes the full goal on all 15 development days. The designers stayed on the dock wall and mis-measured legs ([evidence](../evidence/zero-damage-feasibility.md)) |
+| Zero damage, full goal | ✅ **on all 15 development days** (final split stays locked) | `live-a-11`: one move, pack-B (0,4) → (3,5), found by the route designer after two `measure_legs` ruler calls. **0 damaged, 0 mis-sorts, 100/100 shipped, every day ≤ 1,471 s** on 6 training + 9 validation days; validation **18,061 → 3,283 (−81.8%)**. 54 calls, $0.042. Re-scored from the saved layout with the frozen grader. Before the ruler, `live-a-8/9/10` failed: designers stayed on the dock wall and mis-measured legs (claimed 12 cells for a 17-cell leg) ([evidence](../evidence/zero-damage-feasibility.md)) |
 | Retained shared memory helps on fresh factories | ❌ **refuted for this memory** | Pre-registered paired test, equal hard caps: **0 wins / 0 ties / 4 losses**, median +2,357 (worse), n = 4 |
-| Spend is controlled and auditable | ✅ | Every run capped; `spend-accounting.json` splits returned usage ($0.313) from unknown-charge reservations ($0.432); $0.844 committed on the conservative basis against a $2.00 working ceiling |
+| Spend is controlled and auditable | ✅ | Every run capped; `spend-accounting.json` splits returned usage ($0.355) from unknown-charge reservations ($0.432); $0.886 committed on the conservative basis against a $2.00 working ceiling |
 
-**Our perspective:** recursive self-improvement only matters if it's **honest**. The model proposes and the grader disposes. Every on-screen number is computed by code, and negative results are shown as prominently as wins. That's what lets a judge trust the −66%.
+**Our perspective:** recursive self-improvement only matters if it's **honest**. The model proposes and the grader disposes. Every on-screen number is computed by code, and negative results are shown as prominently as wins. That's what lets a judge trust the −66%, and the −82% that followed once we gave the model a ruler.
 
 ---
 
@@ -74,6 +74,10 @@ The **3D viewer** (plain three.js) replays the *exact scored traces*: the same p
    - The memory test was locked first: frozen Playbook hash, seeded fresh factories, alternating order, equal hard caps, final split scored once.
    - Memory **hurt**: 7/24 invalid proposals vs 2/24, because lessons carried factory A's coordinates. It's reported rather than tuned away.
 
+9. **A ruler, not a better prompt.**
+   - Three runs failed to reach zero damage. Rewording the route designer twice didn't help: it kept mis-measuring legs (it called a 17-cell leg 12) and never left the dock wall.
+   - We added `measure_legs`, a deterministic tool that measures every conveyor leg and tries one station at candidate cells. It is geometry only, with no simulator run and no grader threshold. The rules also now say pack stations may sit inland.
+   - The next run, `live-a-11`, met the full goal in generation 1, and its rationale's arithmetic was correct (15 → 11 cells). Same pattern as the grader: let code measure, let the model choose. Caveat: the ruler and the rule note shipped together, so their effects aren't separated.
 ---
 
 ## 4. Sponsor toolsets: what each uniquely contributed
@@ -92,8 +96,8 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 
 | Track | Built | Proof | Gap |
 |---|---|---|---|
-| **Version N+1** | Ratchet over generations; continue-from-run across runs; equal-budget comparators; lens set as solver policy | `live-a-7` −66.3%; `live-a-3` had 2 consecutive accepts | Gains land mostly in gen 1; retained memory didn't transfer (0/4) |
-| **Done Means Done** | Executable goal checks with a fixed floor; frozen grader; predict-then-verify; supervisor stop/re-plan; hard caps; INVALID/INCOMPLETE labels | Goal FAIL shown honestly; refutation rates; invalid run labeled and rerun | The goal is hand-written; the goal compiler (planner, auditor, feasibility proofs) is in progress (Codex) |
+| **Version N+1** | Ratchet over generations; continue-from-run across runs; equal-budget comparators; lens set as solver policy | `live-a-7` −66.3%, then `live-a-11` continued from it to −81.8% with the goal met; `live-a-3` had 2 consecutive accepts | Gains land mostly in gen 1; retained memory didn't transfer (0/4) |
+| **Done Means Done** | Executable goal checks with a fixed floor; frozen grader; predict-then-verify; supervisor stop/re-plan; hard caps; INVALID/INCOMPLETE labels | Goal FAIL shown honestly until `live-a-11` met it on all 15 development days; refutation rates; invalid run labeled and rerun | The goal is hand-written; the goal compiler (planner, auditor, feasibility proofs) is in progress (Codex) |
 | **Shared Brain** | Event-sourced memory, evidence labels, citations ≠ evidence, byte-stable prefix | Cache up to 49%; two memory bugs found, fixed and tested | Quality gain on fresh factories refuted (n = 4) |
 
 ---
@@ -112,6 +116,7 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 | live-a-8 | continue from a-7, 3 draft tests | no change | duplicates; 49% cache hits |
 | live-a-9 | continue from a-7, ROUTE FIXER lens, no research | no change | damage moved to the pack→ship leg; 429s from research handled |
 | live-a-10 | revised route lens (both legs), no research | no change | 42 calls, $0.027; leg arithmetic wrong (claimed 12, actual 17); zero-damage cells exist ([feasibility](../evidence/zero-damage-feasibility.md)) |
+| **live-a-11** | **`measure_legs` ruler + inland-placement rule**, continue from a-7 | **→ 3,283 (−81.8%), goal met on all 15 development days** | 54 calls, $0.042; accepted in gen 1; 0 refuted claims |
 | memeval-…19-33-01 | memory vs none, F/G | INVALID | connection error starved arms |
 | **memeval-…19-41-04** | memory vs none, F/G | **0W/0T/4L** | valid negative result |
 
@@ -131,7 +136,10 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 | 12:37 | `fc328ae` | First memory evaluation **INVALID**, labeled; byte-bound reservations |
 | 12:40–12:47 | `0d47833` · `3336bbc` | Fail-fast rules; **valid memory evaluation: negative** |
 | 13:00–13:10 | `fd0c6f1` · `0959adf` | Continue-from-run, route-fixer lens, team briefs |
-| 13:15–14:20 | `0a3d731` · this branch | As-built spec; landing "proof board" with live goal checks on the recorded replay; static build verified |
+| 13:15 | `0a3d731` | As-built spec with proof, sponsor strengths and work log |
+| 13:15–13:30 | `33cfb0d` · `bef0265` | Landing "proof board" with live goal checks on the recorded replay; static build verified; README branch merged |
+| 13:35–13:45 | `8471eb7` | `live-a-10` fails; a $0 sweep proves a one-move fix exists and shows why designers miss it |
+| 13:45–13:50 | `fd29078` | `measure_legs` ruler; **`live-a-11` meets the full goal** (−81.8%) |
 
 **Independent verification (Codex):** exact replay and re-scoring of `live-a-1/2/4/5/7`, cap audits, validity audits of both memory evaluations.
 
@@ -144,6 +152,7 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 3. **"Testing your own drafts makes you honest."** Refuted claims fell from 4/7 to 0/7.
 4. **"Memory can make agents worse."** Factory-specific lessons transferred badly (0/4), which is why evidence is labeled and tests are pre-registered.
 5. **"Every hero number was recomputed by someone else."**
+6. **"We gave the model a ruler."** Three runs couldn't close the last 15-cell route; with a measuring tool, one move met the goal on every development day (−81.8%).
 
 ---
 
@@ -155,6 +164,6 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 | Codex Sol | Stage checkpoints and resume; goal compiler (planner, auditor, feasibility); static agent-team view |
 | Argon 4 | Memory-transfer post-mortem and pre-registered fix; Screen Studio kit; site QA |
 
-**Open:** zero damage; goal compiler; static deploy at the 3:45 freeze (Ben's go-ahead); submission by 5:00.
+**Open:** independent re-check of `live-a-11` (Codex); hero switch to `live-a-11` on the site (Codex owns `web/`); goal compiler; static deploy at the 3:45 freeze (Ben's go-ahead); submission by 5:00.
 
 Research notes: `factory-n1-research.md`. Briefs: `docs/team/briefs-2026-10-17.md`.

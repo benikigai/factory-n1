@@ -1,0 +1,90 @@
+{
+  "name": "route-fixer-1",
+  "grid": {
+    "w": 24,
+    "h": 14
+  },
+  "stations": [
+    {
+      "id": "recv-1",
+      "kind": "receiving",
+      "x": 0,
+      "y": 7
+    },
+    {
+      "id": "sort-1",
+      "kind": "sorter",
+      "x": 12,
+      "y": 7
+    },
+    {
+      "id": "pack-A",
+      "kind": "pack",
+      "x": 14,
+      "y": 13,
+      "zones": [
+        "A"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "pack-B",
+      "kind": "pack",
+      "x": 3,
+      "y": 5,
+      "zones": [
+        "B"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "pack-C",
+      "kind": "pack",
+      "x": 12,
+      "y": 2,
+      "zones": [
+        "C"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L"
+      ]
+    },
+    {
+      "id": "ship-A",
+      "kind": "shipping",
+      "x": 23,
+      "y": 13,
+      "zones": [
+        "A"
+      ]
+    },
+    {
+      "id": "ship-B",
+      "kind": "shipping",
+      "x": 0,
+      "y": 0,
+      "zones": [
+        "B"
+      ]
+    },
+    {
+      "id": "ship-C",
+      "kind": "shipping",
+      "x": 12,
+      "y": 0,
+      "zones": [
+        "C"
+      ]
+    }
+  ]
+}
