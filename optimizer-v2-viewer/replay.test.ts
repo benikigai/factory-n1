@@ -10,8 +10,8 @@ import { buildingHash, contentHash, layoutHash } from '../src/training/generate.
 import { legalMoveActions, type OptimizerCase } from '../src/training/optimizer-data.ts';
 import { applyAction, measureLayout } from '../src/training/optimizer.ts';
 import { summarizeV2 } from '../src/training/optimizer-v2-evaluate.ts';
-import { MODELS, BASELINES } from './types.ts';
-import { buildV2Replays, exportV2Replays, normalizeContinuation, type SavedV2Report, type SavedContinuationReport, type ContinuationManifest } from './replay.ts';
+import { MODELS, BASELINES, modelLabel } from './types.ts';
+import { buildV2Replays, buildInterruptedReplays, exportV2Replays, normalizeContinuation, INTERRUPTED_BANNER, type PartialAudit, type SavedV2Report, type SavedContinuationReport, type ContinuationManifest } from './replay.ts';
 
 function fixture(ids = ['fixture-1', 'fixture-2', 'fixture-3']) {
   // The canonical historical factory is already excluded from the sealed test set.
@@ -34,6 +34,19 @@ function fixture(ids = ['fixture-1', 'fixture-2', 'fixture-3']) {
   return { cases, report };
 }
 const options = () => ({ createdAt: '2026-10-17T00:00:00.000Z', graderHash: graderHash(), mode: 'synthetic' as const });
+
+function partialFixture() {
+  const ids = Array.from({ length: 20 }, (_, i) => `optimizer-v2-test-building-${i + 1}`).sort();
+  const { cases, report } = fixture(ids);
+  const eligibleFactoryIds = ['optimizer-v2-test-building-1', 'optimizer-v2-test-building-10'];
+  const interrupted: SavedContinuationReport = { schemaVersion: 1, completed: false, terminalReason: 'provider_failure_charge_unknown', primaryFactoryCount: 19, all20Completed: false, excludedFactory: 'optimizer-v2-test-building-11', disclosure: 'Synthetic interrupted fixture', overall: report.overall, cases: report.cases.filter(state => state.caseId !== 'optimizer-v2-test-building-11'), accounting: { originalResolvedRequests: 93, originalUnknownRequests: 1, combinedModelCalls: 108 } };
+  const perFactory: PartialAudit['perFactory'] = eligibleFactoryIds.map(id => ({ id, arms: Object.fromEntries([...MODELS, ...BASELINES].map(arm => {
+    const state = interrupted.cases.find(value => value.caseId === id && value.arm === arm)!;
+    return [arm, { attemptedProposals: state.nextRound, acceptedMoves: state.accepted, invalidActions: state.invalid, snapshots: Object.fromEntries((['initial', 'round3', 'round12'] as const).map(snapshot => { const value = state.final![snapshot]; return [snapshot, { objective: value.objective!, meanDamagePerDay: value.metrics!.damaged, meanMakespan: value.metrics!.makespan, totalDamaged: value.days.reduce((sum, day) => sum + day.metrics.damaged, 0), zeroDamage: value.days.every(day => day.metrics.damaged === 0), fullGoal: value.goalMet }]; })) }];
+  })) as PartialAudit['perFactory'][number]['arms'] }));
+  const audit: PartialAudit = { status: 'partial-evidence-verified', intendedComparisonCompleted: false, intendedPrimaryFactories: 19, originalPopulation: 20, primaryWinnerEstablished: false, eligibleFactoryIds, perFactory, hashes: { continuationResults: '', plan: '', planContent: '', testData: '', dataManifest: '', grader: graderHash(), manifest: '' } };
+  return { cases, interrupted, audit };
+}
 
 test('v2 export retains wins, ties and losses plus measured three/twelve snapshots', () => {
   const { cases, report } = fixture(), result = buildV2Replays(report, cases, options());
@@ -156,4 +169,51 @@ test('filesystem exports support completed twenty and disclosed nineteen, using 
     rmSync(normalOutput, { recursive: true, force: true });
     rmSync(continuationOutput, { recursive: true, force: true });
   }
+});
+
+test('interrupted view is limited to audited two factories and publishes no aggregate result', () => {
+  const { cases, interrupted, audit } = partialFixture();
+  const result = buildInterruptedReplays(interrupted, cases, audit, options());
+  assert.equal(result.catalog.aggregate, null);
+  assert.equal(result.catalog.cohort.kind, 'interrupted');
+  assert.equal(result.catalog.cohort.disclosure, INTERRUPTED_BANNER);
+  assert.equal(result.catalog.cohort.originalFactories, 20);
+  assert.equal(result.catalog.cohort.includedFactories, 2);
+  assert.deepEqual(result.catalog.cases.map(item => item.id), audit.eligibleFactoryIds);
+  assert.equal(result.replays.size, 8);
+  assert.equal(result.catalog.defaultCaseId, 'optimizer-v2-test-building-1');
+  assert.throws(() => buildInterruptedReplays(interrupted, cases, { ...audit, status: 'pending' }, options()), /Partial audit/);
+  assert.throws(() => buildInterruptedReplays(interrupted, cases, { ...audit, primaryWinnerEstablished: true }, options()), /Partial audit/);
+  const changed = structuredClone(audit); changed.perFactory[0].arms[MODELS[0]].snapshots.round12.objective++;
+  assert.throws(() => buildInterruptedReplays(interrupted, cases, changed, options()), /independent-audit/);
+  assert.equal(modelLabel('factory-optimizer-v2', { 'factory-optimizer-v2': { epochs: 1 } as any }), 'Goal curriculum · 1 epoch');
+});
+
+test('interrupted filesystem export binds the audit and every source hash before producing eight traces', () => {
+  const { cases, interrupted, audit } = partialFixture();
+  const directory = mkdtempSync(join(tmpdir(), 'factory-v2-partial-'));
+  const output = `runs/optimizer-v2-viewer/${directory.split('/').at(-1)!}`;
+  try {
+    for (const name of ['data', 'engine']) mkdirSync(join(directory, name));
+    const casesText = cases.map(item => JSON.stringify(item)).join('\n') + '\n', reportText = JSON.stringify(interrupted), manifestText = '{}', continuationManifestText = '{}';
+    const plan = { datasetHash: contentHash(casesText), datasetBytes: Buffer.byteLength(casesText), graderHash: graderHash() }, planText = JSON.stringify(plan);
+    audit.hashes = { continuationResults: contentHash(reportText), plan: contentHash(planText), planContent: contentHash(plan), testData: contentHash(casesText), dataManifest: contentHash(manifestText), grader: graderHash(), manifest: contentHash(continuationManifestText) };
+    const auditText = JSON.stringify(audit), auditPath = join(directory, 'audit.json');
+    writeFileSync(auditPath, auditText);
+    writeFileSync(join(directory, 'continuation-results.json'), reportText);
+    writeFileSync(join(directory, 'continuation-manifest.json'), continuationManifestText);
+    writeFileSync(join(directory, 'engine/evaluation-plan.json'), planText);
+    writeFileSync(join(directory, 'data/manifest.json'), manifestText);
+    writeFileSync(join(directory, 'data/test-factories.jsonl'), casesText);
+    const args = { evaluationDirectory: directory, dataDirectory: join(directory, 'data'), outputDirectory: output, mode: 'interrupted' as const, auditPath, auditSha256: contentHash(auditText) };
+    assert.throws(() => exportV2Replays({ ...args, auditSha256: '0'.repeat(64) }), /audit file hash/);
+    writeFileSync(join(directory, 'continuation-results.json'), reportText + ' ');
+    assert.throws(() => exportV2Replays(args), /Audited results hash/);
+    writeFileSync(join(directory, 'continuation-results.json'), reportText);
+    const result = exportV2Replays(args);
+    assert.equal(result.factories, 2); assert.equal(result.scenarioFiles, 8);
+    const catalog = JSON.parse(readFileSync(join(output, 'catalog.json'), 'utf8'));
+    assert.equal(catalog.aggregate, null);
+    assert.equal(catalog.sourceHashes.partialAudit, contentHash(auditText));
+  } finally { rmSync(directory, { recursive: true }); rmSync(output, { recursive: true, force: true }); }
 });

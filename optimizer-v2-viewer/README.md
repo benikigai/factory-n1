@@ -17,4 +17,6 @@ The exporter refuses incomplete evaluations before reading sealed factories, re-
 
 For an independently audited 19-factory continuation, add `--mode continuation` and point `--evaluation` at the continuation root. This reads `continuation-results.json` and verifies the manifest's nineteen included IDs plus the one excluded interrupted factory. A permanent banner discloses the original twenty-factory scope, exclusion, examined partial results and unresolved request. All headline rates use nineteen. The internal `engine/metrics.json` is refused in ordinary mode and is never presented as a completed twenty-factory comparison.
 
+For the interrupted pilot, use `--mode interrupted --audit PATH --audit-sha256 VERIFIED_HASH`. This requires a passed independent partial audit, its verified file hash, matching underlying evidence hashes, and exactly factories 1 and 10. It re-scores every displayed snapshot and compares it with the audit. The page says the nineteen-factory continuation is incomplete, shows no aggregate comparison or winner, and limits playback to those two exploratory cases. Model epoch labels come from the saved serving provenance.
+
 This is a small synthetic benchmark. More accepted moves or a lower objective alone does not establish zero damage or full-goal completion. The geometric reference has extra rule knowledge and planning computation.

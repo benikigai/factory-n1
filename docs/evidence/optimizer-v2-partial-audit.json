@@ -1,0 +1,1003 @@
+{
+  "status": "partial-evidence-verified",
+  "createdAt": "2026-10-17T23:45:56.085Z",
+  "intendedComparisonCompleted": false,
+  "intendedPrimaryFactories": 19,
+  "originalPopulation": 20,
+  "primaryWinnerEstablished": false,
+  "scope": "Two completed factory pairs only, exploratory and not a valid nineteen-factory model comparison.",
+  "eligibilityRule": "All four model arms stopped explicitly or received twelve proposals and have initial, round-three and final measurements; exclude designated interrupted factory 11. No selection by objective score.",
+  "eligibleFactoryIds": [
+    "optimizer-v2-test-building-1",
+    "optimizer-v2-test-building-10"
+  ],
+  "incompletePrimaryFactoryIds": [
+    "optimizer-v2-test-building-12",
+    "optimizer-v2-test-building-13",
+    "optimizer-v2-test-building-14",
+    "optimizer-v2-test-building-15",
+    "optimizer-v2-test-building-16",
+    "optimizer-v2-test-building-17",
+    "optimizer-v2-test-building-18",
+    "optimizer-v2-test-building-19",
+    "optimizer-v2-test-building-2",
+    "optimizer-v2-test-building-20",
+    "optimizer-v2-test-building-3",
+    "optimizer-v2-test-building-4",
+    "optimizer-v2-test-building-5",
+    "optimizer-v2-test-building-6",
+    "optimizer-v2-test-building-7",
+    "optimizer-v2-test-building-8",
+    "optimizer-v2-test-building-9"
+  ],
+  "excludedFactory": "optimizer-v2-test-building-11",
+  "unknownRequests": [
+    {
+      "id": "optimizer-v2-test-building-12-factory-optimizer-v2-3",
+      "arm": "factory-optimizer-v2",
+      "round": 3,
+      "reservedTokens": 13056,
+      "requestHash": "0e61c4a05ddd15493a795d3623a21ecfaadd7f6fe784b13184dfc9480727c97d",
+      "status": "unknown",
+      "outputKnown": false
+    },
+    {
+      "id": "optimizer-v2-test-building-11-factory-optimizer-v1-1",
+      "arm": "factory-optimizer-v1",
+      "round": 1,
+      "reservedTokens": 8687,
+      "requestHash": "7e7b009a42c933620d51a366737035f65f0b468a7eb188bcaf7cd6e1698add8f",
+      "status": "unknown",
+      "outputKnown": false
+    }
+  ],
+  "accounting": {
+    "original": {
+      "factory-optimizer-base": {
+        "modelCalls": 26,
+        "knownTokens": 36645,
+        "unknownReservedTokens": 0,
+        "simulations": 268
+      },
+      "factory-optimizer-v1": {
+        "modelCalls": 26,
+        "knownTokens": 47498,
+        "unknownReservedTokens": 8687,
+        "simulations": 312
+      },
+      "factory-optimizer-old3": {
+        "modelCalls": 25,
+        "knownTokens": 51923,
+        "unknownReservedTokens": 0,
+        "simulations": 332
+      },
+      "factory-optimizer-v2": {
+        "modelCalls": 17,
+        "knownTokens": 32024,
+        "unknownReservedTokens": 0,
+        "simulations": 304
+      },
+      "random": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 352
+      },
+      "geometric-teacher": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 276
+      }
+    },
+    "active": {
+      "factory-optimizer-base": {
+        "modelCalls": 27,
+        "knownTokens": 37935,
+        "unknownReservedTokens": 0,
+        "simulations": 252
+      },
+      "factory-optimizer-v1": {
+        "modelCalls": 27,
+        "knownTokens": 50779,
+        "unknownReservedTokens": 0,
+        "simulations": 308
+      },
+      "factory-optimizer-old3": {
+        "modelCalls": 28,
+        "knownTokens": 57296,
+        "unknownReservedTokens": 0,
+        "simulations": 324
+      },
+      "factory-optimizer-v2": {
+        "modelCalls": 19,
+        "knownTokens": 34465,
+        "unknownReservedTokens": 13056,
+        "simulations": 300
+      },
+      "random": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 348
+      },
+      "geometric-teacher": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 272
+      }
+    },
+    "abandonedAndAuditOverhead": {
+      "factory-optimizer-base": {
+        "modelCalls": 2,
+        "knownTokens": 2412,
+        "unknownReservedTokens": 0,
+        "simulations": 248
+      },
+      "factory-optimizer-v1": {
+        "modelCalls": 2,
+        "knownTokens": 1183,
+        "unknownReservedTokens": 8687,
+        "simulations": 244
+      },
+      "factory-optimizer-old3": {
+        "modelCalls": 1,
+        "knownTokens": 1183,
+        "unknownReservedTokens": 0,
+        "simulations": 248
+      },
+      "factory-optimizer-v2": {
+        "modelCalls": 2,
+        "knownTokens": 2411,
+        "unknownReservedTokens": 0,
+        "simulations": 248
+      },
+      "random": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 248
+      },
+      "geometric-teacher": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 248
+      }
+    },
+    "combined": {
+      "factory-optimizer-base": {
+        "modelCalls": 29,
+        "knownTokens": 40347,
+        "unknownReservedTokens": 0,
+        "simulations": 500
+      },
+      "factory-optimizer-v1": {
+        "modelCalls": 29,
+        "knownTokens": 51962,
+        "unknownReservedTokens": 8687,
+        "simulations": 552
+      },
+      "factory-optimizer-old3": {
+        "modelCalls": 29,
+        "knownTokens": 58479,
+        "unknownReservedTokens": 0,
+        "simulations": 572
+      },
+      "factory-optimizer-v2": {
+        "modelCalls": 21,
+        "knownTokens": 36876,
+        "unknownReservedTokens": 13056,
+        "simulations": 548
+      },
+      "random": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 596
+      },
+      "geometric-teacher": {
+        "modelCalls": 0,
+        "knownTokens": 0,
+        "unknownReservedTokens": 0,
+        "simulations": 520
+      }
+    },
+    "originalResolvedRequests": 93,
+    "originalUnknownRequests": 1,
+    "combinedModelCalls": 108,
+    "originalCaps": {
+      "calls": 960,
+      "tokensPerArm": 4000000,
+      "activeSimulationsPerArm": 1280
+    },
+    "abandonedPlanning": {
+      "simulations": 20,
+      "elapsedMs": 34
+    }
+  },
+  "totalResolvedCalls": 106,
+  "totalUnknownCalls": 2,
+  "totalKnownTokens": 187664,
+  "totalUnknownReservedTokens": 21743,
+  "timing": {
+    "originalElapsedMs": 169249,
+    "pausedMs": 875021,
+    "continuationElapsedMs": 30669,
+    "activeElapsedMs": 199918,
+    "allowanceMs": 1800000,
+    "resumedAt": 1792280662721,
+    "originalEndedAt": 1792279787700,
+    "originalDeadline": 1792281418451,
+    "effectiveDeadline": 1792282132000,
+    "absoluteWorkstop": 1792282132000,
+    "recordedEnd": 1792280693390,
+    "evidence": "Original and engine persisted elapsed counters plus the declared preparation timestamp; no extra inference is granted by the pause."
+  },
+  "training": {
+    "verified": true,
+    "records": [
+      {
+        "condition": "v1",
+        "epochs": 1,
+        "optimizerSteps": 150,
+        "trainingJobId": "vm-optimizer-f4ecf989ca0b482a8fb8aa4638a63595",
+        "manifestHash": "a274bc32b9199ad146b1f6706e75104828b3b1bb09e6d0640e529b1645944354",
+        "adapterHashes": {
+          "adapter_config.json": "92669ee447f5464c5eb2641ca350f2b815309ec7575fadd40b8f55f3d870cafd",
+          "adapter_model.safetensors": "36017222cfccc931a3db069cc72392bae9640c5df7cddc601ac30579318f8957"
+        },
+        "verifiedEpochs": []
+      },
+      {
+        "condition": "old3",
+        "epochs": 3,
+        "optimizerSteps": 450,
+        "trainingJobId": "vm-optimizer-760bae368e4d4d32bf23d3aff3835406",
+        "manifestHash": "3f0fc47dd969b782e0b435058ea82586c4807bad0ddf1f52b3b68fa32077b0fb",
+        "adapterHashes": {
+          "adapter_config.json": "f7165e680179615afdd94a1ea0c99e36fb588d632a4f7df571df6012149d9a42",
+          "adapter_model.safetensors": "35c4611406306651a825fcf260d8d26dc6bf1d7ff3937f21e4186c0f61ca9b01"
+        },
+        "verifiedEpochs": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "condition": "v2",
+        "epochs": 1,
+        "optimizerSteps": 150,
+        "trainingJobId": "vm-optimizer-5227acebded04a50b350a5142d15a7cc",
+        "manifestHash": "ea5f313c8051325c2d6022637d9269f57465d3423d2e9a67d52091782f11bbbc",
+        "adapterHashes": {
+          "adapter_config.json": "c447971450a61141488bf2f8014ba9fb5187ba095db639623529d033c26a9315",
+          "adapter_model.safetensors": "b1d7a99bb87f702362272e1ab026521fddc12f0a1ab578ad3b52366a5973737a"
+        },
+        "verifiedEpochs": [
+          1
+        ]
+      }
+    ],
+    "bundleManifestHash": "49cfbd44269da4f5e82ae4ec3603df6f276a840b915bf37860b934a5ddf8072b"
+  },
+  "directSimulatorCalls": 504,
+  "perFactory": [
+    {
+      "id": "optimizer-v2-test-building-1",
+      "arms": {
+        "factory-optimizer-base": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 1,
+          "invalidActions": 9,
+          "invalidCauses": {
+            "Illegal move: pack-A-1 and pack-A-2 are closer than 2 cells": 1,
+            "Move must change the station position": 8
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 6708.5,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1108.5,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "factory-optimizer-v1": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 2,
+          "invalidActions": 4,
+          "invalidCauses": {
+            "Illegal move: pack-B-1 and pack-B-2 are closer than 2 cells": 2,
+            "Illegal move: pack-A-1 and pack-A-2 are closer than 2 cells": 2
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 5067.5,
+              "meanDamagePerDay": 2.25,
+              "meanMakespan": 1117.5,
+              "totalDamaged": 9,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 4614.75,
+              "meanDamagePerDay": 1.5,
+              "meanMakespan": 1114.75,
+              "totalDamaged": 6,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "factory-optimizer-old3": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 4,
+          "invalidActions": 3,
+          "invalidCauses": {
+            "Illegal move: pack-C-1 and pack-A-1 are closer than 2 cells; pack-C-2 and pack-A-1 are closer than 2 cells": 1,
+            "Illegal move: pack-C-1 and pack-C-2 are closer than 2 cells": 1,
+            "Illegal move: pack-C-2 and pack-A-1 are closer than 2 cells": 1
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 3697.25,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1097.25,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            },
+            "round12": {
+              "objective": 3696,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1096,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            }
+          }
+        },
+        "factory-optimizer-v2": {
+          "attemptedProposals": 3,
+          "offeredProposals": 12,
+          "stopped": true,
+          "acceptedMoves": 2,
+          "invalidActions": 0,
+          "invalidCauses": {},
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 3703.5,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1103.5,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            },
+            "round12": {
+              "objective": 3703.5,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1103.5,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            }
+          }
+        },
+        "random": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 3,
+          "invalidActions": 0,
+          "invalidCauses": {},
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 6110.25,
+              "meanDamagePerDay": 4,
+              "meanMakespan": 1110.25,
+              "totalDamaged": 16,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 5953.25,
+              "meanDamagePerDay": 3.75,
+              "meanMakespan": 1103.25,
+              "totalDamaged": 15,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "geometric-teacher": {
+          "attemptedProposals": 3,
+          "offeredProposals": 12,
+          "stopped": true,
+          "acceptedMoves": 2,
+          "invalidActions": 0,
+          "invalidCauses": {},
+          "snapshots": {
+            "initial": {
+              "objective": 6705,
+              "meanDamagePerDay": 5,
+              "meanMakespan": 1105,
+              "totalDamaged": 20,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 3703.5,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1103.5,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            },
+            "round12": {
+              "objective": 3703.5,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1103.5,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "optimizer-v2-test-building-10",
+      "arms": {
+        "factory-optimizer-base": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 0,
+          "invalidActions": 12,
+          "invalidCauses": {
+            "Move must change the station position": 12
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "factory-optimizer-v1": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 3,
+          "invalidActions": 5,
+          "invalidCauses": {
+            "Illegal move: pack-A-1 and pack-A-2 are closer than 2 cells": 4,
+            "Move must change the station position": 1
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 5414.25,
+              "meanDamagePerDay": 2.75,
+              "meanMakespan": 1164.25,
+              "totalDamaged": 11,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 5414.25,
+              "meanDamagePerDay": 2.75,
+              "meanMakespan": 1164.25,
+              "totalDamaged": 11,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "factory-optimizer-old3": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 4,
+          "invalidActions": 2,
+          "invalidCauses": {
+            "Illegal move: pack-C-1 and pack-B-1 are closer than 2 cells": 1,
+            "Illegal move: pack-B-1 and pack-B-2 are closer than 2 cells": 1
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 5411.5,
+              "meanDamagePerDay": 2.75,
+              "meanMakespan": 1161.5,
+              "totalDamaged": 11,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 3768.25,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1168.25,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            }
+          }
+        },
+        "factory-optimizer-v2": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 2,
+          "invalidActions": 2,
+          "invalidCauses": {
+            "Illegal move: sort-1 and pack-C-1 are closer than 2 cells": 1,
+            "Illegal move: recv-1 and pack-C-1 are closer than 2 cells": 1
+          },
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 8771,
+              "meanDamagePerDay": 8.25,
+              "meanMakespan": 1221,
+              "totalDamaged": 33,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 8769.75,
+              "meanDamagePerDay": 8.25,
+              "meanMakespan": 1219.75,
+              "totalDamaged": 33,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "random": {
+          "attemptedProposals": 12,
+          "offeredProposals": 12,
+          "stopped": false,
+          "acceptedMoves": 4,
+          "invalidActions": 0,
+          "invalidCauses": {},
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 9176,
+              "meanDamagePerDay": 9,
+              "meanMakespan": 1176,
+              "totalDamaged": 36,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round12": {
+              "objective": 6616.5,
+              "meanDamagePerDay": 4.75,
+              "meanMakespan": 1166.5,
+              "totalDamaged": 19,
+              "zeroDamage": false,
+              "fullGoal": false
+            }
+          }
+        },
+        "geometric-teacher": {
+          "attemptedProposals": 4,
+          "offeredProposals": 12,
+          "stopped": true,
+          "acceptedMoves": 3,
+          "invalidActions": 0,
+          "invalidCauses": {},
+          "snapshots": {
+            "initial": {
+              "objective": 9048.25,
+              "meanDamagePerDay": 8.75,
+              "meanMakespan": 1198.25,
+              "totalDamaged": 35,
+              "zeroDamage": false,
+              "fullGoal": false
+            },
+            "round3": {
+              "objective": 3768.25,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1168.25,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            },
+            "round12": {
+              "objective": 3768.25,
+              "meanDamagePerDay": 0,
+              "meanMakespan": 1168.25,
+              "totalDamaged": 0,
+              "zeroDamage": true,
+              "fullGoal": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "factory-optimizer-base": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7878.375,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1153.375,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      }
+    },
+    "factory-optimizer-v1": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 5240.875,
+        "meanDamagePerDay": 2.5,
+        "meanMakespan": 1140.875,
+        "totalDamaged": 20,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 5014.5,
+        "meanDamagePerDay": 2.125,
+        "meanMakespan": 1139.5,
+        "totalDamaged": 17,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      }
+    },
+    "factory-optimizer-old3": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 4554.375,
+        "meanDamagePerDay": 1.375,
+        "meanMakespan": 1129.375,
+        "totalDamaged": 11,
+        "zeroDamageFactories": 1,
+        "fullGoalFactories": 1
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 3732.125,
+        "meanDamagePerDay": 0,
+        "meanMakespan": 1132.125,
+        "totalDamaged": 0,
+        "zeroDamageFactories": 2,
+        "fullGoalFactories": 2
+      }
+    },
+    "factory-optimizer-v2": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 6237.25,
+        "meanDamagePerDay": 4.125,
+        "meanMakespan": 1162.25,
+        "totalDamaged": 33,
+        "zeroDamageFactories": 1,
+        "fullGoalFactories": 1
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 6236.625,
+        "meanDamagePerDay": 4.125,
+        "meanMakespan": 1161.625,
+        "totalDamaged": 33,
+        "zeroDamageFactories": 1,
+        "fullGoalFactories": 1
+      }
+    },
+    "random": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7643.125,
+        "meanDamagePerDay": 6.5,
+        "meanMakespan": 1143.125,
+        "totalDamaged": 52,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 6284.875,
+        "meanDamagePerDay": 4.25,
+        "meanMakespan": 1134.875,
+        "totalDamaged": 34,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      }
+    },
+    "geometric-teacher": {
+      "initial": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 7876.625,
+        "meanDamagePerDay": 6.875,
+        "meanMakespan": 1151.625,
+        "totalDamaged": 55,
+        "zeroDamageFactories": 0,
+        "fullGoalFactories": 0
+      },
+      "round3": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 3735.875,
+        "meanDamagePerDay": 0,
+        "meanMakespan": 1135.875,
+        "totalDamaged": 0,
+        "zeroDamageFactories": 2,
+        "fullGoalFactories": 2
+      },
+      "round12": {
+        "factories": 2,
+        "factoryDays": 8,
+        "meanObjective": 3735.875,
+        "meanDamagePerDay": 0,
+        "meanMakespan": 1135.875,
+        "totalDamaged": 0,
+        "zeroDamageFactories": 2,
+        "fullGoalFactories": 2
+      }
+    }
+  },
+  "paired": {
+    "round3": [
+      {
+        "arm": "factory-optimizer-v1",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -2635.75
+      },
+      {
+        "arm": "factory-optimizer-old3",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -3322.25
+      },
+      {
+        "arm": "factory-optimizer-v2",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -1639.375
+      }
+    ],
+    "round12": [
+      {
+        "arm": "factory-optimizer-v1",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -2863.875
+      },
+      {
+        "arm": "factory-optimizer-old3",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -4146.25
+      },
+      {
+        "arm": "factory-optimizer-v2",
+        "versus": "factory-optimizer-base",
+        "factories": 2,
+        "objectiveWins": 2,
+        "objectiveLosses": 0,
+        "objectiveTies": 0,
+        "meanObjectiveDelta": -1641.75
+      }
+    ]
+  },
+  "limitations": [
+    "The original and nineteen-factory continuation both failed; no nineteen- or twenty-factory winner or causal conclusion is established.",
+    "Only the first two lexicographically ordered factories finished. They are an availability-selected exploratory subset and may not represent the full test population.",
+    "Infrastructure-only continuation after partial final metrics were examined. Same model weights, prompts, data, grader, original case positions and proposal ceilings. Any approved interruption pause and active-runtime deadline are recorded explicitly. Factory 11 is excluded from every headline arm; its prior results and uncertain request are retained as abandoned work. This is not a fresh benchmark rerun.",
+    "The remaining snapshots are fallback measurements of unfinished searches and are not counted as completed model outcomes.",
+    "Two request outputs are unknown and their reservations remain charged against the experiment budget; neither request was retried.",
+    "Single-seed independently retrained artifacts do not isolate epoch count perfectly: archived epoch-one and new epoch-one weights differ.",
+    "The deterministic geometric teacher uses privileged search and must not be described as a compute-matched model.",
+    "Final scoring order relies on frozen evaluator control flow. Simulation receipts do not contain timestamps."
+  ],
+  "hashes": {
+    "plan": "d4e3c0737261eca0aabf4ad117705ec4c35aa82c22806d7b4c59fc08a64fa16f",
+    "planContent": "d609361feaa1921b58a90f8ff2071a24847ed640331431e93845e73cae75cd61",
+    "testData": "78d58c696deb412dc31d56d0d5dc36bf79aebd45843f870cf922670aba56526d",
+    "dataManifest": "d0bc0b9f5122ce1f531b7f3d8b848ac67074fc46363217dd962e7932a3882566",
+    "originalTree": "913f6ed327ba585d3e9016cd7335b9ee302f2041028ad1bc1aec287526a6c108",
+    "manifest": "4f4c29d1ab5327895d5625e817d655264646a7d8c43222149d8339b91c1cde14",
+    "continuationResults": "47cd5cd7d34aa5af5867ac1df520d5df848000a113f6552c3790541e35aff040",
+    "engineMetrics": "9a9580b05a34fd1a7765b178f1116de955ae29ba7551cece484e5e3237327bc2",
+    "grader": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4"
+  }
+}

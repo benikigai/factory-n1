@@ -1,0 +1,12 @@
+--- a/README.md
++++ b/README.md
+@@ -81,3 +81,9 @@
+ | `docs/specs/factory-n1.md` | Full as-built spec: claims, proof, runs, work log |
+ | `docs/evidence/` | Run evidence, independent checks, spend, [commit hash map](docs/evidence/commit-hash-map.md) after the history rewrite |
+ | `docs/demo/script.md` | Demo script |
++
++## Separate optimizer training pilot
++
++A Crusoe A100 pilot trained Nemotron Nano 8B LoRA adapters on the original data for three epochs and on a revised curriculum for one epoch. The network-interrupted evaluation completed only two fully paired factories out of twenty planned. On those two cases, the three-epoch adapter reached zero damage on all eight final days; this is exploratory evidence, not a generalization result. The intended nineteen-factory continuation remains incomplete.
++
++The recovered adapters, unchanged-grader audit and VM deletion receipt are documented in [the pilot report](docs/evidence/optimizer-v2-results.md). The separate local viewer runs on port 5193. No pilot result is part of the frozen website or video.

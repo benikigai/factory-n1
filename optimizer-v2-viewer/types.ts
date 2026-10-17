@@ -7,12 +7,16 @@ export const MODELS: V2Model[] = ['factory-optimizer-base', 'factory-optimizer-v
 export const BASELINES: V2Arm[] = ['random', 'geometric-teacher'];
 export const LABELS: Record<V2Arm, string> = {
   'factory-optimizer-base': 'Base Nemotron 8B',
-  'factory-optimizer-v1': 'Original optimizer · 1 epoch',
-  'factory-optimizer-old3': 'Original data · 3 epochs',
-  'factory-optimizer-v2': 'Goal curriculum · 3 epochs',
+  'factory-optimizer-v1': 'Original optimizer',
+  'factory-optimizer-old3': 'Original data control',
+  'factory-optimizer-v2': 'Goal curriculum',
   random: 'Seeded legal random moves',
   'geometric-teacher': 'Privileged geometric planner',
 };
+export function modelLabel(model: V2Model, models: Partial<Record<V2Model, V2ModelProvenance>>) {
+  const epochs = models[model]?.epochs;
+  return model === 'factory-optimizer-base' || epochs === undefined ? LABELS[model] : `${LABELS[model]} · ${epochs} epoch${epochs === 1 ? '' : 's'}`;
+}
 export type Snapshot = 'round3' | 'round12';
 export type Metrics = NonNullable<OptimizerMeasurement['metrics']>;
 export interface SnapshotScore { metrics: Metrics; goalMet: boolean; zeroDamage: boolean }
@@ -42,7 +46,7 @@ export interface Aggregate {
   improvements: number;
 }
 export interface Cohort {
-  kind: 'completed' | 'continuation';
+  kind: 'completed' | 'continuation' | 'interrupted';
   originalFactories: number;
   includedFactories: number;
   excludedFactories: { id: string; reason: string }[];
@@ -62,7 +66,7 @@ export interface V2Catalog {
   scope: string;
   cases: Factory[];
   models: Partial<Record<V2Model, V2ModelProvenance>>;
-  aggregate: Record<V2Arm, Record<Snapshot, Aggregate>>;
+  aggregate: Record<V2Arm, Record<Snapshot, Aggregate>> | null;
   sourceHashes: Record<string, string>;
   cohort: Cohort;
 }

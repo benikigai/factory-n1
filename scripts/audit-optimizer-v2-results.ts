@@ -35,7 +35,7 @@ interface AuditOptions {
   continuation?: { includedIds: string[]; excludedIds: string[]; originalEvents: any[]; primaryOverall: any; runtime?: { originalRequestIds: string[]; originalStartedAt: number; originalEndedAt: number; resumedAt: number; effectiveDeadline: number } };
 }
 
-function verifyTraining(plan: any, options: AuditOptions) {
+export function verifyTraining(plan: any, options: AuditOptions) {
   if (options.fixture) return { verified: false, reason: "Synthetic auditor self-test; no trained weights" };
   assert.ok(options.recovered && options.bundle, "Pass --v1, --old3, --v2 recovered directories and --bundle for a complete provenance audit");
   const roots = options.recovered;

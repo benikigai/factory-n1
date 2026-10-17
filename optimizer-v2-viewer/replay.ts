@@ -10,7 +10,7 @@ import { buildingHash, contentHash, layoutHash } from '../src/training/generate.
 import { measureLayout, type OptimizerMeasurement } from '../src/training/optimizer.ts';
 import type { OptimizerCase } from '../src/training/optimizer-data.ts';
 import type { V2Arm, V2Plan, summarizeV2 } from '../src/training/optimizer-v2-evaluate.ts';
-import { MODELS, BASELINES, LABELS, type V2Catalog, type V2Replay, type Snapshot, type SnapshotScore, type Factory, type ArmScore, type Cohort } from './types.ts';
+import { MODELS, BASELINES, modelLabel, type V2Catalog, type V2Replay, type Snapshot, type SnapshotScore, type Factory, type ArmScore, type Cohort } from './types.ts';
 
 type State = Parameters<typeof summarizeV2>[0]['states'][number] & { continuationExcluded?: boolean };
 export interface SavedV2Report {
@@ -41,6 +41,19 @@ export interface ContinuationManifest {
   includedIds: string[];
   disclosure: string;
 }
+interface AuditedSnapshot { objective: number; meanDamagePerDay: number; meanMakespan: number; totalDamaged: number; zeroDamage: boolean; fullGoal: boolean }
+export interface PartialAudit {
+  status: string;
+  intendedComparisonCompleted: boolean;
+  intendedPrimaryFactories: number;
+  originalPopulation: number;
+  primaryWinnerEstablished: boolean;
+  eligibleFactoryIds: string[];
+  hashes: { continuationResults: string; plan: string; planContent: string; testData: string; dataManifest: string; grader: string; manifest: string };
+  perFactory: { id: string; arms: Record<V2Arm, { attemptedProposals: number; acceptedMoves: number; invalidActions: number; snapshots: Record<'initial' | Snapshot, AuditedSnapshot> }> }[];
+}
+export const INTERRUPTED_BANNER = 'Interrupted pilot: 2 fully paired factories out of 20 planned. 19-factory continuation incomplete. Exploratory only; no generalization claim.';
+const AUDITED_IDS = ['optimizer-v2-test-building-1', 'optimizer-v2-test-building-10'];
 const ARMS = [...MODELS, ...BASELINES];
 const SNAPSHOTS: Snapshot[] = ['round3', 'round12'];
 const same = (actual: unknown, expected: unknown, label: string) => { if (!isDeepStrictEqual(actual, expected)) throw new Error(`Saved metric mismatch: ${label}`); };
@@ -55,8 +68,14 @@ function side(label: string, layout: Layout, result: RunResult, measured: Optimi
   return { label, column: label, layout, result, train: split, select: split, final: { ...split, zeroDamage: final.zeroDamage, allShipped: measured.days.every(day => day.metrics.unshipped === 0), damagedTotal: measured.days.reduce((sum, day) => sum + day.metrics.damaged, 0), scenarios: measured.days.length } };
 }
 
-export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], options: { createdAt: string; graderHash: string; mode?: 'recorded' | 'synthetic'; sourceHashes?: Record<string, string>; models?: V2Catalog['models']; cohort?: Cohort }) {
+interface BuildOptions { createdAt: string; graderHash: string; mode?: 'recorded' | 'synthetic'; sourceHashes?: Record<string, string>; models?: V2Catalog['models']; cohort?: Cohort }
+export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], options: BuildOptions) {
   if (!report.completed || report.terminalReason !== null) throw new Error('A complete evaluation is required before opening replay factories');
+  if (options.cohort?.kind === 'interrupted') throw new Error('Interrupted evidence requires the separate audited builder');
+  return buildScopedReplays(report, cases, options);
+}
+
+function buildScopedReplays(report: Pick<SavedV2Report, 'cases' | 'overall'>, cases: OptimizerCase[], options: BuildOptions) {
   if (report.cases.some(state => state.continuationExcluded)) throw new Error('Internal skipped-factory metrics are not a completed comparison');
   if (options.graderHash !== graderHash()) throw new Error('Grader hash differs from completed evaluation');
   if (!cases.length || new Set(cases.map(item => item.id)).size !== cases.length || report.cases.length !== cases.length * ARMS.length) throw new Error('Replay must retain every factory and all six arms');
@@ -86,9 +105,9 @@ export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], op
     states.set(item.id, saved);
     factories.push({ id: item.id, buildingHash: item.buildingHash, initial: item.initial, initialScore: score(initial), arms, v2VsBasePercent: percent(arms[MODELS[0]].snapshots.round12.metrics.objective, arms[MODELS[3]].snapshots.round12.metrics.objective), replays: item.finalDays.map(day => ({ profile: day.profile, seed: day.seed, file: `${item.id}-${day.profile}.json` })) });
   }
-  const aggregate = {} as V2Catalog['aggregate'];
-  for (const arm of ARMS) {
-    aggregate[arm] = {} as V2Catalog['aggregate'][V2Arm];
+  const aggregate: V2Catalog['aggregate'] = cohort.kind === 'interrupted' ? null : {} as NonNullable<V2Catalog['aggregate']>;
+  if (aggregate) for (const arm of ARMS) {
+    aggregate[arm] = {} as NonNullable<V2Catalog['aggregate']>[V2Arm];
     for (const snapshot of SNAPSHOTS) {
       const values = factories.map(factory => factory.arms[arm].snapshots[snapshot]);
       const result = { meanObjective: values.reduce((sum, value) => sum + value.metrics.objective, 0) / values.length, meanDamaged: values.reduce((sum, value) => sum + value.metrics.damaged, 0) / values.length, goalPasses: values.filter(value => value.goalMet).length, zeroDamage: values.filter(value => value.zeroDamage).length, improvements: values.filter((value, i) => value.metrics.objective < factories[i].initialScore.metrics.objective).length };
@@ -100,8 +119,9 @@ export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], op
     }
   }
   factories.sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }));
-  const representative = [...factories].sort((a, b) => a.v2VsBasePercent - b.v2VsBasePercent || a.id.localeCompare(b.id))[Math.floor(factories.length / 2)];
-  const catalog: V2Catalog = { schemaVersion: 2, mode: options.mode ?? 'recorded', createdAt: options.createdAt, graderHash: options.graderHash, simVersion: SIM_VERSION, defaultCaseId: representative.id, selectionRule: 'Upper-middle factory after sorting all included cases by v2 versus base percentage improvement at twelve proposals; ties break by ID. Includes wins, losses and ties.', scope: 'Scores average the same four final demand days. Each animation shows one shared day at a retained three- or twelve-proposal snapshot. Legacy renderer train/select slots hold the final aggregate score, not additional evidence. Model arms share proposal budgets; procedural baselines are separately labeled.', cases: factories, aggregate, models: options.models ?? {}, sourceHashes: options.sourceHashes ?? {}, cohort };
+  const representative = cohort.kind === 'interrupted' ? factories[0] : [...factories].sort((a, b) => a.v2VsBasePercent - b.v2VsBasePercent || a.id.localeCompare(b.id))[Math.floor(factories.length / 2)];
+  const selectionRule = cohort.kind === 'interrupted' ? 'First independently audited fully paired factory in stable ID order. No score-based selection and no aggregate comparison.' : 'Upper-middle factory after sorting all included cases by v2 versus base percentage improvement at twelve proposals; ties break by ID. Includes wins, losses and ties.';
+  const catalog: V2Catalog = { schemaVersion: 2, mode: options.mode ?? 'recorded', createdAt: options.createdAt, graderHash: options.graderHash, simVersion: SIM_VERSION, defaultCaseId: representative.id, selectionRule, scope: 'Scores average the same four final demand days within each selected factory. Each animation shows one shared day at a retained three- or twelve-proposal snapshot. Legacy renderer train/select slots hold the final within-factory score, not additional evidence. Model arms share proposal budgets; procedural baselines are separately labeled.', cases: factories, aggregate, models: options.models ?? {}, sourceHashes: options.sourceHashes ?? {}, cohort };
   const replays = new Map<string, V2Replay>();
   for (const item of cases) for (const day of item.finalDays) {
     const saved = states.get(item.id)!, scenario = makeScenario(day.seed, day.profile, day.count);
@@ -111,11 +131,62 @@ export function buildV2Replays(report: SavedV2Report, cases: OptimizerCase[], op
       return side(label, layout, result, measured);
     };
     const arms = {} as V2Replay['arms'];
-    for (const model of MODELS) arms[model] = { round3: run(saved[model].snapshot3!, saved[model].final!.round3, LABELS[model]), round12: run(saved[model].layout, saved[model].final!.round12, LABELS[model]) };
+    for (const model of MODELS) arms[model] = { round3: run(saved[model].snapshot3!, saved[model].final!.round3, modelLabel(model, options.models ?? {})), round12: run(saved[model].layout, saved[model].final!.round12, modelLabel(model, options.models ?? {})) };
     replays.set(`${item.id}-${day.profile}.json`, { caseId: item.id, scenario: { id: scenario.id, seed: scenario.seed, profile: scenario.profile }, initial: run(item.initial, saved[MODELS[0]].final!.initial, 'Initial factory'), arms });
   }
   if (graderHash() !== options.graderHash) throw new Error('Grader changed during replay export');
   return { catalog, replays };
+}
+
+function validatePartialAudit(audit: PartialAudit) {
+  if (audit.status !== 'partial-evidence-verified' || audit.intendedComparisonCompleted !== false || audit.intendedPrimaryFactories !== 19 || audit.originalPopulation !== 20 || audit.primaryWinnerEstablished !== false || !isDeepStrictEqual(audit.eligibleFactoryIds, AUDITED_IDS) || !isDeepStrictEqual(audit.perFactory.map(item => item.id).sort(), AUDITED_IDS)) throw new Error('Partial audit does not verify exactly the two eligible exploratory factories');
+}
+
+export function buildInterruptedReplays(report: SavedContinuationReport, originalCases: OptimizerCase[], audit: PartialAudit, options: BuildOptions) {
+  validatePartialAudit(audit);
+  if (report.completed !== false || !report.terminalReason || report.all20Completed !== false || report.primaryFactoryCount !== 19 || report.excludedFactory !== 'optimizer-v2-test-building-11') throw new Error('Expected the interrupted nineteen-factory continuation, not a completed result');
+  if (originalCases.length !== 20 || new Set(originalCases.map(item => item.id)).size !== 20) throw new Error('Expected twenty original factory identities');
+  const cases = originalCases.filter(item => audit.eligibleFactoryIds.includes(item.id)).sort((a, b) => a.id.localeCompare(b.id));
+  if (!isDeepStrictEqual(cases.map(item => item.id), AUDITED_IDS)) throw new Error('Audited factories are missing from the original dataset');
+  const states = report.cases.filter(state => audit.eligibleFactoryIds.includes(state.caseId));
+  for (const item of audit.perFactory) for (const arm of ARMS) {
+    const matching = states.filter(state => state.caseId === item.id && state.arm === arm);
+    if (matching.length !== 1 || !matching[0].final) throw new Error('Missing fully paired audited state');
+    const state = matching[0], verified = item.arms[arm];
+    same(state.nextRound, verified.attemptedProposals, `${item.id}/${arm}/audited-attempts`);
+    same(state.accepted, verified.acceptedMoves, `${item.id}/${arm}/audited-accepted`);
+    same(state.invalid, verified.invalidActions, `${item.id}/${arm}/audited-invalid`);
+    for (const snapshot of ['initial', ...SNAPSHOTS] as const) {
+      const value = state.final![snapshot], summarized: AuditedSnapshot = { objective: value.objective!, meanDamagePerDay: value.metrics!.damaged, meanMakespan: value.metrics!.makespan, totalDamaged: value.days.reduce((sum, day) => sum + day.metrics.damaged, 0), zeroDamage: value.days.every(day => day.metrics.damaged === 0), fullGoal: value.goalMet };
+      same(summarized, verified.snapshots[snapshot], `${item.id}/${arm}/${snapshot}/independent-audit`);
+    }
+  }
+  const cohort: Cohort = { kind: 'interrupted', originalFactories: 20, includedFactories: 2, excludedFactories: originalCases.filter(item => !audit.eligibleFactoryIds.includes(item.id)).map(item => ({ id: item.id, reason: item.id === report.excludedFactory ? 'Excluded after the original unresolved network request.' : 'Not a fully paired completed factory; omitted from exploratory replay.' })), disclosure: INTERRUPTED_BANNER, originalResolvedRequests: report.accounting.originalResolvedRequests, originalUnknownRequests: report.accounting.originalUnknownRequests, combinedModelCalls: report.accounting.combinedModelCalls };
+  return buildScopedReplays({ cases: states, overall: report.overall }, cases, { ...options, cohort });
+}
+
+function exportInterruptedReplays(options: { evaluationDirectory: string; dataDirectory?: string; outputDirectory?: string; auditPath?: string; auditSha256?: string }) {
+  if (!options.auditPath || !options.auditSha256 || !/^[a-f0-9]{64}$/.test(options.auditSha256)) throw new Error('Interrupted export requires --audit and its verified --audit-sha256');
+  const auditText = readFileSync(options.auditPath, 'utf8');
+  if (contentHash(auditText) !== options.auditSha256) throw new Error('Partial audit file hash differs from the verified receipt');
+  const audit = JSON.parse(auditText) as PartialAudit; validatePartialAudit(audit);
+  const evaluation = resolve(options.evaluationDirectory), data = resolve(options.dataDirectory ?? 'runs/optimizer-data/v2'), output = resolve(options.outputDirectory ?? 'runs/optimizer-v2-viewer/data');
+  if (!output.startsWith(resolve('runs/optimizer-v2-viewer') + '/') || existsSync(output)) throw new Error('Use a new output directory inside runs/optimizer-v2-viewer/');
+  const metricsText = readFileSync(join(evaluation, 'continuation-results.json'), 'utf8'), planText = readFileSync(join(evaluation, 'engine/evaluation-plan.json'), 'utf8');
+  const manifestText = readFileSync(join(data, 'manifest.json'), 'utf8'), continuationManifestText = readFileSync(join(evaluation, 'continuation-manifest.json'), 'utf8');
+  for (const [text, hash, label] of [[metricsText, audit.hashes.continuationResults, 'results'], [planText, audit.hashes.plan, 'plan'], [manifestText, audit.hashes.dataManifest, 'dataset manifest'], [continuationManifestText, audit.hashes.manifest, 'continuation manifest']] as const) if (contentHash(text) !== hash) throw new Error(`Audited ${label} hash differs`);
+  const report = JSON.parse(metricsText) as SavedContinuationReport, plan = JSON.parse(planText) as V2Plan;
+  if (contentHash(plan) !== audit.hashes.planContent || plan.graderHash !== audit.hashes.grader || graderHash() !== audit.hashes.grader) throw new Error('Audited plan or grader differs');
+  const casesText = readFileSync(join(data, 'test-factories.jsonl'), 'utf8');
+  if (contentHash(casesText) !== audit.hashes.testData || plan.datasetHash !== audit.hashes.testData || Buffer.byteLength(casesText) !== plan.datasetBytes) throw new Error('Audited test dataset differs');
+  const cases = casesText.trim().split('\n').map(line => JSON.parse(line) as OptimizerCase);
+  const sourceHashes = { partialAudit: contentHash(auditText), metrics: contentHash(metricsText), plan: contentHash(planText), testFactories: contentHash(casesText) };
+  const result = buildInterruptedReplays(report, cases, audit, { createdAt: new Date().toISOString(), graderHash: plan.graderHash, sourceHashes, models: plan.provenance?.models });
+  mkdirSync(output, { recursive: true });
+  for (const [file, replay] of result.replays) writeFileSync(join(output, file), JSON.stringify(replay) + '\n', { flag: 'wx' });
+  writeFileSync(join(output, 'catalog.json'), JSON.stringify(result.catalog, null, 2) + '\n', { flag: 'wx' });
+  writeFileSync(join(output, 'replay-export-receipt.json'), JSON.stringify({ verified: true, intendedComparisonCompleted: false, primaryWinnerEstablished: false, cohort: result.catalog.cohort, factories: 2, scenarioFiles: result.replays.size, modelSnapshotTraces: 64, graderHash: plan.graderHash, sourceHashes }, null, 2) + '\n', { flag: 'wx' });
+  return { output, factories: 2, scenarioFiles: result.replays.size, defaultCaseId: result.catalog.defaultCaseId };
 }
 
 export function normalizeContinuation(report: SavedContinuationReport, manifest: ContinuationManifest): { report: SavedV2Report; cohort: Cohort } {
@@ -128,7 +199,8 @@ export function normalizeContinuation(report: SavedContinuationReport, manifest:
   };
 }
 
-export function exportV2Replays(options: { evaluationDirectory: string; dataDirectory?: string; outputDirectory?: string; mode?: 'completed' | 'continuation' }) {
+export function exportV2Replays(options: { evaluationDirectory: string; dataDirectory?: string; outputDirectory?: string; mode?: 'completed' | 'continuation' | 'interrupted'; auditPath?: string; auditSha256?: string }) {
+  if (options.mode === 'interrupted') return exportInterruptedReplays(options);
   const evaluation = resolve(options.evaluationDirectory), data = resolve(options.dataDirectory ?? 'runs/optimizer-data/v2'), output = resolve(options.outputDirectory ?? 'runs/optimizer-v2-viewer/data');
   if (!output.startsWith(resolve('runs/optimizer-v2-viewer') + '/') || existsSync(output)) throw new Error('Use a new output directory inside runs/optimizer-v2-viewer/');
   // Check completion before even reading the plan or held-out dataset.
