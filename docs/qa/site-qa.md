@@ -1,140 +1,37 @@
-# Browser QA Report — Final Combined Site (`127.0.0.1:5190`, PR #1 `d337dab`)
+# Browser QA Report — Final Combined Site (`127.0.0.1:5190`, `live-a-11` Hero `b6afcaf`)
 
-- **Target Build Evaluated**: `http://127.0.0.1:5190/` (`codex/final-site` PR #1, commit `d337dab` — *"Hide hero station labels and allow video playback speed"*)
-- **QA Date**: 2026-10-17 (Post-Rewrite Final Pass)
+- **Target Build Evaluated**: `http://127.0.0.1:5190/` (`codex/final-site` commit `b6afcaf` — *"Promote independently verified run 11 to the site hero"*)
+- **QA Date**: 2026-10-17 (Run 7 → Run 11 Hero Update Pass)
 - **Browser Engine**: Headless Chromium (Playwright, `deviceScaleFactor: 2`) with WebGL / Three.js `CSS2DRenderer` active
-- **Viewports Tested**:
-  1. `1440 × 900` (Desktop widescreen / Screen Studio capture viewport)
-  2. `1280 × 720` (720p projector / standard laptop viewport)
-  3. `390 × 844` (Mobile / narrow responsive viewport)
-- **Routes Tested**:
-  1. `/?run=live-a-7&speed=60` — Landing page with embedded Three.js split hero (`#hero-scene` at `60×`), 5-stage pipeline, proof charts, and track cards
-  2. `/replay.html?run=live-a-7` — 3D Factory Floor (`Gen-0 baseline` vs. `Agent champion (g1-quality)`) + frozen evaluator rail + baseline comparison table
-  3. `/replay.html?run=live-a-7&view=agents&node=designers` — Agent Workflow view + `Lightning Caught & Refuted` callout + `Lessons JSON` modal trigger
 
 ---
 
-## 1. Automated & Visual Health Summary (`127.0.0.1:5190`)
+## 1. 60-Second Video Shot-by-Shot Verification at `1440 × 900`
 
-| Viewport | Route | Console / Page Errors | Network `>=400` | Doc Horizontal Overflow | Clipped / Overlapping 3D Labels | Truncated Text Elements | WebGL FPS | Screenshot |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **`1440×900`** | `/?run=live-a-7&speed=60` | `0` | `0` | `0 px` (`1440/1440`) | **`0` / `0`** *(Fixed in `d337dab`)* | `0` | `62 fps` | [`landing-1440x900.jpg`](screenshots/landing-1440x900.jpg) |
-| **`1440×900`** | `/replay.html?run=live-a-7` | `0` | `0` | `0 px` (`1440/1440`) | `0` / `0` | `4` | `61 fps` | [`replay-layout-1440x900.jpg`](screenshots/replay-layout-1440x900.jpg) |
-| **`1440×900`** | `/replay.html?run=live-a-7&view=agents&node=designers` | `0` | `0` | `0 px` (`1440/1440`) | `0` / `0` | `4` | `62 fps` | [`replay-agents-1440x900.jpg`](screenshots/replay-agents-1440x900.jpg) |
-| **`1280×720`** | `/?run=live-a-7&speed=60` | `0` | `0` | `0 px` (`1280/1280`) | **`0` / `0`** *(Fixed in `d337dab`)* | `0` | `61 fps` | [`landing-1280x720.jpg`](screenshots/landing-1280x720.jpg) |
-| **`1280×720`** | `/replay.html?run=live-a-7` | `0` | `0` | `0 px` (`1280/1280`) | `0` / `0` | `4` | `61 fps` | [`replay-layout-1280x720.jpg`](screenshots/replay-layout-1280x720.jpg) |
-| **`1280×720`** | `/replay.html?run=live-a-7&view=agents&node=designers` | `0` | `0` | `0 px` (`1280/1280`) | `0` / `0` | `4` | `61 fps` | [`replay-agents-1280x720.jpg`](screenshots/replay-agents-1280x720.jpg) |
-| **`390×844`** | `/?run=live-a-7&speed=60` | `0` | `0` | `0 px` (`390/390`) | **`0` / `0`** *(Fixed in `d337dab`)* | `1` | `63 fps` | [`landing-390x844.jpg`](screenshots/landing-390x844.jpg) |
-| **`390×844`** | `/replay.html?run=live-a-7` | `0` | `0` | `0 px` (`390/390`) | **`8` clipped / `17` overlaps** | `4` | `62 fps` | [`replay-layout-390x844.jpg`](screenshots/replay-layout-390x844.jpg) |
-| **`390×844`** | `/replay.html?run=live-a-7&view=agents&node=designers` | `0` | `0` | `0 px` (`390/390`) | `0` / `0` | `3` | `60 fps` | [`replay-agents-390x844.jpg`](screenshots/replay-agents-390x844.jpg) |
+Per [`docs/team/brief-argon-live-a-11.md`](../team/brief-argon-live-a-11.md), every URL and UI state in the 60-second shot list was tested at `1440 × 900` against `http://127.0.0.1:5190/`:
 
-### Verified Improvements in `d337dab` (`127.0.0.1:5190`)
-1. **Landing Hero 3D Station Label Overlap Resolved (`0` clipped, `0` overlaps)**: Hiding `.st-label` inside `#hero-scene` completely eliminated the center-seam label collisions and right-edge clipping on `/` across `1440×900`, `1280×720`, and `390×844` (see [`landing-1440x900.jpg`](screenshots/landing-1440x900.jpg) and [`landing-1280x720.jpg`](screenshots/landing-1280x720.jpg)).
-2. **`/?speed=60` Video Hook Parameter Works as Intended**: Loading `/?run=live-a-7&speed=60` starts the landing hero at `60×` (`sim 02:29 / 26:22 · 60×` within 1.5s), immediately showing `shipped 6/100 · damaged 0` on `Agent champion (g1-quality)` while `Gen-0 baseline` remains at `shipped 0/100` with a visible queue bottleneck.
-3. **Zero Console/Page Errors, Zero Failed Requests, 60–63 FPS**: All 9 viewport × route tests pass with zero runtime errors and zero document-level horizontal scroll overflow.
+| Time Slot | Target URL & Expected State | Actual Rendered State at `1440×900` | Status & Actionable Notes for Recording / Fix | Screenshot |
+| :--- | :--- | :--- | :--- | :--- |
+| **`0:00–0:06`** | `/?speed=60` landing hero, or `/replay.html?run=live-a-11` at `60×`. Left Gen-0 floor jams, right floor flows. | - **`/?speed=60` (`PASS`)**: Renders `-81.8% validation objective · goal met on all 15 development days · final split locked`, pill `RECORDED · live-a-11`, clock `sim 02:20 / 26:22 · 60×`, left `Gen-0 baseline` (`shipped 0/100`), right `Agent champion (g1-route)` (`shipped 6/100`), 0 overlapping station labels.<br/>- **`/replay.html?run=live-a-11` (`NOTE`)**: `replay.html` ignores `?speed=60` in the query string and defaults to `16×` (`shipped 0/100` for the first ~30s) unless you select `60×` in the bottom-left dropdown. | **Use `/?speed=60` for `0:00–0:06`** (or manually select `60×` in the dropdown on `/replay.html?run=live-a-11` before hitting record). | [`shot1-landing-speed60-1440x900.jpg`](screenshots/shot1-landing-speed60-1440x900.jpg) |
+| **`0:06–0:15`** | `/replay.html?run=live-a-11`, zoom `1.45×` on the right floor with station labels. | - **`PASS` (with right-rail truncation note)**: Right floor (`Agent champion (g1-route)`) renders all station labels (`recv-1`, `sort-1`, `pack-A SML · A`, `pack-B SML · B`, `pack-C SML · C`, `ship-A/B/C`) and `Validation goal: PASS` (`18,061.11 → 3,283.44`).<br/>- **Visual defect (`0:06–0:15`)**: Right-rail green card title truncates as `Agent champion (g1...` (`136px < 173px`), and comparator rows truncate (`Code heuristic: pack stati...`, `Fresh random hill-climber...`). | Zoom `1.45×` onto the right-hand 3D floor as planned; if showing the right rail, widen `#rail` or shorten `Agent champion (g1-route)` to `Champion (g1-route)`. | [`shot2-replay-a11-1440x900.jpg`](screenshots/shot2-replay-a11-1440x900.jpg) |
+| **`0:15–0:30`** | `/replay.html?run=live-a-7&view=agents` (used because `live-a-11` made no You.com searches). | - **`NOTE` (Sponsor names require clicking a child node or showing `/#sponsors`)**: Opening `/replay.html?run=live-a-7&view=agents` shows the 3D role floor (`Researcher ↗`, `Designers ↗`, `Evaluator ↗`, `Shared memory ↗`, `Supervisor ↗`) and `Mission control` (`61 model calls · 2 searches · $0.0388 estimated`), **not** the sponsor names (`You.com`, `Nemotron Lightning`, `Nemotron Super VL`, `Crusoe`) until you click **`Researcher · Model agent ↗`** (`?run=live-a-7&view=agents&node=research`) or **`Designers · Agent team ↗`** (`?run=live-a-7&view=agents&node=designers`). | During `0:15–0:30`, **click `Researcher ↗` (`0:16`) then `Designers ↗` (`0:22`)** in the right rail so the `You.com` queries and `Nemotron` designer lenses appear on screen while you name them (or cut briefly to `/#sponsors`). | [`shot3-replay-a7-agents-1440x900.jpg`](screenshots/shot3-replay-a7-agents-1440x900.jpg) |
+| **`0:30–0:48`** | `/#proof`: equal-budget race chart, then the lineage strip (`run 7 FAIL → run 11 PASS`). | - **`PASS` (Note vertical stacking order)**: Both elements render cleanly inside a single `1440×900` frame at `/#proof` (`#lineage` shows `Gen 0 18,061 → Run 7 Goal FAIL 6,083 (4 damaged on the peak day) → Run 11 Goal PASS 3,283 (0 damaged on all 15 development days)`; `#race` shows `18,061` vs `13,194` vs `13,099` vs `6,083`).<br/>- **Layout order note**: On `/#proof`, the **Lineage Strip (`#lineage`) is positioned ABOVE the Equal-Budget Race Chart (`#race`)**, whereas the voiceover describes the Race Chart first (`0:30–0:39`) and the Lineage Strip second (`0:39–0:48`). | In Screen Studio at `0:30`, **zoom `1.45×` onto the bottom-right `#race` card first (`0:30–0:39`), then pan UP to the `#lineage` strip (`0:39–0:48`)**. | [`shot4-proof-1440x900.jpg`](screenshots/shot4-proof-1440x900.jpg) |
+| **`0:48–0:55`** | `/#tracks`, fabricated re-run evidence tile. | - **`MISMATCH` (Anchor / Tile Location)**:<br/>  1. `/#tracks` shows the **Done means done** card (`4/7 predictions refuted when designers worked blind → 0/7 after simulate_layout`), which does **not** mention the `≈4` vs `18` mis-sorts fabricated re-run.<br/>  2. The **"The fabricated re-run — What Lightning claimed vs what the grader measured"** tile is located further down the page at **`/#evidence-section`** (`y = 4304px`, below `#sponsors` and `#log`), and the tile text on the page is only the title/subtitle unless clicked (clicking opens `./evidence/2026-10-17-live-roundtrip.md`). | For `0:48–0:55`, either:<br/>- **Option A**: Scroll to `/#tracks` (`Done means done: 4/7 → 0/7`) + rely on the lower-third caption (`Model claimed a re-run: ≈4 mis-sorts, passing · no re-run happened · grader measured 18`), **or**<br/>- **Option B**: Jump to **`/#evidence-section`** and hover/click **"The fabricated re-run"** tile. | [`shot5-tracks-1440x900.jpg`](screenshots/shot5-tracks-1440x900.jpg)<br/>[`shot5-evidence-section-1440x900.jpg`](screenshots/shot5-evidence-section-1440x900.jpg) |
+| **`0:55–1:00`** | `/#top`, pull back to `1.0×`. | - **`PASS`**: Full hero frame (`/?speed=60#top`) with `-81.8% validation objective`, `RECORDED · live-a-11`, `grader 493a1b03 · SIM 1.1.0`, and both 3D floors running in sync. | Ready as-is. | [`shot1-landing-speed60-1440x900.jpg`](screenshots/shot1-landing-speed60-1440x900.jpg) |
 
 ---
 
-## 2. Ranked, Specific Fixes Remaining (`P0` → `P3`)
+## 2. Multi-Viewport Ranked Fixes (`1440×900`, `1280×720`, `390×844`)
 
-### P0 — Mobile `390px` 3D CSS2D Label Collision (`17` Overlaps) & Viewport Clipping (`8` Clipped) on `/replay.html`
-- **Where**: `/replay.html?run=live-a-7` at `390×844` ([`replay-layout-390x844.jpg`](screenshots/replay-layout-390x844.jpg)).
-- **Measured Evidence**:
-  - While `d337dab` hid `.st-label` inside `#hero-scene` on `/`, full `/replay.html?run=live-a-7` at `390px` still renders all `.st-label`, `.floor-name`, and `.floor-counters` badges at desktop pixel dimensions across two side-by-side floors inside a `390px` canvas.
-  - **8 elements clip outside the `390px` viewport**:
-    - `Gen-0 baseline` `.floor-name` & `.floor-counters` (`left: -31px`, `right: 222px`)
-    - `Agent champion (g1-quality)` `.floor-name` & `.floor-counters` (`left: 168px`, `right: 421px > 390px`)
-    - `pack-1 SM · ABC` (`left: -9px`), `pack-2 SM · ABC` (`left: -11px`), `ship-B zone B` (`left: -12px`), `ship-A zone A` (`right: 413px > 390px`)
-  - **17 pairwise label overlaps** occur in the center of the canvas (e.g., `Gen-0 baseline` overlaps `Agent champion (g1-quality)` by `1,120 px²`; `pack-1 SM · ABC` overlaps `ship-B zone B` by `987 px²`).
-- **Exact Fix (`web/style.css` & `web/src/scene.js`)**:
-  1. Apply the same `.st-label` hide rule used on `#hero-scene` to `/replay.html` under `@media (max-width: 640px)` and constrain `.floor-name` / `.floor-counters`:
-     ```css
-     @media (max-width: 640px) {
-       .st-label {
-         display: none;
-       }
-       .floor-name {
-         font-size: 10px;
-         padding: 2px 6px;
-         max-width: 44vw;
-         overflow: hidden;
-         text-overflow: ellipsis;
-       }
-       .floor-counters {
-         font-size: 9px;
-         padding: 2px 6px;
-         max-width: 44vw;
-         overflow: hidden;
-         text-overflow: ellipsis;
-       }
-     }
-     ```
-  2. In `web/src/scene.js` (`preset('overview')`), multiply camera distance by `Math.max(1, 1.15 / Math.min(1, aspect))` when `aspect < 0.85` so both floors stay inside the `390px` frustum.
-
----
-
-### P1 — Low-Contrast Dark-on-Dark `.step-idx` Stage Headers in Landing Page Pipeline Cards (`~1.8:1` Contrast)
-- **Where**: `/?run=live-a-7&speed=60` ("FIVE STAGES, ONE MEASURED FEEDBACK LOOP — *Research. Propose. Test. Keep. Remember.*") across `1440×900`, `1280×720`, and `390×844` ([`landing-1440x900.jpg`](screenshots/landing-1440x900.jpg)).
-- **Measured Evidence**:
-  - Computed style on `.pipeline-step .step-idx` (`01 / GOAL`, `02 / RESEARCH`, `03 / DESIGN`, `04 / GATE`, `05 / MEMORY`) is `color: rgb(15, 118, 110)` (`#0f766e`) on `background-color: rgb(20, 54, 43)` (`#14362b`).
-  - Relative luminance contrast ratio is **1.82 : 1** (WCAG AA requires `4.5 : 1`), rendering the stage numbers nearly invisible on dark green bars.
-- **Exact Fix (`web/argon-landing.css`)**:
-  - Change `.pipeline-step .step-idx` text color to `#a7f3d0` (or `#ecfdf5`), raising contrast to **`9.4 : 1`**:
-    ```css
-    .pipeline-step .step-idx {
-      color: #a7f3d0;
-      background-color: #14362b;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-    }
-    ```
-
----
-
-### P2 — Right-Rail Text Truncation (`text-overflow: ellipsis`) on `/replay.html` at `1440×900` & `1280×720`
-- **Where**: `/replay.html?run=live-a-7` and `/replay.html?run=live-a-7&view=agents&node=designers` right rail (`#rail`) across all 3 viewports ([`replay-layout-1440x900.jpg`](screenshots/replay-layout-1440x900.jpg), [`replay-layout-1280x720.jpg`](screenshots/replay-layout-1280x720.jpg)).
-- **Measured Evidence**:
-  - Four key labels in the right rail overflow their container width and clip with `...`:
-    1. `.live-title`: **`Agent champion (g1-quality)`** (`scrollWidth: 173px > clientWidth: 136px`, displays as `Agent champion (g1...`).
-    2. Baseline table row: **`Code heuristic: pack stations accept all size...`** (`scrollWidth: 262px > clientWidth: 165px`).
-    3. Baseline table row: **`Random hill-climber at equal budget (41 sim e...`** (`scrollWidth: 297px > clientWidth: 165px`).
-    4. Baseline table row: **`Agent champion (g1-quality)`** (`scrollWidth: 171px > clientWidth: 165px`).
-- **Exact Fix (`web/src/main.js` & `web/style.css`)**:
-  1. In `web/src/main.js`, shorten the live card title to **`Champion (${champion.id})`** (`Champion (g1-quality)`, `~128px`) and shorten the baseline table labels to **`Code heuristic (all sizes)`** and **`Random search (41 sim runs)`** so every row reads cleanly without ellipsis truncation in the `380px` rail.
-  2. Support `?speed=60` in `web/src/main.js` (matching `web/landing.ts`) so `/replay.html?run=live-a-7&speed=60` can also launch directly at `60×` for Screen Studio Beat 1.
-
----
-
-### P3 — Sub-`11px` Micro-Typography on Status Pills, Metadata Keys & Retired Badges (`9px–10.12px`)
-- **Where**: Across `/` (`31` elements on desktop, `44` on mobile) and `/replay.html` (`20–30` elements across viewports).
-- **Measured Evidence**:
-  - `.pill` (`grader 493a1b03 · SIM 1.1.0` at `10px`, `peak-202 · 100 packages · one clock` at `9px` on mobile), `.hero-tag` (`Starting floor` / `Agents' floor` at `9px` on mobile), `.kind-external` / `.kind-retired` (`10px`), and the `grader` SHA cell (`9.2px`) fall below `11px`.
-- **Exact Fix (`web/style.css`, `web/landing.css`, `web/argon-landing.css`)**:
-  - Floor badge, pill, and metadata key font sizes at `11px` (`0.6875rem`):
-    ```css
-    .pill,
-    .hero-tag,
-    .kind,
-    .compare-cards .k {
-      font-size: max(11px, 0.6875rem);
-    }
-    ```
-
----
-
-## 3. Visual QA Gallery (`127.0.0.1:5190` — `1440×900`, `1280×720`, `390×844`)
-
-### Desktop Widescreen (`1440 × 900`)
-- **Landing (`/?run=live-a-7&speed=60`)**: [`screenshots/landing-1440x900.jpg`](screenshots/landing-1440x900.jpg)
-- **3D Factory Floor (`/replay.html?run=live-a-7`)**: [`screenshots/replay-layout-1440x900.jpg`](screenshots/replay-layout-1440x900.jpg)
-- **Agent Workflow DAG (`/replay.html?run=live-a-7&view=agents&node=designers`)**: [`screenshots/replay-agents-1440x900.jpg`](screenshots/replay-agents-1440x900.jpg)
-
-### 720p Projector / Laptop (`1280 × 720`)
-- **Landing (`/?run=live-a-7&speed=60`)**: [`screenshots/landing-1280x720.jpg`](screenshots/landing-1280x720.jpg)
-- **3D Factory Floor (`/replay.html?run=live-a-7`)**: [`screenshots/replay-layout-1280x720.jpg`](screenshots/replay-layout-1280x720.jpg)
-- **Agent Workflow DAG (`/replay.html?run=live-a-7&view=agents&node=designers`)**: [`screenshots/replay-agents-1280x720.jpg`](screenshots/replay-agents-1280x720.jpg)
-
-### Mobile Portrait (`390 × 844`)
-- **Landing (`/?run=live-a-7&speed=60`)**: [`screenshots/landing-390x844.jpg`](screenshots/landing-390x844.jpg)
-- **3D Factory Floor (`/replay.html?run=live-a-7`)**: [`screenshots/replay-layout-390x844.jpg`](screenshots/replay-layout-390x844.jpg)
-- **Agent Workflow DAG (`/replay.html?run=live-a-7&view=agents&node=designers`)**: [`screenshots/replay-agents-390x844.jpg`](screenshots/replay-agents-390x844.jpg)
+1. **`P0` — Mobile `390px` 3D CSS2D Label Collision (`17` Overlaps) & Clipping (`8` Clipped) on `/replay.html`** ([`replay-layout-390x844.jpg`](screenshots/replay-layout-390x844.jpg)):
+   - While `#hero-scene` on `/` hides `.st-label` cleanly, `/replay.html` at `390px` still renders all `.st-label` and full-width `.floor-name` / `.floor-counters` badges across two side-by-side floors, clipping `left: -31px` and `right: 421px > 390px` with 17 pairwise collisions.
+   - **Fix (`web/style.css`)**: Add `@media (max-width: 640px) { .st-label { display: none; } .floor-name, .floor-counters { max-width: 44vw; overflow: hidden; text-overflow: ellipsis; } }`.
+2. **`P1` — Dark-on-Dark `.step-idx` Stage Headers in Landing Page Pipeline Cards (`1.82:1` Contrast)** ([`shot1-landing-speed60-1440x900.jpg`](screenshots/shot1-landing-speed60-1440x900.jpg)):
+   - `.pipeline-step .step-idx` (`01 / GOAL` .. `05 / MEMORY`) renders `rgb(15, 118, 110)` (`#0f766e`) text on `rgb(20, 54, 43)` (`#14362b`) background (`1.82:1` contrast ratio).
+   - **Fix (`web/argon-landing.css`)**: Set `.pipeline-step .step-idx { color: #a7f3d0; font-weight: 700; }` (`9.4:1` contrast).
+3. **`P2` — Right-Rail Text Truncation (`...`) & `?speed=60` Support on `/replay.html`** ([`shot2-replay-a11-1440x900.jpg`](screenshots/shot2-replay-a11-1440x900.jpg)):
+   - `.live-title` truncates `Agent champion (g1-route)` (`136px < 173px` → `Agent champion (g1...`), and comparator rows truncate (`Code heuristic: pack stati...`, `Fresh random hill-climber...`).
+   - `/replay.html` does not parse `?speed=60` from the URL query string (unlike `web/landing.ts`).
+   - **Fix (`web/main.ts` & `web/ui/panel.ts`)**: Shorten `.live-title` to `Champion (${champion.id})`, shorten comparator labels to `Code heuristic (all sizes)` and `Random search (equal budget)`, and read `?speed=` in `web/main.ts`.
+4. **`P3` — Sub-`11px` Micro-Badges (`9px–10.12px`)**:
+   - Floor `.pill`, `.hero-tag`, `.kind`, and `.compare-cards .k` at `11px` (`0.6875rem`).
