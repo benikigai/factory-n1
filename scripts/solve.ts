@@ -17,7 +17,7 @@ const initialOps = from ? JSON.parse(readFileSync(`runs/${from}/memory.json`, "u
 if (from) console.log(`continuing from ${from}: champion + ${initialOps.length} memory ops`);
 // LENSES=flow,quality,route: choose the designer lens set (solver policy) for this run.
 const lenses = process.env.LENSES ? process.env.LENSES.split(",").map((id) => ALL_LENSES.find((l) => l.id === id)!).filter(Boolean) : undefined;
-// NO_RESEARCH=1 skips You.com research and isolated tests for this run.
-const summary = await solve({ lenses, research: process.env.NO_RESEARCH !== "1", task: loadTaskA(), generations: Number(gens), runId, probes: Number(probes), sequentialDesigners: process.env.SEQUENTIAL_DESIGNERS === "1", startFrom, initialOps });
+// NO_RESEARCH=1 skips You.com research and isolated tests for this run. RULER=n gives designers n free measure_legs uses per turn.
+const summary = await solve({ lenses, research: process.env.NO_RESEARCH !== "1", task: loadTaskA(), generations: Number(gens), runId, probes: Number(probes), sequentialDesigners: process.env.SEQUENTIAL_DESIGNERS === "1", ruler: Number(process.env.RULER ?? 0), startFrom, initialOps });
 console.log(JSON.stringify(summary, null, 2));
 console.log(`\nreplay: http://localhost:5173/?run=${summary.runId}`);
