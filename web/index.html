@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factory N+1</title>
-    <meta name="description" content="NVIDIA Nemotron agents on Crusoe shipped a warehouse floor 82% better for 4 cents. Nothing ships unless a frozen simulator proves it." />
+    <meta name="description" content="A factory that redesigns itself. NVIDIA Nemotron agents on Crusoe shipped a fulfillment floor 82% better for 4 cents. Nothing ships unless a frozen simulator proves it." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -14,11 +14,7 @@
     <nav class="nav wrap">
       <a class="wordmark" href="#top">Factory N+1</a>
       <div class="nav-links">
-        <a href="#revisions">Revisions</a>
-        <a href="#inspection">Proof</a>
-        <a href="./replay.html?run=live-a-11&amp;view=visual">Visual inspector</a>
-        <a href="#bom">Stack</a>
-        <a id="nav-replay" href="./replay.html">Replay ↗</a>
+        <a id="nav-replay" href="./replay.html">Demo ↗</a>
         <a id="repo-link" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </nav>
@@ -27,9 +23,9 @@
       <!-- The hero is a drawing sheet on the table. Its title block is the release label every revision gets before it ships. -->
       <article class="sheet hero" id="top">
         <header class="sheet-head">
-          <span class="tiny">Factory N+1 · Fulfillment floor A · 24 × 14 cells</span>
-          <h1>Agents shipped this floor <mark id="h-pct">82%</mark> better for <span id="h-cost">4¢</span>.</h1>
-          <p class="sub">Nothing ships unless a frozen simulator proves it.</p>
+          <span class="tiny">Factory N+1 · Fulfillment floor A · 24 × 14 cells · 100 packages</span>
+          <h1>A factory that redesigns itself. Recursively.</h1>
+          <p class="sub">A team of NVIDIA Nemotron agents researches, redesigns and tests its own floor. Every version N+1 must beat version N on days it never saw. Rev 11 shipped <mark id="h-pct">82%</mark> better for <span id="h-cost">4¢</span>.</p>
         </header>
 
         <div class="drawing">
@@ -52,12 +48,22 @@
           </div>
         </div>
       </article>
-      <p class="scope">Demonstrated on a fulfillment floor. The loop is built for anything a simulator can score.</p>
+      <section id="problem" class="prose">
+        <h2>The problem</h2>
+        <p>A factory floor gets drawn once.</p>
+        <p>Then demand shifts. Products change. Peak days hit. The floor stays the same, because redesigning it is slow, expensive and risky.</p>
+        <p>AI agents can propose the redesign. But agents grade their own homework. They report wins they didn't earn. One of ours invented a simulator run that never happened.</p>
+        <p>So we flipped it. The agents draw. Code decides.</p>
+      </section>
+      <section id="approach" class="prose">
+        <h2>Version N+1</h2>
+        <p>Every change is a revision. Nemotron designers research, propose a new floor and predict its score. A frozen simulator runs 100 packages through it. The revision ships only if it beats the current floor by at least 1% on 9 days the designers never saw, and no goal check gets worse.</p>
+              </section>
       <div id="run-live-slot"></div>
 
       <section id="revisions">
         <h2>Revision history</h2>
-        <p class="sec-sub">Each revision is a change the agents proposed and the simulator accepted. Lower objective is better.</p>
+        <p class="sec-sub">Each card is one version of the floor. Agents propose a change. The simulator runs 100 packages through it. The change ships only if it beats the previous version on 9 days the designers never saw. Score is seconds to clear the floor plus penalties for every mis-sort, damaged package and dollar of equipment. Lower is better.</p>
         <div class="tags" id="revtags"></div>
         <p class="fine" id="rev-note"></p>
       </section>
@@ -68,27 +74,23 @@
         <p class="fine"><a href="./replay.html?run=live-a-11&amp;view=visual">Open the Nemotron visual inspector</a> to review the verified image input, findings and deterministic tool receipts.</p>
       </section>
 
-      <section id="process">
-        <h2>Route</h2>
-        <p class="sec-sub">Every change takes the same route. The model proposes; code decides.</p>
-        <ol class="route sheet">
-          <li><b>Goal</b><span>4 executable checks</span></li>
-          <li><b>Research</b><span>You.com, cited</span></li>
-          <li><b>Design</b><span>Nemotron, typed tools</span></li>
-          <li><b>Simulate</b><span>Frozen grader</span></li>
-          <li><b>Gate</b><span>≥1% on held-out days</span></li>
-          <li><b>Remember</b><span>Evidence-labeled memory</span></li>
-        </ol>
-      </section>
+      
 
       <section id="bom">
-        <h2>Packing slip</h2>
-        <p class="sec-sub">What each part of the stack did, measured.</p>
+        <h2>The stack</h2>
+        <p class="sec-sub">What each part did, measured.</p>
         <div class="label slip"><table id="bomtable"></table></div>
       </section>
 
+      <section id="next" class="prose">
+        <h2>What's next</h2>
+        <p>Today the nodes are stations. Receive, sort, pack, ship.</p>
+        <p>Next they are humanoid robots, vision models and world models. Each one drops in as a node the simulator can score. The agents design around it. The gate stays the same.</p>
+        <p>The loop works for anything a simulator can measure. A fulfillment floor is the first one.</p>
+        <p class="law">The floor is never finished. It ships its next revision.</p>
+      </section>
       <section id="evidence">
-        <h2>Manifest</h2>
+        <h2>Receipts</h2>
         <p class="sec-sub">Every number on this page is read from these recorded files.</p>
         <div class="label manifest" id="evlist"></div>
       </section>
