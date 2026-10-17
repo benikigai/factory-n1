@@ -10,7 +10,7 @@ Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Franci
 |---|---|
 | Deterministic sim (receive → sort → pack → ship), metrics, seeded scenario splits | ✅ |
 | Executable Definition of Done with non-negotiable floor checks | ✅ |
-| Crusoe client + model/tool round-trip | ✅ written, awaiting API key |
+| Crusoe client + live model/tool round-trip (Nemotron 3.5 Super VL + Lightning), per-process spend caps | ✅ [evidence](docs/evidence/2026-10-17-live-roundtrip.md) |
 | Agent loop (planner, auditor, designer swarm, reflector, librarian) | ⏳ |
 | 3D replay (three.js) | ⏳ |
 
@@ -35,6 +35,7 @@ Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Franci
 npm install
 npm test
 npm run score -- layouts/baseline.json train
-cp .env.example .env   # add your Crusoe key
-npm run roundtrip      # lists models, chat, and a real tool call into the simulator
+# Load the key from a secret mount (we use a 1Password environment) rather than a plaintext .env.
+# Spend is capped per process; raise CALL_BUDGET / SPEND_CAP_USD explicitly for longer runs.
+CALL_BUDGET=5 SPEND_CAP_USD=0.05 node --env-file=<path-to-secret-mount> --import tsx scripts/roundtrip.ts
 ```

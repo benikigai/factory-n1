@@ -2,7 +2,7 @@
 // call where the model asks our simulator for metrics and reasons over them.
 import { readFileSync } from "node:fs";
 import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources/chat/completions";
-import { MODELS, chat, crusoe, usageLedger } from "../src/llm/crusoe.ts";
+import { LIMITS, MODELS, chat, crusoe, resolveModels, spend, usageLedger } from "../src/llm/crusoe.ts";
 import { DEFAULT_DOD } from "../src/sim/dod.ts";
 import { evaluate, summarize } from "../src/sim/evaluate.ts";
 import type { Layout } from "../src/sim/types.ts";
@@ -15,9 +15,9 @@ for await (const m of crusoe().models.list()) ids.push(m.id);
 console.log(`${ids.length} models. NVIDIA:`, ids.filter((id) => /nemotron|nvidia/i.test(id)));
 const superVl = ids.find((id) => /nemotron.*3\.5.*super/i.test(id));
 console.log(superVl ? `Nemotron 3.5 Super is on Crusoe: ${superVl}` : "Nemotron 3.5 Super is NOT listed on Crusoe; using fallback.");
-for (const [role, id] of Object.entries(MODELS)) {
-  console.log(`  ${role.padEnd(9)} ${id} ${ids.includes(id) ? "✓" : "✗ not found, set MODEL_" + role.toUpperCase()}`);
-}
+const { missing } = resolveModels(ids);
+for (const m of missing) console.log(`  ✗ ${m} not in catalog; falling back to Lightning`);
+console.log("  using:", MODELS, `| caps: ${LIMITS.calls} calls, $${LIMITS.usd}`);
 
 step(`chat on ${MODELS.lightning}`);
 const hello = await chat("roundtrip", {
@@ -68,4 +68,6 @@ const second = await chat("roundtrip", { model: MODELS.super, messages, tools, m
 console.log(second.choices[0].message.content);
 
 step("usage");
-console.table(usageLedger);
+console.table(usageLedger.map((u) => ({ ...u, usd: u.usd.toFixed(6) })));
+const total = spend();
+console.log(`total: ${total.calls} calls, $${total.usd.toFixed(6)}, cached ${total.cachedTokens}/${total.promptTokens} prompt tokens`);
