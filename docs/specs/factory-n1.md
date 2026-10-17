@@ -116,7 +116,7 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 | live-a-8 | continue from a-7, 3 draft tests | no change | duplicates; 49% cache hits |
 | live-a-9 | continue from a-7, ROUTE FIXER lens, no research | no change | damage moved to the pack→ship leg; 429s from research handled |
 | live-a-10 | revised route lens (both legs), no research | no change | 42 calls, $0.027; leg arithmetic wrong (claimed 12, actual 17); zero-damage cells exist ([feasibility](../evidence/zero-damage-feasibility.md)) |
-| **live-a-11** | **`measure_legs` ruler + inland-placement rule**, continue from a-7 | **→ 3,283 (−81.8%), goal met on all 15 development days** | 54 calls, $0.042; accepted in gen 1; 0 refuted claims |
+| **live-a-11** | **`measure_legs` ruler + inland-placement rule**, continue from a-7 | **→ 3,283 (−81.8%), goal met on all 15 development days** | 54 calls, $0.042; 27 `measure_legs` calls across 9 proposals (2 by the accepted one); accepted in gen 1; 0 refuted claims |
 | memeval-…19-33-01 | memory vs none, F/G | INVALID | connection error starved arms |
 | **memeval-…19-41-04** | memory vs none, F/G | **0W/0T/4L** | valid negative result |
 
