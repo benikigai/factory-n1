@@ -1,7 +1,7 @@
 # Screen Studio 60-Second Demo Production Kit (`Factory N+1`)
 
 **Target runtime:** `0:60` (`60.0s` at 60 fps, `1440×900` HiDPI window capture in Screen Studio)  
-**Voiceover target:** ElevenLabs clone of Ben's voice (`141 words` total across 6 timestamped beats — ~140 words per minute natural speaking cadence)  
+**Voiceover target:** Live mic narration by Ben while recording in Screen Studio (`142 words` total across 6 shots — short sentences with breathing room for live clicks)  
 **Hero run artifact:** `live-a-7` (`RECORDED`, frozen simulator `SIM 1.1.0`, grader SHA-256 `493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4`)  
 **Base URL:** `http://localhost:5173` (or the deployed static Vercel URL; all paths below are relative to the site root)
 
@@ -46,29 +46,29 @@
 
 ---
 
-## ElevenLabs Voiceover Script (Ben's Voice — 141 Words Total)
+## Live Voiceover Script (Read Aloud by Ben — 142 Words Total)
 
-> **[0:00–0:10 · Shot 1 — Hook (26 words)]**  
-> "The model lied, and the grader caught it. Nemotron Lightning invented a simulator re-run and claimed four mis-sorts, passing. Our frozen grader measured eighteen, and rejected it."
->
-> **[0:10–0:22 · Shot 2 — Dual-Floor 3D Race (23 words)]**  
-> "Factory N-plus-one puts a recursive agent team to work on a hundred-package fulfillment floor. Left is baseline; right is our agents' champion, on one clock."
->
-> **[0:22–0:34 · Shot 3 — Agent Hierarchy & Loop (26 words)]**  
-> "On Crusoe, Lightning researches You-dot-com, while Nemotron Super V-L designers probe drafts and submit changes. Code—never the model—gates every generation and scores each edit alone."
->
-> **[0:34–0:46 · Shot 4 — Verified Numbers (27 words)]**  
-> "In live-A-seven, validation drops sixty-six point three percent, from eighteen-thousand-sixty-one to six-thousand-eighty-three—beating a one-line code heuristic at thirteen-thousand-one-ninety-four, and forty-one-run random search at thirteen-thousand-ninety-nine."
->
-> **[0:46–0:55 · Shot 5 — Honest Negative Results (26 words)]**  
-> "And when checks fail, we show it. Zero damage wasn't reached, so Done-Means-Done stays FAIL. On fresh factories, coordinate-bound shared memory lost four of four."
->
-> **[0:55–1:00 · Shot 6 — Close (13 words)]**  
-> "Recursive agents only work when the ruler is frozen. Every receipt is replayable."
+`[0:00 #tracks — Done Means Done card]`  
+The model lied, and the grader caught it. Nemotron Lightning invented a simulator re-run and claimed four mis-sorts. Our frozen grader measured eighteen, and refuted it.
+
+`[0:10 /replay.html?run=live-a-7 — 3D replay view]`  
+This is Factory N-plus-one. Our agent team redesigns a hundred-package factory floor. Left is the starting layout. Right is our champion, running on one shared clock.
+
+`[0:22 ?view=agents&node=designers — Agent workflow view]`  
+On Crusoe, Lightning searches You-dot-com for warehouse priors. Nemotron Super designers test drafts in the simulator. Our code gate checks every edit and rejects eleven bad proposals.
+
+`[0:34 /#proof — baseline race chart]`  
+In run live-A-seven, validation drops from eighteen-thousand-sixty-one to six-thousand-eighty-three. That is minus sixty-six point three percent. It beats the code heuristic at thirteen-thousand-one-ninety-four, and forty-one-run random search at thirteen-thousand-ninety-nine.
+
+`[0:46 /#tracks — goal check & shared memory]`  
+We also show what failed. Zero damage was not reached. And on fresh factories, shared memory lost four of four.
+
+`[0:55 /#top — hero overview]`  
+Self-improving agents only work when the grader cannot be gamed. Every run is replayable.
 
 ---
 
-## ElevenLabs Export & Screen Studio Sync Notes
+## Live Recording & Pacing Notes
 
-1. **ElevenLabs Settings:** Paste the 6 paragraphs above (without the bracketed headers) into ElevenLabs using Ben's voice profile (`Stability: 0.55`, `Similarity: 0.80`, `Style: 0.15`). Add a `0.3s` pause (`...`) between paragraphs if generating as a single audio file, or generate 6 clips and drop them on the Screen Studio timeline at `0:00`, `0:10`, `0:22`, `0:34`, `0:46`, and `0:55`.
-2. **Word Count Verification:** `26 + 23 + 26 + 27 + 26 + 13 = 141 words` (`~2.35 words/sec`, leaving breathing room at every visual transition).
+1. **Pacing (`142 words` total):** `26 + 26 + 27 + 29 + 20 + 14 = 142 spoken words` (`~2.35 words/sec`). Each cue leaves a natural half-second pause to click or switch tabs before speaking the next line.
+2. **Tab-Switch Shortcut:** Keep Tab 1 (`/?run=live-a-7#tracks`) and Tab 2 (`/replay.html?run=live-a-7`) side-by-side and use `Cmd+Option+Right` / `Cmd+Option+Left` (or `Cmd+1` / `Cmd+2`) at `[0:10]` and `[0:34]` so your cursor stays inside the canvas while you speak.
