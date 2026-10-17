@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2026-10-17T21:43:23.109783+00:00",
+  "stage": "complete",
+  "status": "Pilot complete; VM deleted",
+  "detail": "Training and all 100 held-out pairs are complete. The model learned the output format, but its factory predictions remain unreliable. Artifacts were recovered and the VM and boot disk were deleted.",
+  "hardware": "NVIDIA A100 80 GB",
+  "startedAt": "2026-10-17T14:25:00-07:00",
+  "trainingStartCutoffAt": "2026-10-17T14:50:00-07:00",
+  "shutdownAt": "2026-10-17T14:42:49-07:00",
+  "approvedCapUsd": 6,
+  "approvedRuntimeHours": 2,
+  "estimatedCostUsd": 0.596935,
+  "estimateNote": "Conservative runtime-based estimate for 17m47s, including boot storage, against the $6 cap. Final billed charge awaits Crusoe daily usage posting.",
+  "optimizerSteps": 75,
+  "totalSteps": 75,
+  "latestLoss": 0.3234505280852318,
+  "validationResults": "Loss 1.4291 \u2192 0.2795. Held-out zero-damage accuracy on valid layouts: 24%, below the 54.7% majority diagnostic.",
+  "logs": [
+    "Full training began at 14:28 PT, before the 14:50 cutoff.",
+    "One epoch completed: 75 updates in 216.455 seconds.",
+    "All 100 paired comparisons completed with no failed calls.",
+    "Independent audit reproduced every metric and all simulator labels.",
+    "Output schema: base 0/100, tuned 100/100.",
+    "Outcome prediction is not ready to replace the exact simulator.",
+    "Adapter and logs recovered; SHA256 hashes verified.",
+    "VM deletion confirmed at 14:42:49 PT; storage list also empty."
+  ]
+}
