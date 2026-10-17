@@ -32,7 +32,7 @@ interface AuditOptions {
   recovered?: { v1: string; old3: string; v2: string };
   bundle?: string;
   fixture?: boolean;
-  continuation?: { includedIds: string[]; excludedIds: string[]; originalEvents: any[]; primaryOverall: any };
+  continuation?: { includedIds: string[]; excludedIds: string[]; originalEvents: any[]; primaryOverall: any; runtime?: { originalRequestIds: string[]; originalStartedAt: number; originalEndedAt: number; resumedAt: number; effectiveDeadline: number } };
 }
 
 function verifyTraining(plan: any, options: AuditOptions) {
@@ -241,7 +241,11 @@ export function auditV2Results(directory: string, options: AuditOptions) {
       for (const name of ["promptTokens", "completionTokens", "totalTokens"]) assert.ok(Number.isSafeInteger(usage[name]) && usage[name] >= 0);
       assert.equal(usage.totalTokens, usage.promptTokens + usage.completionTokens); assert.ok(usage.completionTokens <= 128 && usage.totalTokens <= receipt.reservedTokens);
       assert.ok(Number.isFinite(receipt.latencyMs) && receipt.latencyMs >= 0);
-      assert.ok(Number.isFinite(receipt.startedAt) && receipt.startedAt >= checkpoint.startedAt && receipt.startedAt < checkpoint.startedAt + plan.maxRuntimeMs, "Every model dispatch begins inside the frozen runtime window");
+      const runtime = options.continuation?.runtime;
+      const inherited = runtime?.originalRequestIds.includes(receipt.id);
+      const earliest = runtime ? (inherited ? runtime.originalStartedAt : runtime.resumedAt) : checkpoint.startedAt;
+      const latest = runtime ? (inherited ? runtime.originalEndedAt : runtime.effectiveDeadline) : checkpoint.startedAt + plan.maxRuntimeMs;
+      assert.ok(Number.isFinite(receipt.startedAt) && receipt.startedAt >= earliest && receipt.startedAt < latest, "Every model dispatch begins inside its original or explicitly approved continuation runtime window");
       if (receipt.reply.responseId) { assert.ok(!responseIds.has(receipt.reply.responseId)); responseIds.add(receipt.reply.responseId); }
       raw = receipt.reply.content ?? "";
     }

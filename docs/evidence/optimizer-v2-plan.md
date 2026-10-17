@@ -27,6 +27,14 @@ Published rates verified October 17, 2026: A100 PCIe $2/GPU-hour and storage $0.
 
 Work stops by minute 90 for artifact recovery and deletion. A host shutdown timer is a backup, not deletion proof. Save adapter files, hashes, training manifests, model provenance, exact requests, scores and screenshots confirming no instance or disk remains. Report any incomplete comparison rather than extend the budget.
 
+## Approved infrastructure continuation
+
+The first evaluation stopped after the SSH tunnel failed, with 93 resolved model requests and one request of unknown completion on `optimizer-v2-test-building-11`. Its original twenty-factory evidence is retained unchanged and is incomplete. The unknown request is counted and is never retried.
+
+Ben approved continuing the other nineteen factories. Models, prompts, data, grader, proposal order and per-arm limits stay frozen. Every arm of the interrupted factory is excluded from the paired headline comparison. Previously exposed partial final scores are disclosed; this continuation is not a new blinded benchmark.
+
+The continuation preserves the 30-minute active evaluation limit, subtracting the original 169,249 milliseconds. The approval and infrastructure pause are recorded explicitly. Regardless of remaining active time, work stops by 17:08:52 PT and instance plus disk deletion must complete by 17:18:52 PT, within the original $4 and 100-minute limits.
+
 ## Reproducibility limit observed during training
 
 The archived one-epoch artifact and the first checkpoint of the new three-epoch run have identical pre-training validation loss (0.5262690003558335), base revision, dataset token counts and hyperparameters, but different adapter hashes. Post-epoch validation loss is 0.3231038418092577 for the archive and 0.32272349926907345 for the new run. The new schedule uses a private seeded Python RNG; the archived recipe shuffled global RNG state after model loading. Actual old batch order and initial LoRA hashes were not recorded, and deterministic GPU execution was not enforced. The comparison therefore describes four trained artifacts from a single seed; it cannot attribute differences solely to the number of epochs. No final test was opened or policy changed after this observation.

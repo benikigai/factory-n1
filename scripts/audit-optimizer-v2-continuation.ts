@@ -21,6 +21,58 @@ const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0)
 const receipts = (root: string) => readdirSync(root).filter(file => file.endsWith(".json")).map(file => json(join(root, file)));
 const excluded = (receipt: any) => receipt.caseId === EXCLUDED || receipt.id.startsWith(`${EXCLUDED}-`);
 const retired = (receipt: any) => excluded(receipt) || /-final-(initial|three|twelve)$/.test(receipt.id);
+const ABSOLUTE_WORKSTOP = Date.parse("2026-10-18T00:08:52.000Z");
+
+export function verifyContinuationClock(original: any, failed: any, originalPlan: any, manifest: any, checkpoint: any, result: any, engineMetrics: any) {
+  const allowance = originalPlan.maxRuntimeMs, pause = manifest.pause;
+  assert.equal(allowance, 30 * 60_000, "Original thirty-minute active allowance is preserved");
+  assert.equal(manifest.originalStartedAt, original.startedAt);
+  assert.equal(manifest.originalDeadline, original.startedAt + allowance);
+  assert.equal(result.originalStartedAt, original.startedAt); assert.equal(result.originalDeadline, manifest.originalDeadline);
+  assert.equal(pause.userApproved, true); assert.match(pause.reason, /human approval.*restart pause/);
+  assert.equal(failed.elapsedMs, 169249, "Persisted original elapsed time, not an inferred smaller allowance");
+  assert.equal(pause.originalActiveElapsedMs, failed.elapsedMs);
+  for (const key of ["resumedAt", "pausedMs", "hardDeadline", "effectiveAddedMs"]) assert.ok(Number.isSafeInteger(pause[key]), `Finite integer pause field ${key}`);
+  assert.equal(pause.pausedMs, pause.resumedAt - (original.startedAt + failed.elapsedMs));
+  assert.ok(pause.pausedMs >= 0);
+  assert.ok(pause.hardDeadline <= ABSOLUTE_WORKSTOP, "Absolute work cutoff cannot be extended");
+  assert.ok(pause.resumedAt <= Date.parse(manifest.createdAt) && Date.parse(manifest.createdAt) - pause.resumedAt <= 1000, "Manifest records the same preparation time");
+  assert.equal(manifest.effectiveDeadline, Math.min(pause.resumedAt + allowance - failed.elapsedMs, pause.hardDeadline));
+  assert.ok(pause.resumedAt < manifest.effectiveDeadline);
+  assert.equal(pause.effectiveAddedMs, manifest.effectiveDeadline - manifest.originalDeadline);
+  assert.ok(pause.effectiveAddedMs <= pause.pausedMs, "No extra active time is hidden in the pause");
+  assert.equal(checkpoint.startedAt, manifest.effectiveDeadline - allowance);
+  assert.equal(manifest.engineStartedAt, checkpoint.startedAt);
+  assert.equal(result.effectiveDeadline, manifest.effectiveDeadline); eq(result.pause, pause, "Reported approved pause matches manifest");
+  assert.ok(Number.isSafeInteger(engineMetrics.elapsedMs) && engineMetrics.elapsedMs >= 0);
+  const recordedEnd = checkpoint.startedAt + engineMetrics.elapsedMs;
+  const continuationElapsedMs = recordedEnd - pause.resumedAt;
+  const activeElapsedMs = failed.elapsedMs + continuationElapsedMs;
+  assert.ok(continuationElapsedMs >= 0 && activeElapsedMs <= allowance, "Original and continued active work fit thirty minutes");
+  assert.ok(recordedEnd <= manifest.effectiveDeadline && recordedEnd <= ABSOLUTE_WORKSTOP, "Recorded completion precedes the approved work cutoff");
+  return { originalElapsedMs: failed.elapsedMs, pausedMs: pause.pausedMs, continuationElapsedMs, activeElapsedMs, allowanceMs: allowance, resumedAt: pause.resumedAt, originalEndedAt: original.startedAt + failed.elapsedMs, originalDeadline: manifest.originalDeadline, effectiveDeadline: manifest.effectiveDeadline, absoluteWorkstop: ABSOLUTE_WORKSTOP, recordedEnd, evidence: "Original and engine persisted elapsed counters plus the declared preparation timestamp; no extra inference is granted by the pause." };
+}
+
+function testContinuationClock() {
+  for (const resumedAt of [ABSOLUTE_WORKSTOP - 40 * 60_000, ABSOLUTE_WORKSTOP - 20 * 60_000]) {
+    const original = { startedAt: ABSOLUTE_WORKSTOP - 60 * 60_000 }, failed = { elapsedMs: 169249 }, plan = { maxRuntimeMs: 30 * 60_000 };
+    const originalDeadline = original.startedAt + plan.maxRuntimeMs;
+    const effectiveDeadline = Math.min(resumedAt + plan.maxRuntimeMs - failed.elapsedMs, ABSOLUTE_WORKSTOP);
+    const checkpoint = { startedAt: effectiveDeadline - plan.maxRuntimeMs };
+    const pause = { userApproved: true, reason: "Exclude human approval and same-VM restart pause", originalActiveElapsedMs: failed.elapsedMs, pausedMs: resumedAt - original.startedAt - failed.elapsedMs, effectiveAddedMs: effectiveDeadline - originalDeadline, resumedAt, hardDeadline: ABSOLUTE_WORKSTOP };
+    const manifest = { originalStartedAt: original.startedAt, originalDeadline, effectiveDeadline, engineStartedAt: checkpoint.startedAt, pause, createdAt: new Date(resumedAt).toISOString() };
+    const result = { originalStartedAt: original.startedAt, originalDeadline, effectiveDeadline, pause };
+    const metrics = { elapsedMs: plan.maxRuntimeMs };
+    const verify = (m = manifest, r = result, e = metrics) => verifyContinuationClock(original, failed, plan, m, checkpoint, r, e);
+    const good = verify(); assert.ok(good.activeElapsedMs <= plan.maxRuntimeMs);
+    assert.throws(() => verify({ ...manifest, pause: { ...pause, originalActiveElapsedMs: 1 } }));
+    assert.throws(() => verify({ ...manifest, pause: { ...pause, pausedMs: pause.pausedMs + 1 } }));
+    assert.throws(() => verify({ ...manifest, pause: { ...pause, hardDeadline: ABSOLUTE_WORKSTOP + 1 } }));
+    assert.throws(() => verify(manifest, result, { elapsedMs: plan.maxRuntimeMs + 1 }));
+    assert.throws(() => verifyContinuationClock(original, { elapsedMs: 1 }, plan, manifest, checkpoint, result, metrics));
+  }
+  return { status: "passed", scenarios: 2, rejectedMutations: 10, scope: "Synthetic clock-only fixtures; no held-out factories opened" };
+}
 
 function tree(root: string, prefix = ""): Record<string, string> {
   return Object.assign({}, ...readdirSync(join(root, prefix), { withFileTypes: true }).map(entry => {
@@ -65,15 +117,11 @@ export function auditContinuation(directory: string, options: { confirmedComplet
   assert.equal(original.terminalReason, failed.terminalReason); assert.equal(contentHash(originalPlan), manifest.originalPlanHash);
   assert.equal(contentHash(plan), manifest.enginePlanHash);
   const { continuation, outputDirectory, maxTokensPerArm, ...corePlan } = plan;
-  eq(corePlan, Object.fromEntries(Object.entries(originalPlan).filter(([key]) => !["outputDirectory", "maxTokensPerArm"].includes(key))), "Core policy, ordering and deadline remain unchanged");
+  eq(corePlan, Object.fromEntries(Object.entries(originalPlan).filter(([key]) => !["outputDirectory", "maxTokensPerArm"].includes(key))), "Core policy, ordering and active allowance remain unchanged");
   assert.equal(maxTokensPerArm, manifest.activeTokensPerArm, "Uniform remaining token ceiling is declared");
   assert.equal(continuation.originalPlanHash, manifest.originalPlanHash); assert.equal(continuation.excludedCase, EXCLUDED);
   assert.equal(outputDirectory, engine); assert.equal(originalPlan.factoryLimit, 20); assert.equal(plan.factoryLimit, 20);
-  assert.equal(checkpoint.startedAt, original.startedAt); assert.equal(manifest.originalStartedAt, original.startedAt);
-  assert.equal(manifest.originalDeadline, original.startedAt + originalPlan.maxRuntimeMs);
-  assert.equal(originalPlan.maxRuntimeMs, 30 * 60_000, "Original thirty-minute clock is preserved");
-  assert.equal(result.originalStartedAt, original.startedAt); assert.equal(result.originalDeadline, manifest.originalDeadline);
-  assert.ok(Date.parse(manifest.createdAt) < manifest.originalDeadline, "Continuation was declared inside original deadline");
+  const timing = verifyContinuationClock(original, failed, originalPlan, manifest, checkpoint, result, json(join(engine, "metrics.json")));
   const originalSelection = json(join(origin, "selection.json"));
   eq(json(join(engine, "selection.json")), originalSelection, "Engine keeps original twenty positions");
   eq(manifest.includedIds, originalSelection.ids.filter((id: string) => id !== EXCLUDED), "Exclusion is exactly the interrupted factory");
@@ -111,8 +159,8 @@ export function auditContinuation(directory: string, options: { confirmedComplet
     assert.ok(active.simulations <= originalPlan.maxSimulationsPerArm, "Active simulator cap; retired CPU work is separately counted");
   }
   for (const request of activeRequests.filter(r => !originalById.has(r.id))) {
-    assert.ok(request.startedAt >= Date.parse(manifest.createdAt));
-    assert.ok(request.startedAt < manifest.originalDeadline, "No new dispatch after the original deadline");
+    assert.ok(request.startedAt >= timing.resumedAt);
+    assert.ok(request.startedAt < timing.effectiveDeadline, "No new dispatch after the approved active-runtime deadline");
   }
   const healthFiles = readdirSync(root).filter(name => /^health-\d+\.json$/.test(name));
   assert.ok(healthFiles.length > 0, "Continuation rechecked actual server health");
@@ -124,7 +172,7 @@ export function auditContinuation(directory: string, options: { confirmedComplet
     if (event.id && originalById.has(event.id)) return !excluded(originalById.get(event.id));
     return true;
   });
-  const primary = auditV2Results(engine, { confirmedComplete: true, recovered: options.recovered, bundle: options.bundle, continuation: { includedIds: manifest.includedIds, excludedIds: [EXCLUDED], originalEvents, primaryOverall: result.overall } });
+  const primary = auditV2Results(engine, { confirmedComplete: true, recovered: options.recovered, bundle: options.bundle, continuation: { includedIds: manifest.includedIds, excludedIds: [EXCLUDED], originalEvents, primaryOverall: result.overall, runtime: { originalRequestIds: originalRequests.map(r => r.id), originalStartedAt: original.startedAt, originalEndedAt: timing.originalEndedAt, resumedAt: timing.resumedAt, effectiveDeadline: timing.effectiveDeadline } } });
   eq(result.cases, checkpoint.states.filter((state: any) => state.caseId !== EXCLUDED), "Primary output contains exactly nineteen complete factory states");
 
   // The interrupted factory is re-scored solely for an explicitly ineligible
@@ -149,12 +197,13 @@ export function auditContinuation(directory: string, options: { confirmedComplet
   }
   eq(result.all20, [...result.cases.map((s: any) => ({ ...s, status: "included" })), ...abandonedStates.map((s: any) => ({ ...s, status: "excluded-infrastructure-interruption", primaryEligible: false }))], "All-twenty display labels the interrupted factory ineligible");
   eq(tree(origin), manifest.originHashes, "Origin remains immutable through audit");
-  const audit = { status: "passed", createdAt: new Date().toISOString(), scope: "Nineteen paired factories after explicitly approved infrastructure-only continuation; original interrupted twenty-case experiment remains incomplete.", primaryFactoryCount: 19, sealedPopulation: 20, all20Completed: false, excludedFactory: EXCLUDED, excludedFactoryReason: "Only original unresolved request; network failure with uncertain completion, never retried.", partialFinalResultsWereVisibleBeforeContinuation: true, noModelPromptDataGraderOrDeadlineChanges: true, originalCaseOrderPreserved: true, originalDeadline: manifest.originalDeadline, accounting, primary, excludedPartialDisplay: { primaryEligible: false, notAnEqualBudgetComparison: true, unknownRequest: { id: unknown.id, reservedTokens: unknown.reservedTokens, outputKnown: false }, arms: partial }, limitations: [manifest.disclosure, "Single-seed independently retrained artifacts; archived epoch-one weights differ from the fresh three-epoch run's epoch-one weights, so epoch count is not a perfectly isolated causal factor.", "Active simulator cap is separate from already incurred retired CPU simulations; combined total includes both.", primary.orderingEvidence.limitation], manifestHash: hash(join(root, "continuation-manifest.json")), resultsHash: hash(join(root, "continuation-results.json")) };
+  const audit = { status: "passed", createdAt: new Date().toISOString(), scope: "Nineteen paired factories after explicitly approved infrastructure-only continuation; original interrupted twenty-case experiment remains incomplete.", primaryFactoryCount: 19, sealedPopulation: 20, all20Completed: false, excludedFactory: EXCLUDED, excludedFactoryReason: "Only original unresolved request; network failure with uncertain completion, never retried.", partialFinalResultsWereVisibleBeforeContinuation: true, noModelPromptDataGraderOrProposalChanges: true, originalCaseOrderPreserved: true, timing, accounting, primary, excludedPartialDisplay: { primaryEligible: false, notAnEqualBudgetComparison: true, unknownRequest: { id: unknown.id, reservedTokens: unknown.reservedTokens, outputKnown: false }, arms: partial }, limitations: [manifest.disclosure, "Single-seed independently retrained artifacts; archived epoch-one weights differ from the fresh three-epoch run's epoch-one weights, so epoch count is not a perfectly isolated causal factor.", "Active simulator cap is separate from already incurred retired CPU simulations; combined total includes both.", primary.orderingEvidence.limitation], manifestHash: hash(join(root, "continuation-manifest.json")), resultsHash: hash(join(root, "continuation-results.json")) };
   assert.ok(!existsSync(options.output), "Never overwrite prior audit evidence"); writeFileSync(options.output, JSON.stringify(audit, null, 2) + "\n", { flag: "wx" });
   return audit;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  if (process.argv[2] === "--self-test") { console.log(JSON.stringify(testContinuationClock())); process.exit(0); }
   const args = process.argv.slice(2), confirmedComplete = args.shift() === "--confirmed-complete", directory = args.shift(), output = args.shift();
   assert.ok(directory && output, "Usage: --confirmed-complete CONTINUATION_DIR OUTPUT --v1 DIR --old3 DIR --v2 DIR --bundle DIR");
   const values = new Map<string, string>();
