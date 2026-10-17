@@ -6,6 +6,10 @@ interface Event {
   t: number;
   seq: number;
   kind: "arrive" | "done";
+  /**
+   * Index into scenario.packages (and the parallel traces array), NOT the
+   * package id. Scenarios sort packages by arrival, so ids are not offsets.
+   */
   pkg: number;
   station: string;
 }
@@ -99,10 +103,10 @@ export function simulate(layout: Layout, scenario: Scenario): RunResult {
 
   const q = new EventQueue();
   const receiving = byKind("receiving");
-  for (const p of pkgs) {
+  pkgs.forEach((p, i) => {
     // Packages land at the least-busy receiving dock; decided at arrival time below.
-    q.push({ t: p.arrival, kind: "arrive", pkg: p.id, station: "" });
-  }
+    q.push({ t: p.arrival, kind: "arrive", pkg: i, station: "" });
+  });
 
   const start = (t: number, st: StationState, pkg: number) => {
     st.busy = true;

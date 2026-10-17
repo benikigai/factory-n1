@@ -52,21 +52,20 @@ export function makeScenario(seed: number, profile: Profile, count = 100): Scena
   return { id: `${profile}-${seed}`, seed, profile, packages };
 }
 
+const cycle = (seeds: number[], profiles: Profile[]) => seeds.map((seed, i) => ({ seed, profile: profiles[i % profiles.length] }));
+const DEV_PROFILES: Profile[] = ["normal", "peak", "fragile"];
+
 /**
- * train: agents see these. select: the ratchet gate. test: untouched until the
- * final before/after, and it includes the "skewed" profile no agent ever saw.
+ * Frozen 2026-10-17 after the package-identity fix (sim 1.1.0).
+ * - train:  what designer agents see.
+ * - select: the acceptance gate; feedback from it shapes the run, so it is validation, not unseen.
+ * - test:   development holdout. It was evaluated during development, so it is NOT a clean final test.
+ * - final:  fresh seeds reserved for the before/after claim. Never evaluated during development;
+ *           locked behind unlockFinal() so the loop and agents cannot touch it.
  */
 export const SPLITS = {
-  train: [
-    { seed: 1, profile: "normal" },
-    { seed: 2, profile: "peak" },
-    { seed: 3, profile: "fragile" },
-  ],
-  select: [
-    { seed: 101, profile: "normal" },
-    { seed: 102, profile: "peak" },
-    { seed: 103, profile: "fragile" },
-  ],
+  train: cycle([1, 2, 3, 4, 5, 6], DEV_PROFILES),
+  select: cycle([101, 102, 103, 104, 105, 106, 107, 108, 109], DEV_PROFILES),
   test: [
     { seed: 201, profile: "normal" },
     { seed: 202, profile: "peak" },
@@ -75,10 +74,25 @@ export const SPLITS = {
     { seed: 205, profile: "skewed" },
     { seed: 206, profile: "peak" },
   ],
+  final: cycle(
+    Array.from({ length: 20 }, (_, i) => 9001 + i),
+    ["normal", "peak", "fragile", "skewed"],
+  ),
 } satisfies Record<string, { seed: number; profile: Profile }[]>;
 
 export type Split = keyof typeof SPLITS;
 
+let finalUnlocked = false;
+
+/** Call only from the final before/after script, after all tuning is done. */
+export function unlockFinal(reason: string) {
+  finalUnlocked = true;
+  console.warn(`[final split unlocked] ${reason}`);
+}
+
 export function scenariosFor(split: Split): Scenario[] {
+  if (split === "final" && !finalUnlocked) {
+    throw new Error("final split is locked; call unlockFinal() from the final-evaluation script only");
+  }
   return SPLITS[split].map((s) => makeScenario(s.seed, s.profile));
 }

@@ -9,11 +9,33 @@ export function distance(a: Station, b: Station): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
+const KINDS: StationKind[] = ["receiving", "sorter", "pack", "shipping"];
+
+/** Runtime shape check: model output is untrusted JSON, not a typed Layout. */
+export function schemaErrors(input: unknown): string[] {
+  const l = input as Layout;
+  if (!l || typeof l !== "object") return ["layout must be a JSON object"];
+  if (!l.grid || !Number.isInteger(l.grid.w) || !Number.isInteger(l.grid.h)) return ["grid must be {w,h} integers"];
+  if (!Array.isArray(l.stations)) return ["stations must be an array"];
+  const errors: string[] = [];
+  l.stations.forEach((s, i) => {
+    if (!s || typeof s !== "object") return errors.push(`stations[${i}] must be an object`);
+    if (typeof s.id !== "string" || !s.id) errors.push(`stations[${i}].id must be a non-empty string`);
+    if (!KINDS.includes(s.kind)) errors.push(`stations[${i}].kind must be one of ${KINDS.join(", ")}`);
+    if (!Number.isInteger(s.x) || !Number.isInteger(s.y)) errors.push(`stations[${i}] x,y must be integers`);
+    if (s.zones !== undefined && !Array.isArray(s.zones)) errors.push(`stations[${i}].zones must be an array`);
+    if (s.sizes !== undefined && !Array.isArray(s.sizes)) errors.push(`stations[${i}].sizes must be an array`);
+  });
+  return errors;
+}
+
 /**
  * Hard constraints. A layout that fails any of these is rejected before
  * simulation, and the errors are fed back to the agent verbatim.
  */
 export function validateLayout(layout: Layout): string[] {
+  const shape = schemaErrors(layout);
+  if (shape.length) return shape;
   const errors: string[] = [];
   const { grid, stations } = layout;
   if (!grid || grid.w < 8 || grid.h < 8 || grid.w > 40 || grid.h > 40) {

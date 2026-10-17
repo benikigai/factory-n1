@@ -63,3 +63,43 @@ test("baseline fails the default DoD; hand-built reference passes on unseen test
   assert.equal(test.dod!.passed, true);
   assert.ok(test.objective < evaluate(baseline, "test").objective / 3);
 });
+
+// Regression for the package-identity bug (events indexed by id into arrays sorted by arrival).
+// Every trace must describe exactly the scenario package with its id, with physically consistent timing.
+test("traces preserve package identity, arrival, service times and routing rules", async () => {
+  const { SIM } = await import("../src/sim/config.ts");
+  for (const layout of [baseline, reference]) {
+    const kindOf = new Map(layout.stations.map((s) => [s.id, s]));
+    for (const profile of ["normal", "peak", "fragile", "skewed"] as const) {
+      const scenario = makeScenario(11, profile);
+      const { trace } = simulate(layout, scenario);
+      assert.equal(trace.length, scenario.packages.length);
+      assert.equal(new Set(trace.map((t) => t.id)).size, trace.length, "unique ids");
+      const byId = new Map(scenario.packages.map((p) => [p.id, p]));
+      for (const t of trace) {
+        const p = byId.get(t.id)!;
+        const where = `${layout.name}/${profile}/pkg ${t.id}`;
+        assert.deepEqual([t.zone, t.size, t.fragile, t.arrival], [p.zone, p.size, p.fragile, p.arrival], where);
+        assert.equal(t.steps[0].enter, p.arrival, `${where} enters receiving at its arrival`);
+        const kinds = t.steps.map((s) => kindOf.get(s.station)!.kind);
+        if (t.shippedAt !== null) assert.deepEqual(kinds, ["receiving", "sorter", "pack", "shipping"], where);
+        for (const s of t.steps) {
+          const st = kindOf.get(s.station)!;
+          const expected = st.kind === "pack" ? SIM.service.pack[p.size] : SIM.service[st.kind];
+          assert.equal(s.end - s.start, expected, `${where} service at ${s.station}`);
+        }
+        const pack = t.steps.find((s) => kindOf.get(s.station)!.kind === "pack");
+        if (pack) {
+          const ps = kindOf.get(pack.station)!;
+          const accepts = ps.zones!.includes(p.zone) && ps.sizes!.includes(p.size);
+          const anyAccepts = layout.stations.some((s) => s.kind === "pack" && s.zones!.includes(p.zone) && s.sizes!.includes(p.size));
+          assert.equal(t.missorted, !anyAccepts, `${where} missorted iff no station accepts it`);
+          if (!t.missorted) assert.ok(accepts, `${where} packed at an accepting station`);
+        }
+        const ship = t.steps.find((s) => kindOf.get(s.station)!.kind === "shipping");
+        if (ship) assert.ok(kindOf.get(ship.station)!.zones!.includes(p.zone), `${where} shipped from its zone's dock`);
+        assert.equal(t.damaged, p.fragile && t.legs.some((l) => l.cells > SIM.fragileMaxLeg), `${where} damage rule`);
+      }
+    }
+  }
+});
