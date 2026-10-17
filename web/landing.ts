@@ -102,7 +102,8 @@ if (bundle) {
   let last = performance.now();
   let lastUi = 0;
   const tick = (now: number) => {
-    const dt = Math.min(0.1, (now - last) / 1000);
+    // The first frame timestamp can precede initialization's performance.now().
+    const dt = Math.max(0, Math.min(0.1, (now - last) / 1000));
     last = now;
     if (playback.playing) {
       playback.t += dt * playback.speed;
