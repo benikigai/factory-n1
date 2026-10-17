@@ -1,6 +1,6 @@
 # Nemotron critic training: native blocker and VM fallback
 
-Status on October 17, 2026: preparation only. No training job or GPU VM has been created. No fine-tuned model or held-out result exists yet.
+This was the pre-launch plan on October 17, 2026. The approved GPU pilot subsequently completed training and its held-out comparison. See [the pilot receipt](nemotron-finetune-pilot.md) for results and cleanup status. The native training path remains blocked.
 
 ## Native service diagnosis
 

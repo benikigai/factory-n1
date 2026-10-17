@@ -1,0 +1,995 @@
+{
+  "completed": true,
+  "stopped": null,
+  "budget": {
+    "attempts": 200,
+    "knownTokens": 175587,
+    "reservedUnknownTokens": 0
+  },
+  "scope": "Prediction quality only; no factory optimization claim.",
+  "pairedCases": 100,
+  "unpairedCases": 0,
+  "definitions": {
+    "accuracy": "Invalid JSON/schema and absent responses are wrong; expected null flags on invalid layouts match only null.",
+    "falseSafe": "Schema-valid predicted true when the expected flag is false or null, divided by all cases whose expected flag is not true. Schema failures are reported separately.",
+    "categoricalWins": "More correct validity/zeroDamage/allShipped/goalMet fields wins; schema failure scores -1. Equal scores tie.",
+    "numericWins": "Lower mean absolute error normalized per metric by max(1, abs(label)) wins on valid labels. Missing numeric prediction has infinite loss; both missing tie. Invalid labels are skipped.",
+    "numericMAE": "Raw-unit MAE on available numeric predictions; missing and eligible counts are always reported."
+  },
+  "overall": {
+    "base": {
+      "cases": 100,
+      "schemaValidity": {
+        "correct": 0,
+        "total": 100,
+        "rate": 0
+      },
+      "validityAccuracy": {
+        "correct": 0,
+        "total": 100,
+        "rate": 0
+      },
+      "flagAccuracy": {
+        "zeroDamage": {
+          "correct": 0,
+          "total": 100,
+          "rate": 0
+        },
+        "allShipped": {
+          "correct": 0,
+          "total": 100,
+          "rate": 0
+        },
+        "goalMet": {
+          "correct": 0,
+          "total": 100,
+          "rate": 0
+        }
+      },
+      "falseSafe": {
+        "zeroDamage": {
+          "falseSafe": 0,
+          "atRisk": 66,
+          "rate": 0
+        },
+        "allShipped": {
+          "falseSafe": 0,
+          "atRisk": 39,
+          "rate": 0
+        },
+        "goalMet": {
+          "falseSafe": 0,
+          "atRisk": 83,
+          "rate": 0
+        }
+      },
+      "numeric": {
+        "objective": {
+          "mae": null,
+          "measured": 0,
+          "missing": 75,
+          "eligible": 75
+        },
+        "makespan": {
+          "mae": null,
+          "measured": 0,
+          "missing": 75,
+          "eligible": 75
+        },
+        "damaged": {
+          "mae": null,
+          "measured": 0,
+          "missing": 75,
+          "eligible": 75
+        },
+        "missorts": {
+          "mae": null,
+          "measured": 0,
+          "missing": 75,
+          "eligible": 75
+        },
+        "unshipped": {
+          "mae": null,
+          "measured": 0,
+          "missing": 75,
+          "eligible": 75
+        }
+      }
+    },
+    "tuned": {
+      "cases": 100,
+      "schemaValidity": {
+        "correct": 100,
+        "total": 100,
+        "rate": 1
+      },
+      "validityAccuracy": {
+        "correct": 76,
+        "total": 100,
+        "rate": 0.76
+      },
+      "flagAccuracy": {
+        "zeroDamage": {
+          "correct": 42,
+          "total": 100,
+          "rate": 0.42
+        },
+        "allShipped": {
+          "correct": 66,
+          "total": 100,
+          "rate": 0.66
+        },
+        "goalMet": {
+          "correct": 56,
+          "total": 100,
+          "rate": 0.56
+        }
+      },
+      "falseSafe": {
+        "zeroDamage": {
+          "falseSafe": 35,
+          "atRisk": 66,
+          "rate": 0.5303030303030303
+        },
+        "allShipped": {
+          "falseSafe": 11,
+          "atRisk": 39,
+          "rate": 0.28205128205128205
+        },
+        "goalMet": {
+          "falseSafe": 16,
+          "atRisk": 83,
+          "rate": 0.1927710843373494
+        }
+      },
+      "numeric": {
+        "objective": {
+          "mae": 23050.30769230769,
+          "measured": 52,
+          "missing": 23,
+          "eligible": 75
+        },
+        "makespan": {
+          "mae": 170.06730769230768,
+          "measured": 52,
+          "missing": 23,
+          "eligible": 75
+        },
+        "damaged": {
+          "mae": 7.899038461538462,
+          "measured": 52,
+          "missing": 23,
+          "eligible": 75
+        },
+        "missorts": {
+          "mae": 6.730769230769231,
+          "measured": 52,
+          "missing": 23,
+          "eligible": 75
+        },
+        "unshipped": {
+          "mae": 4.519230769230769,
+          "measured": 52,
+          "missing": 23,
+          "eligible": 75
+        }
+      }
+    }
+  },
+  "byBuilding": {
+    "766336ada8bcc9bd84621c91ed6bf26a54ec605e65b1f98533d21b71c387d2f0": {
+      "base": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "validityAccuracy": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "allShipped": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 0,
+            "atRisk": 14,
+            "rate": 0
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 7,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 0,
+            "atRisk": 16,
+            "rate": 0
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": null,
+            "measured": 0,
+            "missing": 13,
+            "eligible": 13
+          },
+          "makespan": {
+            "mae": null,
+            "measured": 0,
+            "missing": 13,
+            "eligible": 13
+          },
+          "damaged": {
+            "mae": null,
+            "measured": 0,
+            "missing": 13,
+            "eligible": 13
+          },
+          "missorts": {
+            "mae": null,
+            "measured": 0,
+            "missing": 13,
+            "eligible": 13
+          },
+          "unshipped": {
+            "mae": null,
+            "measured": 0,
+            "missing": 13,
+            "eligible": 13
+          }
+        }
+      },
+      "tuned": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1
+        },
+        "validityAccuracy": {
+          "correct": 15,
+          "total": 20,
+          "rate": 0.75
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 10,
+            "total": 20,
+            "rate": 0.5
+          },
+          "allShipped": {
+            "correct": 15,
+            "total": 20,
+            "rate": 0.75
+          },
+          "goalMet": {
+            "correct": 11,
+            "total": 20,
+            "rate": 0.55
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 5,
+            "atRisk": 14,
+            "rate": 0.35714285714285715
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 7,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 3,
+            "atRisk": 16,
+            "rate": 0.1875
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": 7259.75,
+            "measured": 8,
+            "missing": 5,
+            "eligible": 13
+          },
+          "makespan": {
+            "mae": 147.4375,
+            "measured": 8,
+            "missing": 5,
+            "eligible": 13
+          },
+          "damaged": {
+            "mae": 7.3125,
+            "measured": 8,
+            "missing": 5,
+            "eligible": 13
+          },
+          "missorts": {
+            "mae": 9.4375,
+            "measured": 8,
+            "missing": 5,
+            "eligible": 13
+          },
+          "unshipped": {
+            "mae": 0,
+            "measured": 8,
+            "missing": 5,
+            "eligible": 13
+          }
+        }
+      }
+    },
+    "832ff3d426450800e8d80dbc9ccf3f3f0d8e5b700e0080c4a7b994a1d8bbe223": {
+      "base": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "validityAccuracy": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "allShipped": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 0,
+            "atRisk": 13,
+            "rate": 0
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 0,
+            "atRisk": 15,
+            "rate": 0
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          }
+        }
+      },
+      "tuned": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1
+        },
+        "validityAccuracy": {
+          "correct": 15,
+          "total": 20,
+          "rate": 0.75
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 7,
+            "total": 20,
+            "rate": 0.35
+          },
+          "allShipped": {
+            "correct": 15,
+            "total": 20,
+            "rate": 0.75
+          },
+          "goalMet": {
+            "correct": 8,
+            "total": 20,
+            "rate": 0.4
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 8,
+            "atRisk": 13,
+            "rate": 0.6153846153846154
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 6,
+            "atRisk": 15,
+            "rate": 0.4
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": 5704.045454545455,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": 178.54545454545453,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": 6.045454545454546,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": 6.863636363636363,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": 0,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          }
+        }
+      }
+    },
+    "bd0ea2e7840539dc5a46d18740ec35b3c624ed27f7fc6bd45679c8a357912863": {
+      "base": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "validityAccuracy": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "allShipped": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 0,
+            "atRisk": 13,
+            "rate": 0
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 0,
+            "atRisk": 16,
+            "rate": 0
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          }
+        }
+      },
+      "tuned": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1
+        },
+        "validityAccuracy": {
+          "correct": 16,
+          "total": 20,
+          "rate": 0.8
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 8,
+            "total": 20,
+            "rate": 0.4
+          },
+          "allShipped": {
+            "correct": 16,
+            "total": 20,
+            "rate": 0.8
+          },
+          "goalMet": {
+            "correct": 13,
+            "total": 20,
+            "rate": 0.65
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 8,
+            "atRisk": 13,
+            "rate": 0.6153846153846154
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 2,
+            "atRisk": 16,
+            "rate": 0.125
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": 7330.291666666667,
+            "measured": 12,
+            "missing": 4,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": 187.08333333333334,
+            "measured": 12,
+            "missing": 4,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": 9.166666666666666,
+            "measured": 12,
+            "missing": 4,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": 6.020833333333333,
+            "measured": 12,
+            "missing": 4,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": 0,
+            "measured": 12,
+            "missing": 4,
+            "eligible": 16
+          }
+        }
+      }
+    },
+    "bfa00b1cc9ece636e5dcf08eb4e77c6c29c7a0f0dd7e05529e3e041027311338": {
+      "base": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "validityAccuracy": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "allShipped": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 0,
+            "atRisk": 13,
+            "rate": 0
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 0,
+            "atRisk": 16,
+            "rate": 0
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": null,
+            "measured": 0,
+            "missing": 16,
+            "eligible": 16
+          }
+        }
+      },
+      "tuned": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1
+        },
+        "validityAccuracy": {
+          "correct": 15,
+          "total": 20,
+          "rate": 0.75
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 8,
+            "total": 20,
+            "rate": 0.4
+          },
+          "allShipped": {
+            "correct": 15,
+            "total": 20,
+            "rate": 0.75
+          },
+          "goalMet": {
+            "correct": 10,
+            "total": 20,
+            "rate": 0.5
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 7,
+            "atRisk": 13,
+            "rate": 0.5384615384615384
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 4,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 4,
+            "atRisk": 16,
+            "rate": 0.25
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": 6941.772727272727,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "makespan": {
+            "mae": 182.77272727272728,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "damaged": {
+            "mae": 8.931818181818182,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "missorts": {
+            "mae": 5.113636363636363,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          },
+          "unshipped": {
+            "mae": 0,
+            "measured": 11,
+            "missing": 5,
+            "eligible": 16
+          }
+        }
+      }
+    },
+    "c264ebcf471a35acd5786f601eb22adcff99337ca2f760812767af9c20a57061": {
+      "base": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "validityAccuracy": {
+          "correct": 0,
+          "total": 20,
+          "rate": 0
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "allShipped": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "correct": 0,
+            "total": 20,
+            "rate": 0
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 0,
+            "atRisk": 13,
+            "rate": 0
+          },
+          "allShipped": {
+            "falseSafe": 0,
+            "atRisk": 20,
+            "rate": 0
+          },
+          "goalMet": {
+            "falseSafe": 0,
+            "atRisk": 20,
+            "rate": 0
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": null,
+            "measured": 0,
+            "missing": 14,
+            "eligible": 14
+          },
+          "makespan": {
+            "mae": null,
+            "measured": 0,
+            "missing": 14,
+            "eligible": 14
+          },
+          "damaged": {
+            "mae": null,
+            "measured": 0,
+            "missing": 14,
+            "eligible": 14
+          },
+          "missorts": {
+            "mae": null,
+            "measured": 0,
+            "missing": 14,
+            "eligible": 14
+          },
+          "unshipped": {
+            "mae": null,
+            "measured": 0,
+            "missing": 14,
+            "eligible": 14
+          }
+        }
+      },
+      "tuned": {
+        "cases": 20,
+        "schemaValidity": {
+          "correct": 20,
+          "total": 20,
+          "rate": 1
+        },
+        "validityAccuracy": {
+          "correct": 15,
+          "total": 20,
+          "rate": 0.75
+        },
+        "flagAccuracy": {
+          "zeroDamage": {
+            "correct": 9,
+            "total": 20,
+            "rate": 0.45
+          },
+          "allShipped": {
+            "correct": 5,
+            "total": 20,
+            "rate": 0.25
+          },
+          "goalMet": {
+            "correct": 14,
+            "total": 20,
+            "rate": 0.7
+          }
+        },
+        "falseSafe": {
+          "zeroDamage": {
+            "falseSafe": 7,
+            "atRisk": 13,
+            "rate": 0.5384615384615384
+          },
+          "allShipped": {
+            "falseSafe": 11,
+            "atRisk": 20,
+            "rate": 0.55
+          },
+          "goalMet": {
+            "falseSafe": 1,
+            "atRisk": 20,
+            "rate": 0.05
+          }
+        },
+        "numeric": {
+          "objective": {
+            "mae": 91347.05,
+            "measured": 10,
+            "missing": 4,
+            "eligible": 14
+          },
+          "makespan": {
+            "mae": 144.45,
+            "measured": 10,
+            "missing": 4,
+            "eligible": 14
+          },
+          "damaged": {
+            "mae": 7.75,
+            "measured": 10,
+            "missing": 4,
+            "eligible": 14
+          },
+          "missorts": {
+            "mae": 7.05,
+            "measured": 10,
+            "missing": 4,
+            "eligible": 14
+          },
+          "unshipped": {
+            "mae": 23.5,
+            "measured": 10,
+            "missing": 4,
+            "eligible": 14
+          }
+        }
+      }
+    }
+  },
+  "pairedWins": {
+    "categorical": {
+      "baseWins": 0,
+      "tunedWins": 100,
+      "ties": 0
+    },
+    "numeric": {
+      "baseWins": 0,
+      "tunedWins": 52,
+      "ties": 23,
+      "eligible": 75,
+      "skipped": 25
+    }
+  }
+}

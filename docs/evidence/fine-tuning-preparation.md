@@ -14,7 +14,7 @@ The existing 1Password-backed API key successfully authenticated against `https:
 
 Both dataset uploads completed and their remote byte counts matched the local files. The price-estimate request initially rejected batch size 8, so the request now pins the supported size 16. After that correction, the estimate endpoint returned HTTP 404 for the catalog registry ID, its exact model name, the documented public model name, and the exact working serverless-inference model ID. Those name-based responses explicitly said the model was not found. The signed-in console independently shows "No published training rate for this base model yet" for Nemotron 3.5 Lightning; its generated API code uses the same registry ID as the CLI.
 
-No estimate, training job, checkpoint, or hosted adapter exists yet. Preserve this distinction in the demo. Resolving the catalog/estimate mismatch and approving a training/hosting budget are required before launch.
+No native estimate, training job, checkpoint, or hosted adapter was created. A separately approved GPU VM pilot subsequently trained and tested a smaller Nemotron 8B critic; see [its receipt](nemotron-finetune-pilot.md). The native catalog/estimate mismatch remains unresolved.
 
 ## Operator commands
 
