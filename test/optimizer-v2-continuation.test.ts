@@ -88,3 +88,21 @@ test("continuation refuses expired clocks and a second unknown request", async (
     assert.throws(() => prepareV2Continuation({ originalDirectory: f.plan.outputDirectory, outputDirectory: f.out, approveContinuation: true }), /Only the documented/);
   } finally { f.cleanup(); }
 });
+
+
+test("approved interruption pause preserves active runtime and caps the absolute deadline", async () => {
+  const f = fixture();
+  try {
+    await abortOriginal(f);
+    const original = read(join(f.plan.outputDirectory, "checkpoint.json"));
+    const now = original.startedAt + 60_000, activeElapsedMs = 10_000, hardDeadline = now + 100_000;
+    const m = prepareV2Continuation({ originalDirectory: f.plan.outputDirectory, outputDirectory: f.out, approveContinuation: true, now, pauseAllowance: { activeElapsedMs, hardDeadline } });
+    assert.equal(m.originalStartedAt, original.startedAt);
+    assert.equal(m.pause.pausedMs, 50_000);
+    assert.equal(m.effectiveDeadline, hardDeadline);
+    assert.equal(m.engineStartedAt + f.plan.maxRuntimeMs, hardDeadline);
+    assert.equal(m.pause.originalActiveElapsedMs, activeElapsedMs);
+    assert.ok(m.effectiveDeadline - now + activeElapsedMs <= f.plan.maxRuntimeMs);
+    assert.equal(read(join(f.plan.outputDirectory, "checkpoint.json")).startedAt, original.startedAt);
+  } finally { f.cleanup(); }
+});

@@ -8,13 +8,14 @@ async function main() {
   if (!args.includes("--approve-continuation")) throw new Error("Explicit user-approved --approve-continuation is required");
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--approve-continuation") continue;
-    if (!["--original", "--out"].includes(args[i]) || values.has(args[i]) || !args[i + 1] || args[i + 1].startsWith("--")) throw new Error("Use --original DIRECTORY --out NEW_DIRECTORY --approve-continuation");
+    if (!["--original", "--out", "--active-elapsed-ms", "--hard-deadline"].includes(args[i]) || values.has(args[i]) || !args[i + 1] || args[i + 1].startsWith("--")) throw new Error("Use --original DIRECTORY --out NEW_DIRECTORY --approve-continuation");
     values.set(args[i], args[++i]);
   }
   const output = values.get("--out"); if (!output) throw new Error("--out is required");
   if (!existsSync(join(output, "continuation-manifest.json"))) {
     if (!values.get("--original")) throw new Error("--original is required for preparation");
-    prepareV2Continuation({ originalDirectory: values.get("--original")!, outputDirectory: output, approveContinuation: true });
+    if (values.has("--active-elapsed-ms") !== values.has("--hard-deadline")) throw new Error("Pause allowance requires both --active-elapsed-ms and --hard-deadline");
+    prepareV2Continuation({ originalDirectory: values.get("--original")!, outputDirectory: output, approveContinuation: true, ...(values.has("--active-elapsed-ms") ? { pauseAllowance: { activeElapsedMs: Number(values.get("--active-elapsed-ms")), hardDeadline: Date.parse(values.get("--hard-deadline")!) } } : {}) });
   }
   const plan: V2Plan = JSON.parse(readFileSync(join(output, "engine/evaluation-plan.json"), "utf8"));
   const response = await fetch(new URL("/health", plan.baseUrl), { signal: AbortSignal.timeout(10_000), redirect: "error" });
