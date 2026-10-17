@@ -20,4 +20,4 @@ const lenses = process.env.LENSES ? process.env.LENSES.split(",").map((id) => AL
 // NO_RESEARCH=1 skips You.com research and isolated tests for this run. RULER=n gives designers n free measure_legs uses per turn.
 const summary = await solve({ lenses, research: process.env.NO_RESEARCH !== "1", task: loadTaskA(), generations: Number(gens), runId, probes: Number(probes), sequentialDesigners: process.env.SEQUENTIAL_DESIGNERS === "1", ruler: Number(process.env.RULER ?? 0), startFrom, initialOps });
 console.log(JSON.stringify(summary, null, 2));
-console.log(`\nreplay: http://localhost:5173/?run=${summary.runId}`);
+console.log(`\nreplay: http://localhost:5173/replay.html?run=${summary.runId}`);
