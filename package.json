@@ -8,14 +8,20 @@
     "roundtrip": "tsx scripts/roundtrip.ts",
     "score": "tsx scripts/score.ts",
     "test": "tsx --test test/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sample": "tsx scripts/sample-replay.ts",
+    "web": "vite --config web/vite.config.ts",
+    "web:build": "vite build --config web/vite.config.ts"
   },
   "dependencies": {
-    "openai": "^5.23.2"
+    "openai": "^5.23.2",
+    "three": "0.170.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
+    "@types/three": "0.170.0",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "5.4.11"
   }
 }
