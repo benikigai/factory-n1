@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { findForbidden } from "../scripts/static-guard.ts";
-import { isLocalRequest, latestResumable, liveCaps, nextRunId, PRESETS, resumeInfo } from "../web/live-runner.ts";
+import { INSPECT_CAPS, isLocalRequest, latestResumable, liveCaps, nextRunId, parseInspectRequest, PRESETS, readInspectResult, resumeInfo } from "../web/live-runner.ts";
 
 const req = (remoteAddress: string, headers: Record<string, string>) => ({ socket: { remoteAddress }, headers }) as never;
 
@@ -69,4 +69,24 @@ test("resume: only a stopped live-demo run with a launch record and checkpoint, 
   writeFileSync(path.join(dir, "live-demo-4.live.json"), JSON.stringify(record));
   assert.deepEqual(latestResumable(dir), { runId: "live-demo-4", fromGeneration: 2 });
   assert.equal(nextRunId(dir), "live-demo-5");
+});
+
+test("inspect: validated request, fixed caps, result and spend read from the inspector's own files", () => {
+  assert.deepEqual(INSPECT_CAPS, { calls: 4, usd: 0.11 }, "visual-inspect.ts refuses anything above these");
+  const png = Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), Buffer.alloc(32)]);
+  const image = `data:image/png;base64,${png.toString("base64")}`;
+  const has = (id: string) => id === "live-demo-2" || id === "live-a-11";
+  const ok = parseInspectRequest({ runId: "live-demo-2", marker: "K7Q2ZP", time: 600, image }, has);
+  assert.ok(ok.ok && ok.png.length === png.length && ok.time === 600);
+  assert.match(String((parseInspectRequest({ runId: "../etc", marker: "K7Q2ZP", time: 1, image }, has) as { error: string }).error), /Pick a recorded/);
+  assert.match(String((parseInspectRequest({ runId: "live-demo-9", marker: "K7Q2ZP", time: 1, image }, has) as { error: string }).error), /no replay yet/);
+  assert.match(String((parseInspectRequest({ runId: "live-a-11", marker: "abc", time: 1, image }, has) as { error: string }).error), /marker/);
+  assert.match(String((parseInspectRequest({ runId: "live-a-11", marker: "K7Q2ZP", time: 1, image: "data:image/png;base64,AAAA" }, has) as { error: string }).error), /PNG/);
+
+  const dir = mkdtempSync(path.join(tmpdir(), "fn1-inspect-"));
+  assert.match(readInspectResult("live-demo-2", dir).message, /before writing a result/);
+  writeFileSync(path.join(dir, "failure.json"), JSON.stringify({ message: "Inspection stopped; no automatic retry.", usage: { calls: 1, usd: 0.0004 } }));
+  assert.deepEqual(readInspectResult("live-demo-2", dir), { runId: "live-demo-2", ok: false, message: "Inspection stopped; no automatic retry.", calls: 1, usd: 0.0004 });
+  writeFileSync(path.join(dir, "inspection.json"), JSON.stringify({ imageInput: { verified: true }, findings: [{}, {}], budget: { calls: 3, usd: 0.0017 } }));
+  assert.deepEqual(readInspectResult("live-demo-2", dir), { runId: "live-demo-2", ok: true, message: "finished", verified: true, findings: 2, calls: 3, usd: 0.0017 });
 });

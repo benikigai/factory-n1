@@ -165,4 +165,4 @@ void(async()=>{try{
   const id=requested&&entries.some(r=>r.id===requested)?requested:'live-a-11';await choose(id);
 }catch(e){message((e as Error).message);}})();
 // Localhost-only live control; compiled out of production builds.
-if(import.meta.env.DEV)void import('./run-live').then(m=>m.mountRunLive(document.querySelector('.run-controls')!));
+if(import.meta.env.DEV)void import('./run-live').then(m=>m.mountRunLive(document.querySelector('.run-controls')!,{runId:()=>snapshot?.id??null,time:()=>playback.t,hasReplay:()=>!!snapshot?.replay,onInspected:id=>{if(snapshot?.id!==id)return;visualInspection={status:'loading',runId:id};void loadVisualInspection(id).then(r=>{if(snapshot?.id!==id)return;visualInspection=r;setView('visual');});}}));
