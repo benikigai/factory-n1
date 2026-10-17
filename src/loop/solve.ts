@@ -8,7 +8,7 @@
  */
 import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
-import { LENSES, propose, type Proposal } from "../agents/designer.ts";
+import { LENSES as DEFAULT_LENSES, propose, type Lens, type Proposal } from "../agents/designer.ts";
 import { reflect } from "../agents/reflector.ts";
 import { hillclimb } from "../baselines/hillclimb.ts";
 import { MODELS, spend, usageLedger } from "../llm/crusoe.ts";
@@ -63,6 +63,8 @@ export interface SolveOptions {
    * baseline still use the task's initial layout.
    */
   startFrom?: { runId: string; layout: Layout };
+  /** Designer lenses for this run (a solver-policy choice); defaults to flow/quality/capacity. */
+  lenses?: Lens[];
   /** Injection points for offline tests; default to the live Nemotron agents. */
   deps?: { propose?: typeof propose; reflect?: typeof reflect; research?: typeof research; testHypothesis?: typeof testHypothesis };
 }
@@ -112,6 +114,7 @@ ${memory}`;
 
 export async function solve(opts: SolveOptions) {
   const { task, generations } = opts;
+  const LENSES = opts.lenses ?? DEFAULT_LENSES;
   const margin = opts.margin ?? 0.01;
   const log = opts.log ?? ((l: string) => console.log(l));
   const runId = opts.runId ?? `solve-${new Date().toISOString().replace(/[:.]/g, "-")}`;

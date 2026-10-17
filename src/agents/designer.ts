@@ -77,11 +77,15 @@ export interface Lens {
   temperature?: number;
 }
 
-export const LENSES: Lens[] = [
+/** Default lens set (the route fixer is opt-in via solve({ lenses })). */
+export const ALL_LENSES: Lens[] = [
   { id: "flow", temperature: 0.3, instructions: "Your lens is FLOW: shorten and straighten the path each package travels from receiving to its shipping dock, and spread load so no station queue explodes." },
   { id: "quality", temperature: 0.5, instructions: "Your lens is QUALITY: eliminate damaged and mis-sorted packages entirely. Use the arrival-inspection data to find which conveyor routes damage packages, and redesign so no package has to travel such a route (for example, dedicate pack stations to zones and place them where both the sorter and their dock are close). Keep every package shipped." },
+  { id: "route", temperature: 0.4, instructions: "Your lens is ROUTE FIXER: find the conveyor route where inspection found the most packages damaged on arrival. Change as little as possible: move only the station(s) needed so that route becomes no longer than the longest route that shows zero damage, while keeping every other route damage-free and every rule satisfied. Use simulate_layout to check the damage count before submitting." },
   { id: "capacity", temperature: 0.8, instructions: "Your lens is CAPACITY and COVERAGE: make sure every package type has a pack station that accepts it, size the number of sorters and pack stations to the arrival rate, and watch capex." },
 ];
+
+export const LENSES: Lens[] = ALL_LENSES.filter((l) => l.id !== "route");
 
 function proposeTool(task: Task, sink: { last?: { args: any; errors: string[] } }): AgentTool {
   return {
