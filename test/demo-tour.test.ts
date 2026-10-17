@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { DEMO_RUN, DEMO_STEPS, demoAgent } from '../web/demo-tour';
+import { DEMO_RUN, DEMO_TOURS, demoPosition, demoAgent } from '../web/demo-tour';
 import { buildSnapshot, parseLines } from '../web/snapshot';
 import { previewDemand, stationFailures } from '../web/factory-guide';
 import { simulate } from '../src/sim/engine';
@@ -19,7 +19,7 @@ test('run 11 tour targets real stations, accepted route proposal, and recorded m
   assert.equal(replay.improved.result.metrics.missorts,0);
   assert.equal(replay.improved.select.objective,3283.44);
   assert.equal(replay.improved.final,undefined);
-  for(const step of DEMO_STEPS){
+  for(const step of DEMO_TOURS.flatMap(tour=>tour.steps)){
     if(step.station)assert.ok(replay[step.station.side].layout.stations.some(station=>station.id===step.station!.id),step.title);
     if(step.agentPath)assert.ok(demoAgent(snapshot.tree,step.agentPath),step.title);
   }
@@ -58,4 +58,25 @@ test('station failures distinguish the safe boundary and upstream damage',()=>{
   assert.equal(stationFailures(moved.stations[2],damaged.trace).arrivedDamaged,1);
   assert.equal(stationFailures(moved.stations[2],damaged.trace).inbound[0].damagedHere,0);
   assert.equal(stationFailures(moved.stations[1],damaged.trace).inbound[0].damagedHere,1);
+});
+
+
+test('the two tours fit their time and spoken-word budgets',()=>{
+  for(const tour of DEMO_TOURS){
+    assert.equal(tour.steps.reduce((sum,step)=>sum+step.seconds,0),tour.seconds);
+    const words=tour.steps.flatMap(step=>step.say).join(' ').split(/\s+/).length;
+    assert.ok(words<=tour.seconds*2.25,`${tour.id}: ${words} words leaves too little time for clicks`);
+    assert.equal(demoPosition(tour,0).index,0);
+    assert.equal(demoPosition(tour,tour.seconds-.1).complete,false);
+    assert.equal(demoPosition(tour,tour.seconds).complete,true);
+    assert.equal(demoPosition(tour,tour.seconds+10).index,tour.steps.length-1);
+    for(const step of tour.steps)assert.ok(step.say.join(' ').split(/\s+/).length<=step.seconds*2, `${step.title} exceeds 120 words/minute`);
+    let offset=0;
+    for(let i=0;i<tour.steps.length;i++){
+      assert.equal(demoPosition(tour,offset).index,i);
+      offset+=tour.steps[i].seconds;
+    }
+  }
+  assert.equal(DEMO_TOURS[0].steps.length,4);
+  assert.equal(DEMO_TOURS[1].steps.length,8);
 });

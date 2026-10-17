@@ -1,137 +1,101 @@
-# Factory N+1 judge walkthrough
+# Factory N+1 timed judge demos
 
-Open /replay.html?run=live-a-11 and click **Guided demo · Run 11**. Allow about six minutes. Next and Back restore the relevant scene and panel; Exit returns to the recorded factory, paused at the end.
+Open `/replay.html?run=live-a-11`. Choose **1-minute demo** or **4-minute judges demo**. Both use the recorded run, automatically advance, and make no paid calls. The timer begins after run 11 loads.
 
-## 1. Meet the factory
+Pause timer while answering a question. Next and Back jump to the start of a stop. The final result or evidence panel remains visible when the time ends; Finish returns to the clean factory.
 
-On screen: Point to receiving, sorting, packing and shipping. The recorded replay is playing.
+## 1-minute demo
 
-> This is Factory N+1. We built a simulated fulfillment center where agents redesign the operation and test their changes.
+4 stops · 60 seconds · 104 spoken words.
 
-> Packages arrive at receiving, pass through sorting, get packed, and leave through the correct shipping dock. Each station handles one package at a time, so placement, capacity and queues affect the result.
+### 0:00–0:15: The factory
 
-## 2. Why the starting layout struggles
+On screen: Show the two factories. Packages are moving through the recorded run.
 
-On screen: The left baseline’s pack-1 is selected. Point to Sizes: S, M.
+> Factory N+1 simulates receiving, sorting, packing and shipping. The left floor is the baseline; the right is the agents’ improved design. Both replay the same packages.
 
-> Our starting packing stations only support small and medium packages. Large packages have no eligible packing station.
+### 0:15–0:30: Agents improve the design
 
-> The sorter checks size and destination, then chooses the shortest queue. If no station qualifies, it uses a fallback and records a mis-sort.
+On screen: The child-agent factory opens. Point to the three designers.
 
-## 3. How damage happens
+> Specialist agents propose changes. The simulator scores them, and code accepts improvements. Results feed the next round. Click these child factories to inspect the recorded work.
 
-On screen: The simulation rules are open. Red means damaged; an amber flash means mis-sorted.
+### 0:30–0:45: One measurable fix
 
-> Damage follows a separate rule. A fragile package gets damaged when any single trip exceeds 12 grid cells. Exactly 12 is safe.
+On screen: Point to the 11-cell inbound route at pack-B.
 
-> These are explicit simulator rules we can reproduce. They are not physical collision or damage predictions.
+> Run eleven continued earlier work. Moving pack-B shortened its inbound trip from fifteen cells to eleven, below the damage threshold. Code verified the change.
 
-## 4. Normal demand
+### 0:45–1:00: The result
 
-On screen: The same saved layouts are simulated under normal demand.
+On screen: Show the final checks. Leave this result on screen at the end.
 
-> Normal demand spreads 100 arrivals across 20 minutes, with a 10 percent fragile probability.
+> One hundred packages shipped in nineteen minutes, forty-four seconds, with zero mis-sorts or damage. Penalty fell eighty-two percent across nine feedback validation days, not an untouched final test.
 
-> The actual package mix comes from a fixed random seed, so we can replay the same test.
+## 4-minute judges demo
 
-## 5. Peak demand
+8 stops · 240 seconds · 425 spoken words.
 
-On screen: The peak preview is playing. Notice the receiving queues.
+### 0:00–0:30: Meet the factory
 
-> Peak compresses 100 arrivals into five minutes, which stresses the queues. The fragile probability stays at 10 percent.
+On screen: Introduce the baseline on the left and run 11 on the right.
 
-## 6. Fragile demand
+> Factory N+1 is a simulated fulfillment center that agents can redesign. Packages arrive at receiving, pass through sorting and packing, then leave through the correct shipping dock. Each station processes one package at a time, so layout, capacity and queues affect performance.
 
-On screen: This preview has a higher proportion of fragile packages.
+> Both factories replay the same packages on the same clock.
 
-> Fragile demand raises the fragile probability to 35 percent. This exposes long routes.
+### 0:30–1:00: Explain the failures
 
-> These previews test the same saved layouts with different seeded demand samples. They require no new model calls.
+On screen: The sorting and damage rules are open.
 
-## 7. What run 11 achieved
+> Our baseline packing stations accept small and medium boxes, leaving large boxes without an eligible station. The sorter uses a fallback and records a mis-sort.
 
-On screen: The original recorded peak-202 day is back at the end. Compare the final measured results.
+> Damage is separate: a fragile package gets damaged if any one trip exceeds twelve grid cells. Exactly twelve is safe. These are reproducible simulator rules, not physical damage predictions.
 
-> The starting floor shipped all 100 packages, but took 26 minutes and 21 seconds, with 16 mis-sorts and 14 damaged packages.
+### 1:00–1:30: Stress the same layout
 
-> Run 11 ships all 100 in 19 minutes and 44 seconds, with zero mis-sorts and zero damage on this displayed peak day. It meets all four checks.
+On screen: Peak demand is selected. Point to the Normal, Peak and Fragile options.
 
-> The 82 percent reduction is in the combined simulator penalty across nine validation days. Those days guided acceptance; they are not an untouched final test.
+> Normal demand spreads one hundred arrivals across twenty minutes. Peak compresses them into five minutes, stressing queues. Fragile demand raises the fragile probability from ten to thirty-five percent, exposing long routes.
 
-## 8. Trace the fix to one station
+> These controls test the saved layouts with the real simulator and fixed seeds. They make no new model calls.
 
-On screen: Champion pack-B is selected. Its inbound sorting route is now 11 cells.
+### 1:30–2:00: Open the agent factory
 
-> Run 11 continued from run 7. Its accepted edit moved pack-B from grid position zero, four to three, five.
+On screen: Designers → Route designer → Generation 1. The recorded proposal and child tools are visible.
 
-> That shortened the sorter-to-pack-B trip from 15 cells to 11, below the damage threshold. The trip from pack-B to the B shipping dock is eight cells.
+> Researchers suggest ideas, designers propose layouts, and the simulator scores them. Code accepts at most one improvement per generation and passes results into the next round.
 
-> The receipt isolates the change. The total 82 percent improvement includes the earlier work; it is not all caused by this one edit, and run 11 is not an equal-budget comparison.
+> Here is the recorded route proposal, with child tool receipts you can inspect. The current system uses fixed roles; it does not invent arbitrary new agents.
 
-## 9. Inside the agent factory
+### 2:00–2:30: Trace the accepted fix
 
-On screen: The agent view shows the recorded roles. You can still click to explore.
+On screen: Champion pack-B is selected. Its inbound route is 11 cells.
 
-> Researchers suggest ideas. Designers propose layouts. The simulator scores them.
+> Run 11 continued from run 7. Its accepted edit moved pack-B from zero, four to three, five. That shortened the sorter trip from fifteen cells to eleven. The next trip to the shipping dock is eight cells.
 
-> The controller accepts changes that pass its checks, then feeds results and saved lessons into the next round. That is the recursive loop in this prototype: propose, test, learn, repeat.
+> Both are below the damage threshold. This receipt explains a specific improvement instead of asking you to trust the model.
 
-## 10. Inspect an actual tool call
+### 2:30–3:00: Read the measured result
 
-On screen: Opened Designers → Route designer → Generation 1 → simulate_layout.
+On screen: Compare the final goal checks, then the validation score.
 
-> This is the simulator receipt behind the accepted route proposal. These nested views expose real execution records.
+> The baseline ships all one hundred packages in twenty-six minutes, twenty-one seconds, with sixteen mis-sorts and fourteen damaged packages. Run 11 finishes in nineteen minutes, forty-four seconds, with neither error.
 
-> The current backend uses fixed roles. It does not create arbitrary new agents at runtime.
+> Simulator penalty fell eighty-two percent across nine feedback validation days. That includes earlier work. This is not an equal-budget comparison or an untouched final test.
 
-## 11. Why the loop keeps some changes
+### 3:00–3:30: Fine-tune one: the critic
 
-On screen: The generation timeline shows the accepted route edit and rejected alternatives.
+On screen: The separate critic experiment and its limitations are open.
 
-> Three designers propose different changes. Code scores them and keeps at most one per generation, only if validation improves enough and no goal check gets worse.
+> Separately, we trained two small adapters on the same Nemotron Nano eight-billion-parameter model. The critic learned the required response format: zero out of one hundred valid responses became one hundred.
 
-> The later rejected proposals remain visible. The agents cannot approve their own claims. No untouched final-split result is recorded for this run.
+> It did not become a reliable judge. It recognized none of seventeen goal-passing layouts. We proved format learning, so the simulator still decides.
 
-## 12. Critic: what the fine-tune proved
+### 3:30–4:00: Fine-tune two: the optimizer
 
-On screen: The completed experiment results are open. Point to 0/100 → 100/100.
+On screen: Compare all three methods. Finish leaves the factory clean and paused.
 
-> Separately, we trained two specialist adapters on the same Nemotron Nano 8B base model. An adapter changes a small fraction of the model’s parameters for a specific job.
+> The optimizer learned from twelve hundred simulator examples. On twenty unseen factories, penalty fell twelve-point-six-four percent with the adapter, versus zero-point-one-four for the base model and four-point-two-seven for random legal moves.
 
-> The critic was trained to predict factory outcomes. Its response format improved from zero out of 100 valid responses to 100 out of 100. We proved format learning.
-
-## 13. Critic: what it did not prove
-
-On screen: The critic’s held-out test details are open.
-
-> Useful outcome prediction was not demonstrated. The critic recognized none of the 17 goal-passing layouts.
-
-> Its zero-damage predictions were correct on 18 of 75 valid layouts. A simple majority prediction got 41 correct. So the simulator remains the judge.
-
-## 14. Optimizer: the controlled comparison
-
-On screen: Compare the three methods on the same 20 unseen starting factories.
-
-> The optimizer learned from 1,200 examples of layouts, actions and simulator results. We tested it on 20 unseen factories, with three proposal opportunities per method per factory.
-
-> The tuned model reduced the average penalty score by 12.64 percent from the starting layouts. The base model reduced it by 0.14 percent. Random legal moves reduced it by 4.27 percent.
-
-> That score combines completion time, errors, damage and equipment cost. These percentages are reductions from the starting layouts, not improvements over the base model.
-
-## 15. Optimizer: the evidence and limits
-
-On screen: The optimizer test details show fresh demand scoring and the win/loss count.
-
-> Final scoring used fresh demand days. Against the base model, the tuned optimizer won on 12 factories, lost on two and tied on six.
-
-> It still proposed 21 invalid moves out of 60. None of the 20 factories achieved zero damage or the full goal.
-
-> Training produced more useful station moves in this synthetic test. It did not solve the factory problem.
-
-## 16. Close on the factory
-
-On screen: The original factory is back on screen. Finish leaves the demo clean and paused.
-
-> The training experiments are separate from this factory replay. The adapters are not connected to this UI yet.
-
-> Run 11 demonstrates the agent improvement loop and a goal-passing simulated factory. The separate optimizer pilot shows a measured training gain. Every proposed improvement still has to survive the simulator.
+> This separate pilot still had twenty-one invalid moves out of sixty, and no full-goal successes. Neither adapter powers this replay yet.
