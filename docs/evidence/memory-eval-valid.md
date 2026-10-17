@@ -1,6 +1,6 @@
 # Memory vs no-memory on fresh factories: valid result (NEGATIVE)
 
-Evaluation `memeval-2026-10-17T19-41-04-350Z`, run on frozen commit `b91e231` and recorded in `recorded/memeval-2026-10-17T19-41-04-350Z/`. The earlier attempt `memeval-2026-10-17T19-33-01-589Z` is INVALID (infrastructure failure) and is kept only as a record.
+Evaluation `memeval-2026-10-17T19-41-04-350Z`, run on frozen commit `0d47833` and recorded in `recorded/memeval-2026-10-17T19-41-04-350Z/`. The earlier attempt `memeval-2026-10-17T19-33-01-589Z` is INVALID (infrastructure failure) and is kept only as a record.
 
 **Design, locked before any arm ran:**
 - **The only difference between arms:** MEM gets a frozen, experiment-backed Playbook (hash `704e8eae…`, 2 lessons from `live-a-7`); NOMEM gets an empty one.
