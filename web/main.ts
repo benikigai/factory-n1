@@ -14,7 +14,7 @@ const modeText={recorded:'RECORDED',live:'LIVE',simulator:'SIMULATOR',fixture:'S
 let snapshot:RunSnapshot|null=null,scope:AgentNode|null=null,selected:Selection|null=null;
 let view:'layout'|'agents'|'visual'='layout',entries:RunEntry[]=[],artifacts:Record<string,string[]>={};
 let visualInspection:InspectionState={status:'loading',runId:'live-a-11'};
-let counters:CounterEls|null=null,version=0;
+let counters:CounterEls|null=null,version=0,pinnedFrame='';
 const playback:Playback={t:0,end:1,playing:!matchMedia('(prefers-reduced-motion: reduce)').matches,speed:16};
 
 document.querySelector('#app')!.innerHTML=`
@@ -22,7 +22,7 @@ document.querySelector('#app')!.innerHTML=`
 <header id="hud"><a class="brand" href="./">Factory N+1</a><div id="mode-badge" class="mode">LOADING</div><div id="hud-meta"></div></header>
 <nav id="breadcrumbs" aria-label="Agent factory breadcrumbs" hidden></nav>
 <div id="empty-scene" hidden>Loading recorded simulator traces…</div>
-<div id="legend"></div><footer id="controls"></footer><div id="connection" role="status" hidden></div></main>
+<div id="frame-tag" hidden></div><div id="legend"></div><footer id="controls"></footer><div id="connection" role="status" hidden></div></main>
 <aside id="rail"><section class="run-controls"><div class="run-actions"><label for="run-select">RUN</label><a href="./" class="btn">Back to proof</a></div><select id="run-select" aria-label="Select run"></select><div class="run-state"><span id="run-status">Loading recording…</span></div><div class="view-switch" role="group" aria-label="Factory view"><button id="layout-view" class="btn active">Factory layouts</button><button id="agents-view" class="btn">Agent factories</button><button id="visual-view" class="btn">Visual inspector</button></div></section><section id="visual-inspection" hidden></section><section id="inspection" hidden></section><section class="run-summary" id="run-summary"></section><div id="metrics-panel"></div><section class="artifact-links" id="run-evidence"></section><section><button id="download" class="btn" disabled>Download run evidence</button></section></aside>
 `;
 
@@ -50,6 +50,12 @@ function renderNavigation(){
   $('app').classList.toggle('visual-view',view==='visual');
   $('visual-inspection').hidden=view!=='visual';
   if(view==='visual')renderVisualInspection($('visual-inspection'),visualInspection,seconds=>{playback.t=Math.max(0,Math.min(playback.end,seconds));playback.playing=false;});
+  // In the inspector, freeze the floor on the exact frame Nemotron was shown, once per visit.
+  const frame=visualInspection.status==='ready'?visualInspection.data.frames.find(f=>f.simulationTime!==undefined):undefined;
+  if(view!=='visual')pinnedFrame='';
+  else if(frame&&pinnedFrame!==visualInspection.runId){pinnedFrame=visualInspection.runId;playback.t=Math.max(0,Math.min(playback.end,frame.simulationTime!));playback.playing=false;world.preset('overview');}
+  $('frame-tag').hidden=view!=='visual'||!frame;
+  if(frame)$('frame-tag').textContent=`Frozen on the frame Nemotron saw · sim t ${fmtTime(frame.simulationTime!)}`;
   $('breadcrumbs').hidden=!agentView;$('legend').hidden=agentView;
   ($('layout-view') as HTMLButtonElement).disabled=!snapshot?.replay;
   if(scope){const path:AgentNode[]=[];let n:AgentNode|undefined=scope;while(n){path.unshift(n);n=n.parent;}

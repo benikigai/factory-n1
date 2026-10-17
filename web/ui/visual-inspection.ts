@@ -43,8 +43,13 @@ function raw(value: unknown): HTMLElement {
 
 export function renderVisualInspection(container: HTMLElement, state: InspectionState, seek: (seconds: number) => void): void {
   container.replaceChildren(
-    h('div', { class: 'inspection-heading' }, h('span', { class: 'inspection-kicker' }, 'Recorded inspection'), h('h2', null, 'Nemotron visual inspector')),
-    h('p', { class: 'small' }, `Post-run inspection. Visual observations are checked with deterministic tools. This inspection does not change the layout or the frozen grader${state.runId === 'live-a-11' ? ', and did not produce the run 11 improvement' : ''}.`),
+    h('div', { class: 'inspection-heading' }, h('span', { class: 'inspection-kicker' }, 'Can the model see the floor?'), h('h2', null, 'Nemotron visual inspector')),
+    h('ol', { class: 'inspection-explain' },
+      h('li', null, h('b', null, 'What it looks at. '), 'One screenshot of this replay: the starting floor on the left, the agents\' floor on the right. The floor on screen is frozen on that exact frame.'),
+      h('li', null, h('b', null, 'Proof it really saw it. '), 'A random six-character code is drawn into the pixels and appears nowhere in the text. Nemotron Super VL has to read it back.'),
+      h('li', null, h('b', null, 'What it reports. '), 'Findings about the layout. Every number it states is checked by code (the receipts). Anything visual or causal stays marked "not tested".'),
+    ),
+    h('p', { class: 'small' }, `This runs after the run finishes. It does not change the layout or the grader${state.runId === 'live-a-11' ? ', and did not produce the run 11 improvement' : ''}. Today it inspects a simulated floor. Tomorrow, a camera on a real one.`),
   );
   if (state.status !== 'ready') {
     container.append(h('p', { class: state.status === 'error' ? 'fail' : 'small', role: 'status' },

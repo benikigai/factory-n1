@@ -250,3 +250,6 @@ details.more[open] > :not(summary) { margin-top: 10px; }
 #controls { left: 16px; right: 16px; bottom: 16px; background: #0d1117e6; }
 .work-key{margin:-4px 0 12px}
 #hud .brand { pointer-events: auto; cursor: pointer; } #hud .brand:hover { color: #fff; }
+#frame-tag { position: absolute; left: 50%; top: 92px; transform: translateX(-50%); z-index: 3; padding: 7px 14px; border-radius: 999px; background: #3b2f0b; border: 1px solid #fbbf24; color: #fde68a; font-weight: 600; font-size: 13px; pointer-events: none; }
+.inspection-explain { margin: 10px 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; line-height: 1.5; color: #cbd5e1; }
+.inspection-explain b { color: #f1f5f9; }
