@@ -149,23 +149,24 @@ if (bundle && summary && a7) {
   const b = bundle.baseline.result.metrics;
   const c = bundle.improved.result.metrics;
   const m7 = a7replay?.improved.result.metrics;
-  type Rev = { n: string; change: string; by: string; obj: number; delta?: string; damaged?: number; missorts?: number; stamp: string; current?: boolean };
+  type Rev = { n: string; title: string; what: string; by: string; obj: number; delta?: string; peak: string; stamp: string; current?: boolean };
   const fail = (d?: number) => `<span class="stamp no">Fragile ✕${d !== undefined ? ` ${d}` : ""}</span>`;
+  const peak = (m?: { missorts: number; damaged: number }) => (m ? `${m.missorts}|${m.damaged}` : "n/a|n/a");
   const rows: Rev[] = [
-    { n: "0", change: "Original floor", by: "As built", obj: summary.baseline.select, damaged: b.damaged, missorts: b.missorts, stamp: fail(b.damaged) },
-    { n: "7", change: "Zone-dedicated pack stations beside each dock", by: "Quality designer", obj: a7.champion.select, delta: drop(summary.baseline.select, a7.champion.select, 0), damaged: m7?.damaged, missorts: m7?.missorts, stamp: a7.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(m7?.damaged) },
-    { n: "8–10", change: "Nothing accepted: designers mis-measured route lengths, calling a 17-cell leg 12", by: "Route designer", obj: a7.champion.select, stamp: `<span class="stamp hold">Hold</span>` },
-    { n: "11", change: "pack-B moved 3 cells inland, so every conveyor leg is ≤ 12 cells", by: "Route designer with the measure_legs ruler", obj: summary.champion.select, delta: drop(summary.baseline.select, summary.champion.select, 0), damaged: c.damaged, missorts: c.missorts, stamp: summary.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(c.damaged), current: true },
+    { n: "0", title: "Original floor", what: "Two shared pack stations that refuse large boxes, and fragile packages riding long conveyor legs.", by: "As built", obj: summary.baseline.select, peak: peak(b), stamp: fail(b.damaged) },
+    { n: "7", title: "One pack station per zone", what: "Agents gave each zone its own pack station beside its dock. Routes got shorter. One 17-cell leg still broke fragile packages.", by: "Quality designer", obj: a7.champion.select, delta: drop(summary.baseline.select, a7.champion.select, 0), peak: peak(m7), stamp: a7.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(m7?.damaged) },
+    { n: "8–10", title: "Stalled", what: "Three runs, nothing shipped. Designers misjudged route lengths, so every fix they proposed failed the gate.", by: "Route designer", obj: a7.champion.select, peak: peak(m7), stamp: `<span class="stamp hold">Hold</span>` },
+    { n: "11", title: "One station moved inland", what: "Given a ruler tool, the route designer moved pack-B 3 cells inland. Every leg is now 12 cells or less.", by: "Route designer + measure_legs ruler", obj: summary.champion.select, delta: drop(summary.baseline.select, summary.champion.select, 0), peak: peak(c), stamp: summary.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(c.damaged), current: true },
   ];
   $("revtags").innerHTML = rows
     .map((r) => `<article class="label tag${r.current ? " current" : ""}">
       <div class="t-top"><span class="t-rev"><span class="tiny">Rev</span>${r.n}</span>${r.stamp}</div>
-      <div class="t-body"><span class="t-change">${esc(r.change)}</span><span class="t-by">${esc(r.by)}</span>
-        <dl><dt>Objective</dt><dd>${fmt(r.obj)}${r.delta ? ` <small>${r.delta}</small>` : ""}</dd>${r.damaged !== undefined ? `<dt>Peak day</dt><dd>${r.missorts} mis-sorts · ${r.damaged} damaged</dd>` : ""}</dl>
-      </div></article>`)
+      <div class="t-body"><span class="t-change">${esc(r.title)}</span><p class="t-what">${esc(r.what)}</p><span class="t-by">${esc(r.by)}</span></div>
+      <dl class="t-stats"><dt>Score</dt><dd>${fmt(r.obj)}${r.delta ? ` <small>${r.delta}</small>` : ""}</dd><dt>Mis-sorts</dt><dd>${esc(r.peak.split("|")[0])}</dd><dt>Damaged</dt><dd>${esc(r.peak.split("|")[1])}</dd></dl>
+      </article>`)
     .join("");
   $("rev-note").innerHTML =
-    "Objective is the average over 9 validation days the designers never saw. Rev 11 continued from rev 7 after the designers got a ruler; the final test split stays locked. " +
+    "Mis-sorts and damage are from the replayed peak day. Rev 11 continued from rev 7's floor. The final test split stays locked. " +
     `<a href="./evidence/zero-damage-feasibility.md">Why it took a ruler</a>`;
 }
 
