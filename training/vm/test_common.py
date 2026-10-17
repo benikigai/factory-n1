@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from common import BASE_ALIAS, encode_example, load_data, model_messages, validate_request
+from common import BASE_ALIAS, encode_example, load_data, model_aliases, model_messages, validate_request, validate_task_dataset
 
 CONVERSATION = [{"role": "system", "content": "instructions"}, {"role": "user", "content": "question"}, {"role": "assistant", "content": "answer"}]
 
@@ -15,6 +15,28 @@ class Tokenizer:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_optimizer_aliases_cannot_use_the_critic_adapter(self):
+        base, tuned = model_aliases("optimizer")
+        self.assertEqual((base, tuned), ("factory-optimizer-base", "factory-optimizer-lora"))
+        request = {"model": tuned, "messages": CONVERSATION[:-1], "max_tokens": 128}
+        self.assertEqual(validate_request(request, "optimizer")[0], tuned)
+        with self.assertRaises(ValueError):
+            validate_request(request)
+        with self.assertRaises(ValueError):
+            model_aliases("unknown")
+
+    def test_optimizer_profile_requires_optimizer_data(self):
+        with tempfile.TemporaryDirectory() as name:
+            manifest = Path(name) / "manifest.json"
+            manifest.write_text(json.dumps({"schemaVersion": 1}))
+            validate_task_dataset(name, "critic")
+            with self.assertRaises(ValueError):
+                validate_task_dataset(name, "optimizer")
+            manifest.write_text(json.dumps({"taskProfile": "optimizer", "promptProfile": "factory-single-move-optimizer-v1"}))
+            validate_task_dataset(name, "optimizer")
+            with self.assertRaises(ValueError):
+                validate_task_dataset(name, "critic")
+
     def test_only_assistant_tokens_have_loss(self):
         self.assertEqual(encode_example(Tokenizer(), CONVERSATION)["labels"], [-100, -100, -100, 4, 5])
         with self.assertRaises(ValueError):

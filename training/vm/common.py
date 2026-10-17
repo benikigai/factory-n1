@@ -11,6 +11,22 @@ MAX_SEQUENCE_LENGTH = 4096
 PROMPT_PROFILE = "nemotron8b-thinking-off-v1"
 
 
+def model_aliases(task_profile="critic"):
+    if task_profile not in ("critic", "optimizer"):
+        raise ValueError("unknown task profile")
+    return ("factory-" + task_profile + "-base", "factory-" + task_profile + "-lora")
+
+
+def validate_task_dataset(directory, task_profile):
+    model_aliases(task_profile)
+    manifest = json.loads((Path(directory) / "manifest.json").read_text())
+    if task_profile == "optimizer":
+        if manifest.get("taskProfile") != "optimizer" or manifest.get("promptProfile") != "factory-single-move-optimizer-v1":
+            raise ValueError("optimizer profile requires its own before/after dataset")
+    elif manifest.get("taskProfile") == "optimizer":
+        raise ValueError("optimizer data cannot use critic aliases")
+
+
 def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -94,8 +110,8 @@ def adapter_hashes(directory):
     return {name: sha256(directory / name) for name in names}
 
 
-def validate_request(body):
-    if not isinstance(body, dict) or body.get("model") not in (BASE_ALIAS, ADAPTER_ALIAS):
+def validate_request(body, task_profile="critic"):
+    if not isinstance(body, dict) or body.get("model") not in model_aliases(task_profile):
         raise ValueError("unknown model alias")
     if body.get("stream", False) is not False or body.get("temperature", 0) != 0 or body.get("tools"):
         raise ValueError("only non-streaming greedy text requests without tools are supported")

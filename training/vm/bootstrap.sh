@@ -7,13 +7,14 @@ if [[ ! -f "$bundle_dir/bundle-manifest.json" || ! -f "$bundle_dir/data/train.js
   echo 'Run this script from an extracted pack.py bundle.' >&2
   exit 1
 fi
-if [[ -e "$bundle_dir/data/test.jsonl" ]]; then
+if [[ -e "$bundle_dir/data/test.jsonl" || -e "$bundle_dir/data/test-factories.jsonl" || -e "$bundle_dir/data/raw-transitions.jsonl" ]]; then
   echo 'Held-out data must not be copied to the training VM.' >&2
   exit 1
 fi
 command -v docker >/dev/null
 docker info >/dev/null
-bash "$script_dir/arm-shutdown.sh"
+shutdown_minutes="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["shutdownMinutes"])' "$script_dir/run-config.json")"
+bash "$script_dir/arm-shutdown.sh" "$shutdown_minutes"
 mkdir -p "$bundle_dir/output" "$bundle_dir/cache"
 
 # Host networking preserves the server's loopback-only bind for the SSH tunnel.
