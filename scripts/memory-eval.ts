@@ -56,12 +56,14 @@ const scoreFinal = (layout: Layout) => {
 type ArmResult = { arm: "MEM" | "NOMEM"; runId: string; final: ReturnType<typeof scoreFinal>; train: number; select: number; calls: number; usd: number; simEvals: number; simCalls: unknown; wallMs: number; accepted: number; stopReason: string; champion: Layout };
 const pairs: { factory: string; rep: number; order: string[]; MEM: ArmResult; NOMEM: ArmResult; diffObjective: number; outcome: "win" | "tie" | "loss" }[] = [];
 
+const incompletePairs: unknown[] = [];
 for (const factory of factories) {
   const task = loadTask(factory);
   const gen0 = scoreFinal(task.initial);
   for (let rep = 1; rep <= repeats; rep++) {
     const order: ("MEM" | "NOMEM")[] = rep % 2 ? ["NOMEM", "MEM"] : ["MEM", "NOMEM"]; // alternate to cancel drift
     const res: Partial<Record<"MEM" | "NOMEM", ArmResult>> = {};
+    const armFailures: Partial<Record<"MEM" | "NOMEM", number>> = {};
     for (const arm of order) {
       const runId = `${evalId}-${factory}-r${rep}-${arm}`;
       const ledger0 = usageLedger.length;
@@ -71,18 +73,27 @@ for (const factory of factories) {
         log: (l) => console.log(`[${factory} r${rep} ${arm}] ${l}`),
       });
       const used = usageLedger.slice(ledger0);
-      if (s.providerFailures > 0) {
-        // Never score a starved arm: abort the whole evaluation and mark it incomplete.
-        const reason = `arm ${runId} had ${s.providerFailures} provider/budget-failed proposals (${s.stopReason}); evaluation aborted and marked incomplete`;
-        writeFileSync(`${dir}/INCOMPLETE.json`, JSON.stringify({ status: "INCOMPLETE: provider/budget failure", reason, completedPairs: pairs.length, spend: spend() }, null, 2));
+      if (s.budgetFailures > 0) {
+        // Budget failure: stop the whole evaluation; never score a starved arm.
+        const reason = `arm ${runId}: ${s.budgetFailures} proposals refused by the process spend cap; evaluation aborted`;
+        writeFileSync(`${dir}/INCOMPLETE.json`, JSON.stringify({ status: "INCOMPLETE: budget failure", reason, completedPairs: pairs.length, incompletePairs, spend: spend() }, null, 2));
         console.error(reason);
         process.exit(2);
       }
       const champion = JSON.parse(readFileSync(`runs/${runId}/champion.json`, "utf8")) as Layout;
+      armFailures[arm] = s.providerFailures;
       res[arm] = { arm, runId, final: scoreFinal(champion), train: s.champion.train, select: s.champion.select, calls: used.length, usd: used.reduce((a, u) => a + u.usd, 0), simEvals: s.simEvals, simCalls: s.simCalls, wallMs: s.wallMs, accepted: s.accepted, stopReason: s.stopReason, champion };
       console.log(`[${factory} r${rep} ${arm}] final objective ${res[arm]!.final.objective} dod ${res[arm]!.final.dodPassed} zeroDamage ${res[arm]!.final.zeroDamage}`);
     }
     const M = res.MEM!, N = res.NOMEM!;
+    if (armFailures.MEM || armFailures.NOMEM) {
+      // Provider failure after one retry: this pair is not comparable. Record it, do not score it, continue.
+      const rec = { factory, rep, order, status: "INCOMPLETE: provider failure", providerFailures: { ...armFailures }, runIds: { MEM: M.runId, NOMEM: N.runId } };
+      incompletePairs.push(rec);
+      appendFileSync(`${dir}/pairs.jsonl`, JSON.stringify(rec) + "\n");
+      console.log(`[${factory} r${rep}] pair INCOMPLETE (provider failure), excluded from scoring`);
+      continue;
+    }
     const diff = Math.round((M.final.objective - N.final.objective) * 100) / 100;
     const outcome = diff <= -0.01 * N.final.objective ? "win" : diff >= 0.01 * N.final.objective ? "loss" : "tie";
     pairs.push({ factory, rep, order, MEM: M, NOMEM: N, diffObjective: diff, outcome });
@@ -114,7 +125,7 @@ for (const factory of factories) {
 const diffs = pairs.map((p) => p.diffObjective).sort((a, b) => a - b);
 const median = diffs.length ? (diffs.length % 2 ? diffs[(diffs.length - 1) / 2] : (diffs[diffs.length / 2 - 1] + diffs[diffs.length / 2]) / 2) : null;
 const summary = {
-  evalId, trainingRun, playbookHash, armCaps: ARM_CAPS, simVersion: SIM_VERSION, graderHash: grader, finalSeeds, factories, repeats, gens, probes,
+  evalId, trainingRun, playbookHash, armCaps: ARM_CAPS, status: pairs.length ? "COMPLETE (valid pairs only scored)" : "NO VALID PAIRS", incompletePairs, simVersion: SIM_VERSION, graderHash: grader, finalSeeds, factories, repeats, gens, probes,
   factoryHashes: Object.fromEntries(factories.map((f) => [f, createHash("sha256").update(JSON.stringify(loadTask(f).initial)).digest("hex").slice(0, 16)])),
   armSettings: { lenses: "flow 0.3 / quality 0.5 / capacity 0.8 (Super VL)", research: false, isolatedTests: false, reflector: false, gate: ">=1% validation, no DoD regression", stop: "3 stalls or gens" },
   models: { designers: MODELS.super }, n: pairs.length,

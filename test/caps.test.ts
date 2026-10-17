@@ -55,3 +55,31 @@ test("solve never exceeds its simulator cap and records why it stopped", async (
   assert.match(summary.stopReason, /simulator (budget|cap)/);
   rmSync(`runs/${runId}`, { recursive: true, force: true });
 });
+
+test("transient retry: one retry for 429 and connection errors, none for other failures", async () => {
+  const { retryTransient, isTransient } = await import("../src/agents/retry.ts");
+  assert.ok(isTransient({ status: 429 }));
+  assert.ok(isTransient({ name: "APIConnectionError", message: "Connection error." }));
+  assert.ok(!isTransient({ status: 400, message: "bad request" }));
+  assert.ok(!isTransient({ status: 500, message: "Connection error." }), "an HTTP status means the server answered");
+  let n = 0;
+  assert.equal(await retryTransient(async () => { if (n++ === 0) throw Object.assign(new Error("Connection error."), { name: "APIConnectionError" }); return "ok"; }, 1), "ok");
+  let m = 0;
+  await assert.rejects(retryTransient(async () => { m++; throw Object.assign(new Error("Connection error."), { name: "APIConnectionError" }); }, 1));
+  assert.equal(m, 2, "exactly one retry");
+  let k = 0;
+  await assert.rejects(retryTransient(async () => { k++; throw Object.assign(new Error("bad"), { status: 400 }); }, 1));
+  assert.equal(k, 1, "non-transient errors are not retried");
+});
+
+test("solve classifies failed proposals: provider failure vs budget failure vs equal arm-cap stop", async () => {
+  const task = loadTaskA();
+  const fail = (designer: string, msg: string): Proposal => ({ designer, model: "scripted", rationale: "", appliedLessons: [], prediction: {}, layout: null, errors: [`model call failed: ${msg}`], via: "failed", toolReceipts: [], probes: [] });
+  const msgs: Record<string, string> = { flow: "Connection error.", quality: "spend cap reached: 25/210 attempts", capacity: "run call cap reached (26/26)" };
+  const runId = `test-classify-${process.pid}`;
+  const s = await solve({ task, generations: 1, runId, log: () => {}, research: false, reflect: false, deps: { propose: async ({ lens }) => fail(lens.id, msgs[lens.id]) } });
+  assert.equal(s.providerFailures, 1);
+  assert.equal(s.budgetFailures, 1);
+  assert.equal(s.armCapHits, 1);
+  rmSync(`runs/${runId}`, { recursive: true, force: true });
+});

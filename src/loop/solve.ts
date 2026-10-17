@@ -394,7 +394,12 @@ export async function solve(opts: SolveOptions) {
   // All simulator calls this run made (candidates, gate, probes, tests, attribution, replay), before comparators.
   const simCalls = { ...meterDelta(meter0), chargedToCap: simUsed() };
   const callsCharged = runCalls.used();
-  const providerFailures = rejected.filter((r) => r.errors.some((e) => /model call failed|repair call failed|call cap/.test(e))).length;
+  // Classify failed proposals. Hitting the arm's own call cap is an equal-budget stop, not a failure;
+  // a process spend cap is a budget failure; anything else that broke a model call is a provider failure.
+  const failedCalls = rejected.filter((r) => r.errors.some((e) => /model call failed|repair call failed/.test(e)));
+  const armCapHits = failedCalls.filter((r) => r.errors.some((e) => /run call cap reached/.test(e))).length;
+  const budgetFailures = failedCalls.filter((r) => r.errors.some((e) => /spend cap reached/.test(e))).length;
+  const providerFailures = failedCalls.length - armCapHits - budgetFailures;
   runCalls.setCap(null);
   setSimCap(null);
   // Comparators computed by code at the same simulator-evaluation budget.
@@ -411,7 +416,7 @@ export async function solve(opts: SolveOptions) {
   writeFileSync(`${dir}/research.json`, JSON.stringify(researchLog, null, 2));
   const s = spend();
   const summary = {
-    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: callsCharged, providerFailures, providerAttempts: spend().calls - calls0,
+    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: callsCharged, providerFailures, budgetFailures, armCapHits, providerAttempts: spend().calls - calls0,
     caps: { maxCalls: opts.maxCalls ?? null, maxSimEvals: opts.maxSimEvals ?? null }, wallMs: Date.now() - startedAt,
     baseline: { train: baselineTrain.objective, select: baselineSelect.objective, dodSelect: baselineSelect.dod!.passed },
     champion: { id: champId, train: champTrain.objective, select: champSelect.objective, dodSelect: champSelect.dod!.passed },
