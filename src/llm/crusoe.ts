@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
-import { CallBudget } from "./budget.ts";
+import { CallBudget, type BudgetState } from "./budget.ts";
 
 try {
   process.loadEnvFile(".env");
@@ -79,6 +79,8 @@ export function crusoe(): OpenAI {
 }
 
 export interface UsageRecord {
+  /** Stable across checkpoint imports; prevents billing history being counted twice. */
+  requestId?: string;
   agent: string;
   model: string;
   promptTokens: number;
@@ -91,6 +93,27 @@ export interface UsageRecord {
 
 /** Every call lands here so the UI can show tokens, cache hit rate, and cost per generation. */
 export const usageLedger: UsageRecord[] = [];
+
+export interface SpendState { budget: BudgetState; usage: UsageRecord[] }
+let spendObserver: (() => void) | null = null;
+export function setSpendObserver(observer: (() => void) | null) { spendObserver = observer; }
+
+export function spendState(): SpendState {
+  for (let i = 0; i < usageLedger.length; i++) usageLedger[i].requestId ??= `${budget.id}:legacy-${i}`;
+  return { budget: budget.exportState(), usage: structuredClone(usageLedger) };
+}
+
+export function restoreSpend(state: SpendState) {
+  const known = new Set(usageLedger.map((u) => u.requestId));
+  if (state.usage.some((u) => !u.requestId || !Number.isFinite(u.usd) || u.usd < 0)) throw new Error("invalid checkpoint usage ledger");
+  budget.restore(state.budget);
+  for (const record of state.usage) {
+    if (!known.has(record.requestId)) {
+      usageLedger.push(structuredClone(record));
+      known.add(record.requestId);
+    }
+  }
+}
 
 export function spend() {
   return {
@@ -127,6 +150,7 @@ export async function chat(agent: string, params: ChatParams): Promise<ChatCompl
   // A failed request keeps this reservation (billing unknown), so the bound must be safe, but it no longer
   // locks ~$0.106 of a small budget per transient network error.
   const reservation = budget.reserve((inputTokenBound(params) * Math.max(pin, pcache) + maxTokens * pout) / 1e6);
+  spendObserver?.();
   const t0 = Date.now();
   const res = await crusoe().chat.completions.create({
     ...(params.max_completion_tokens === undefined ? { max_tokens: maxTokens } : {}), ...params,
@@ -139,6 +163,7 @@ export async function chat(agent: string, params: ChatParams): Promise<ChatCompl
   const usd = ((prompt - cached) * pin + cached * pcache + completion * pout) / 1e6;
   budget.settle(reservation, usd);
   usageLedger.push({
+    requestId: `${budget.id}:${reservation}`,
     agent,
     model: params.model,
     promptTokens: prompt,
@@ -147,6 +172,7 @@ export async function chat(agent: string, params: ChatParams): Promise<ChatCompl
     usd,
     ms: Date.now() - t0,
   });
+  spendObserver?.();
   return res;
 }
 

@@ -11,17 +11,19 @@ import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { LENSES as DEFAULT_LENSES, propose, type Lens, type Proposal } from "../agents/designer.ts";
 import { reflect } from "../agents/reflector.ts";
 import { hillclimb } from "../baselines/hillclimb.ts";
-import { MODELS, spend, usageLedger } from "../llm/crusoe.ts";
-import { createYouSearch } from "../llm/you-search.ts";
+import { assertApprovedDoD, hashDoD, type ApprovedDoD } from "../dod/lattice.ts";
+import { LIMITS, MODELS, restoreSpend, setSpendObserver, spend, spendState, usageLedger } from "../llm/crusoe.ts";
+import { bindManifest, currentGitCommit, manifestHash, readCheckpoint, readRuntimeCheckpoint, resumedSearch, saveCheckpoint, saveRuntimeCheckpoint, type LoopCheckpointState } from "./checkpoint.ts";
 import { attribute, diffLayouts } from "../memory/attribution.ts";
 import { observe } from "./observe.ts";
-import { meterDelta, meteredEvaluate, meteredSimulate, meterSnapshot, setSimCap, simUsed } from "./meter.ts";
+import { meterDelta, meteredEvaluate, meteredSimulate, meterSnapshot, meterState, restoreMeter, setMeterObserver, setSimCap, simUsed } from "./meter.ts";
 import { runCalls } from "../agents/call-guard.ts";
 import { research } from "../memory/research.ts";
 import { testHypothesis } from "../memory/hypothesis-test.ts";
 import { reduce, render, retirements, toCited, type Evidence, type MemoryOp } from "../memory/store.ts";
 import type { AcceptedChange, RejectedCandidate, ReplayBundle, ReplaySide } from "../replay.ts";
 import { DEFAULT_DOD, type DoDResult } from "../sim/dod.ts";
+import { withFloors } from "../dod/schema.ts";
 import { simulate } from "../sim/engine.ts";
 import { evaluate, type Evaluation } from "../sim/evaluate.ts";
 import { makeScenario, SPLITS } from "../sim/scenarios.ts";
@@ -67,6 +69,8 @@ export interface SolveOptions {
   startFrom?: { runId: string; layout: Layout };
   /** Designer lenses for this run (a solver-policy choice); defaults to flow/quality/capacity. */
   lenses?: Lens[];
+  /** Frozen goal contract compiled and audited before this run. */
+  approvedDoD?: ApprovedDoD;
   /** Injection points for offline tests; default to the live Nemotron agents. */
   deps?: { propose?: typeof propose; reflect?: typeof reflect; research?: typeof research; testHypothesis?: typeof testHypothesis };
 }
@@ -115,20 +119,54 @@ ${memory}`;
 }
 
 export async function solve(opts: SolveOptions) {
+  try {
   const { task, generations } = opts;
+  const dod = opts.approvedDoD ? assertApprovedDoD(opts.approvedDoD) : DEFAULT_DOD;
+  if (opts.approvedDoD && dod.goal !== task.goal) throw new Error("approved DoD goal differs from task goal");
+  if (opts.approvedDoD && hashDoD(dod) !== hashDoD(withFloors(DEFAULT_DOD)) && (opts.research !== false || (opts.probes ?? 0) > 0)) {
+    throw new Error("Custom approved DoD requires research:false and probes:0 until helper evaluations receive the same contract");
+  }
   const LENSES = opts.lenses ?? DEFAULT_LENSES;
   const margin = opts.margin ?? 0.01;
   const log = opts.log ?? ((l: string) => console.log(l));
   const runId = opts.runId ?? `solve-${new Date().toISOString().replace(/[:.]/g, "-")}`;
-  const startedAt = Date.now();
-  const meter0 = meterSnapshot();
-  const calls0 = spend().calls;
+  let startedAt = Date.now();
+  let meter0 = meterSnapshot();
+  let calls0 = spend().calls;
+  let usd0 = spend().usd;
   // Hard caps enforced at the point of use (refuse the next call/evaluation), plus the generation-start check below.
   runCalls.setCap(opts.maxCalls ?? null);
   setSimCap(opts.maxSimEvals ?? null);
   const dir = `runs/${runId}`;
   mkdirSync(dir, { recursive: true });
   const grader = graderHash();
+  const gitCommit = currentGitCommit();
+  const identity = bindManifest(dir, { task, gitCommit, graderHash: grader, options: {
+    generations, margin, lenses: LENSES, searches: opts.searches ?? 2, probes: opts.probes ?? 0,
+    sequentialDesigners: opts.sequentialDesigners ?? false, initialOps: opts.initialOps ?? [],
+    research: opts.research !== false, reflect: opts.reflect !== false, noMemory: opts.noMemory ?? false,
+    maxCalls: opts.maxCalls ?? null, maxSimEvals: opts.maxSimEvals ?? null, startFrom: opts.startFrom ?? null,
+    models: MODELS, processCaps: LIMITS, approvedDoD: opts.approvedDoD ?? null,
+    deps: Object.fromEntries(Object.entries(opts.deps ?? {}).map(([name, fn]) => [name, manifestHash(String(fn))])),
+  } });
+  const saved = readCheckpoint<LoopCheckpointState>(dir, identity);
+  if (saved?.result) { restoreSpend(saved.state.runtime.spend); runCalls.setCap(null); setSimCap(null); return saved.result as typeof summary; }
+  const resumed = saved?.state;
+  const latestRuntime = readRuntimeCheckpoint(dir, identity);
+  if (resumed) {
+    restoreSpend(resumed.runtime.spend);
+    restoreMeter(resumed.runtime.meter);
+    runCalls.restore(resumed.runtime.calls);
+    meter0 = resumed.meter0;
+    calls0 = resumed.calls0;
+    usd0 = resumed.usd0;
+    startedAt -= resumed.elapsedMs;
+  }
+  if (latestRuntime) {
+    restoreSpend(latestRuntime.spend);
+    restoreMeter(latestRuntime.meter);
+    runCalls.restore(latestRuntime.calls);
+  }
   const taskHash = createHash("sha256").update(JSON.stringify(task)).digest("hex").slice(0, 16);
   const event = (type: string, data: object) => appendFileSync(`${dir}/events.jsonl`, JSON.stringify({ runId, ts: Date.now(), type, ...data }) + "\n");
   const record = (r: object) =>
@@ -137,33 +175,46 @@ export async function solve(opts: SolveOptions) {
       JSON.stringify({ runId, taskId: task.id, taskHash, simVersion: SIM_VERSION, graderHash: grader, trainSeeds: SPLITS.train.map((s) => s.seed), selectSeeds: SPLITS.select.map((s) => s.seed), dataUse: "development (train/select); never final evaluation", ...r }) + "\n",
     );
 
-  const search = createYouSearch({ maxCalls: opts.searches ?? 2 });
+  const search = resumedSearch(opts.searches ?? 2, latestRuntime?.searches ?? resumed?.runtime.searches, () => persistRuntime());
   const proposeFn = opts.deps?.propose ?? propose;
   const reflectFn = opts.deps?.reflect ?? reflect;
   const researchFn = opts.deps?.research ?? research;
   const testFn = opts.deps?.testHypothesis ?? testHypothesis;
-  const ops: MemoryOp[] = [...(opts.initialOps ?? [])];
-  const dod = DEFAULT_DOD;
+  const ops: MemoryOp[] = [...(resumed?.ops ?? opts.initialOps ?? [])];
 
-  const baselineTrain = meteredEvaluate("baseline", task.initial, "train", dod);
-  const baselineSelect = meteredEvaluate("baseline", task.initial, "select", dod);
-  let champion = opts.startFrom?.layout ?? task.initial;
-  let champId = opts.startFrom ? `from:${opts.startFrom.runId}` : "gen0";
-  let champTrain = opts.startFrom ? meteredEvaluate("baseline", champion, "train", dod) : baselineTrain;
-  let champSelect = opts.startFrom ? meteredEvaluate("baseline", champion, "select", dod) : baselineSelect;
-  const seen = new Set([hashLayout(task.initial), hashLayout(champion)]);
-  const accepted: AcceptedChange[] = [];
-  const rejected: RejectedCandidate[] = [];
-  const curve: ReplayBundle["curve"] = [{ gen: 0, championSelect: champSelect.objective, candidates: [] }];
-  const researchLog: object[] = [];
-  let stalled = 0;
-  let stopReason = `reached ${generations} generations`;
+  const baselineTrain = resumed?.baselineTrain ?? meteredEvaluate("baseline", task.initial, "train", dod);
+  const baselineSelect = resumed?.baselineSelect ?? meteredEvaluate("baseline", task.initial, "select", dod);
+  let champion = resumed?.champion ?? opts.startFrom?.layout ?? task.initial;
+  let champId = resumed?.champId ?? (opts.startFrom ? `from:${opts.startFrom.runId}` : "gen0");
+  let champTrain = resumed?.champTrain ?? (opts.startFrom ? meteredEvaluate("baseline", champion, "train", dod) : baselineTrain);
+  let champSelect = resumed?.champSelect ?? (opts.startFrom ? meteredEvaluate("baseline", champion, "select", dod) : baselineSelect);
+  const seen = new Set(resumed?.seen ?? [hashLayout(task.initial), hashLayout(champion)]);
+  const accepted: AcceptedChange[] = resumed?.accepted ?? [];
+  const rejected: RejectedCandidate[] = resumed?.rejected ?? [];
+  const curve: ReplayBundle["curve"] = resumed?.curve ?? [{ gen: 0, championSelect: champSelect.objective, candidates: [] }];
+  const researchLog: object[] = resumed?.researchLog ?? [];
+  let stalled = resumed?.stalled ?? 0;
+  let stopReason = resumed?.stopReason ?? `reached ${generations} generations`;
+  let initialized = resumed?.initialized ?? false;
+  let generation = resumed?.generation ?? 0;
+  let finished = resumed?.finished ?? false;
   // Only the models this loop actually calls (the Goal Planner/Auditor are not part of this loop).
   const modelsUsed = { designers: MODELS.super, reflector: MODELS.super, researcher: MODELS.lightning, hypothesisTests: MODELS.lightning };
-  event("run_started", { taskId: task.id, goal: task.goal, models: modelsUsed, generations, simVersion: SIM_VERSION, graderHash: grader });
+  if (!resumed) event("run_started", { taskId: task.id, goal: task.goal, models: modelsUsed, generations, simVersion: SIM_VERSION, graderHash: grader, gitCommit });
   log(`[${runId}] gen0 champion: train ${champTrain.objective}, select ${champSelect.objective}, DoD ${champSelect.dod!.passed ? "pass" : "fail"}`);
 
-  let simEvals = 0;
+  let simEvals = resumed?.simEvals ?? 0;
+  const checkpointState = (): LoopCheckpointState => ({
+    initialized, generation, champion, champId, champTrain, champSelect, baselineTrain, baselineSelect,
+    ops, accepted, rejected, curve, seen: [...seen], stalled, simEvals, researchLog, stopReason, finished,
+    elapsedMs: Date.now() - startedAt, meter0, calls0, usd0,
+    runtime: { meter: meterState(), calls: runCalls.snapshot(), spend: spendState(), searches: search.usage().attempts },
+  });
+  const checkpoint = () => saveCheckpoint(dir, identity, checkpointState());
+  const persistRuntime = () => saveRuntimeCheckpoint(dir, identity, checkpointState().runtime);
+  runCalls.observe(persistRuntime);
+  setMeterObserver(persistRuntime);
+  setSpendObserver(persistRuntime);
   const doResearch = async (gap: string, prefix: string, gen: number) => {
     let out: Awaited<ReturnType<typeof research>>;
     try {
@@ -209,9 +260,10 @@ export async function solve(opts: SolveOptions) {
     }
   };
 
+  if (!resumed) checkpoint();
   const failingNow = champTrain.dod!.checks.filter((c) => !c.passed).map((c) => `${c.description} (got ${c.actual})`).join("; ");
   const bottleneck = champTrain.results[0]?.metrics.bottleneck;
-  if (opts.research !== false) await doResearch(`Failing checks: ${failingNow}. Biggest queue at ${bottleneck}. Packages are damaged in transit and mis-sorted.`, "EXT-plan", 0);
+  if (!initialized && opts.research !== false) await doResearch(`Failing checks: ${failingNow}. Biggest queue at ${bottleneck}. Packages are damaged in transit and mis-sorted.`, "EXT-plan", 0);
 
   const writeReplay = (mode: ReplayBundle["mode"], comparators: ReplayBundle["comparators"]) => {
     const scenario = makeScenario(202, "peak");
@@ -232,13 +284,13 @@ export async function solve(opts: SolveOptions) {
     };
     writeFileSync(`${dir}/replay.json`, JSON.stringify(bundle));
   };
-  writeReplay("live", []);
+  if (!initialized) { initialized = true; writeReplay("live", []); checkpoint(); }
 
   // Worst case for one generation: every designer uses all rounds; probes, candidate and gate evals; attribution allowance.
   const worstCallsPerGen = LENSES.length * ((opts.probes ?? 0) + (opts.ruler ?? 0) + 3) + (opts.reflect !== false ? 1 : 0);
   const worstSimsPerGen = LENSES.length * ((opts.probes ?? 0) + 1) + 1 + 16 + (opts.reflect !== false ? 16 : 0);
   try {
-  for (let gen = 1; gen <= generations; gen++) {
+  for (let gen = generation + 1; !finished && gen <= generations; gen++) {
     const callsUsed = runCalls.used();
     const simsUsed = simUsed();
     if (opts.maxCalls !== undefined && callsUsed + worstCallsPerGen > opts.maxCalls) {
@@ -380,9 +432,11 @@ export async function solve(opts: SolveOptions) {
     });
     writeReplay("live", []);
 
+    generation = gen;
     // Supervisor (code): done, re-plan with research, or stop.
     if (champSelect.dod!.passed && stalled >= 2) {
       stopReason = "goal met on validation days and no further gains for 2 generations";
+      finished = true; checkpoint();
       break;
     }
     if (opts.research !== false && stalled === 2 && search.usage().attempts < (opts.searches ?? 2)) {
@@ -392,15 +446,21 @@ export async function solve(opts: SolveOptions) {
     }
     if (stalled >= 3) {
       stopReason = "3 generations without an accepted change";
+      finished = true; checkpoint();
       break;
     }
+    checkpoint();
   }
+  finished = true;
+  checkpoint();
   } catch (e) {
     // Provider failures end the run early but never lose the artifacts.
     stopReason = `stopped early on error: ${String((e as Error).message).slice(0, 160)}`;
     log(`  ${stopReason}`);
   }
 
+  runCalls.observe(null); setMeterObserver(null); setSpendObserver(null);
+  const committedState = checkpointState();
   // All simulator calls this run made (candidates, gate, probes, tests, attribution, replay), before comparators.
   const simCalls = { ...meterDelta(meter0), chargedToCap: simUsed() };
   const callsCharged = runCalls.used();
@@ -426,7 +486,7 @@ export async function solve(opts: SolveOptions) {
   writeFileSync(`${dir}/research.json`, JSON.stringify(researchLog, null, 2));
   const s = spend();
   const summary = {
-    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: callsCharged, providerFailures, budgetFailures, armCapHits, providerAttempts: spend().calls - calls0,
+    runId, taskId: task.id, stopReason, gitCommit, manifestHash: identity, approvedDoDHash: opts.approvedDoD?.hash ?? null, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: callsCharged, providerFailures, budgetFailures, armCapHits, providerAttempts: spend().calls - calls0,
     caps: { maxCalls: opts.maxCalls ?? null, maxSimEvals: opts.maxSimEvals ?? null }, wallMs: Date.now() - startedAt,
     baseline: { train: baselineTrain.objective, select: baselineSelect.objective, dodSelect: baselineSelect.dod!.passed },
     champion: { id: champId, train: champTrain.objective, select: champSelect.objective, dodSelect: champSelect.dod!.passed },
@@ -434,8 +494,11 @@ export async function solve(opts: SolveOptions) {
     comparators, accepted: accepted.length, rejected: rejected.length,
     lessons: finalState.lessons.map((l) => ({ id: l.id, kind: l.kind, status: l.status, helped: l.helped, trials: l.trials })),
     usage: { ...s, searches: search.usage() },
+    runUsage: { calls: s.calls - calls0, usd: s.usd - usd0 },
   };
   writeFileSync(`${dir}/summary.json`, JSON.stringify(summary, null, 2));
   event("run_finished", summary);
+  if (finished) saveCheckpoint(dir, identity, committedState, summary);
   return summary;
+  } finally { runCalls.observe(null); setMeterObserver(null); setSpendObserver(null); }
 }

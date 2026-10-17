@@ -1,0 +1,1890 @@
+{
+  "schemaVersion": 1,
+  "kind": "goal-compiler-round",
+  "mode": "offline",
+  "generatedAt": "2026-10-17T20:28:36.988Z",
+  "scenarioSplit": "train",
+  "taskId": "factory-a",
+  "results": [
+    {
+      "schemaVersion": 1,
+      "status": "approved",
+      "goal": "Ship all 100 packages within 25 minutes with at most 1 mis-sort and nothing damaged.",
+      "models": {
+        "planner": "nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+        "auditor": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B"
+      },
+      "planner": {
+        "attempts": 1,
+        "errors": []
+      },
+      "audit": {
+        "verdict": "approve",
+        "reasons": [
+          "Mock audit: original numeric, quality, and every-scenario requirements are preserved."
+        ]
+      },
+      "feasibility": {
+        "status": "not-ruled-out",
+        "bounds": [
+          {
+            "scenarioId": "normal-1",
+            "metric": "makespan",
+            "lower": 1295,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "drainTime",
+            "lower": 100,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 277.99,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "avgCycleTime",
+            "lower": 81.74,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 10,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "travelCells",
+            "lower": 1902,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "objective",
+            "lower": 3095,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "makespan",
+            "lower": 641,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "drainTime",
+            "lower": 350,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 561.62,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "avgCycleTime",
+            "lower": 78.73,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 13,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "travelCells",
+            "lower": 1864,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "objective",
+            "lower": 2441,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "makespan",
+            "lower": 1242,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "drainTime",
+            "lower": 72,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 289.86,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "avgCycleTime",
+            "lower": 75.08,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 26,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "travelCells",
+            "lower": 1634,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "objective",
+            "lower": 3042,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "makespan",
+            "lower": 1216,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "drainTime",
+            "lower": 91,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 296.05,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "avgCycleTime",
+            "lower": 79.1,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 15,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "travelCells",
+            "lower": 1800,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "objective",
+            "lower": 3016,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "makespan",
+            "lower": 641,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "drainTime",
+            "lower": 350,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 561.62,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "avgCycleTime",
+            "lower": 81.43,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 7,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "travelCells",
+            "lower": 1894,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "objective",
+            "lower": 2441,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "makespan",
+            "lower": 1235,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "drainTime",
+            "lower": 49,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 291.5,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "avgCycleTime",
+            "lower": 81.47,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 34,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "travelCells",
+            "lower": 2006,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "objective",
+            "lower": 3035,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          }
+        ],
+        "violations": []
+      },
+      "approved": {
+        "hash": "ae09b34da4e95d8525d430a35a9d0c8cc5fd7b9263dbc76015a6c527422273fa",
+        "dod": {
+          "goal": "Ship all 100 packages within 25 minutes with at most 1 mis-sort and nothing damaged.",
+          "checks": [
+            {
+              "id": "all-shipped",
+              "description": "Every package ships",
+              "metric": "unshipped",
+              "op": "==",
+              "value": 0,
+              "scope": "every"
+            },
+            {
+              "id": "makespan",
+              "description": "Floor clears within 25 minutes",
+              "metric": "makespan",
+              "op": "<=",
+              "value": 1500,
+              "scope": "every"
+            },
+            {
+              "id": "missorts",
+              "description": "At most 1 mis-sort per run",
+              "metric": "missorts",
+              "op": "<=",
+              "value": 1,
+              "scope": "every"
+            },
+            {
+              "id": "damaged",
+              "description": "No damaged packages",
+              "metric": "damaged",
+              "op": "==",
+              "value": 0,
+              "scope": "every"
+            }
+          ]
+        }
+      },
+      "reasons": []
+    },
+    {
+      "schemaVersion": 1,
+      "status": "escalate",
+      "goal": "Ship all 100 packages within 1 second.",
+      "models": {
+        "planner": "nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+        "auditor": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B"
+      },
+      "planner": {
+        "attempts": 1,
+        "errors": []
+      },
+      "audit": null,
+      "feasibility": {
+        "status": "infeasible",
+        "bounds": [
+          {
+            "scenarioId": "normal-1",
+            "metric": "makespan",
+            "lower": 1295,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "drainTime",
+            "lower": 100,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 277.99,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "avgCycleTime",
+            "lower": 81.74,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 10,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "travelCells",
+            "lower": 1902,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "normal-1",
+            "metric": "objective",
+            "lower": 3095,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (3s); last arrival is 1198s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "makespan",
+            "lower": 641,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "drainTime",
+            "lower": 350,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 561.62,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "avgCycleTime",
+            "lower": 78.73,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 13,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "travelCells",
+            "lower": 1864,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "peak-2",
+            "metric": "objective",
+            "lower": 2441,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (1s); last arrival is 292s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "makespan",
+            "lower": 1242,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "drainTime",
+            "lower": 72,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 289.86,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "avgCycleTime",
+            "lower": 75.08,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 26,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "travelCells",
+            "lower": 1634,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "fragile-3",
+            "metric": "objective",
+            "lower": 3042,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (4s); last arrival is 1174s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "makespan",
+            "lower": 1216,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "drainTime",
+            "lower": 91,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 296.05,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "avgCycleTime",
+            "lower": 79.1,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 15,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "travelCells",
+            "lower": 1800,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "normal-4",
+            "metric": "objective",
+            "lower": 3016,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (44s); last arrival is 1169s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "makespan",
+            "lower": 641,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "drainTime",
+            "lower": 350,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 561.62,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "avgCycleTime",
+            "lower": 81.43,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 7,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "travelCells",
+            "lower": 1894,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "peak-5",
+            "metric": "objective",
+            "lower": 2441,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (6s); last arrival is 297s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "makespan",
+            "lower": 1235,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "drainTime",
+            "lower": 49,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "throughputPerHour",
+            "lower": 0,
+            "upper": 291.5,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "Throughput is shipped/makespan * 3600, rounded to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "avgCycleTime",
+            "lower": 81.47,
+            "upper": null,
+            "proof": [
+              "Each cycle must include its service chain and minimum transit; the grader rounds the average to two decimals."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "packages",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "shipped",
+            "lower": 100,
+            "upper": 100,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "unshipped",
+            "lower": 0,
+            "upper": 0,
+            "proof": [
+              "All-shipped floor is imposed by code; package count and arrival identity are fixed by the scenario."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "missorts",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "A package can be marked mis-sorted at most once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "damaged",
+            "lower": 0,
+            "upper": 34,
+            "proof": [
+              "Only fragile packages can be damaged; each package is counted once."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "avgWait",
+            "lower": 0,
+            "upper": null,
+            "proof": [
+              "Queue waiting time cannot be negative."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "maxQueue",
+            "lower": 0,
+            "upper": 100,
+            "proof": [
+              "No queue can contain more than all scenario packages."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "travelCells",
+            "lower": 2006,
+            "upper": 10800,
+            "proof": [
+              "Every shipped package traverses three legs; each leg is bounded by the grid Manhattan diameter, and total travel cannot beat fixed-dock distance or station spacing."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "capex",
+            "lower": 180000,
+            "upper": 300000,
+            "proof": [
+              "Fixed docks plus the minimum legal sorter and pack counts set a capital floor; task validation enforces the capital ceiling."
+            ]
+          },
+          {
+            "scenarioId": "fragile-6",
+            "metric": "objective",
+            "lower": 3035,
+            "upper": null,
+            "proof": [
+              "Makespan is last shipment minus first arrival (11s); last arrival is 1197s.",
+              "Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s.",
+              "1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s.",
+              "Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed).",
+              "These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+              "All penalties are nonnegative; objective includes makespan plus minimum capex/100, rounded to two decimals."
+            ]
+          }
+        ],
+        "violations": [
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "normal-1"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [1295, unbounded] for normal-1. Makespan is last shipment minus first arrival (3s); last arrival is 1198s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          },
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "peak-2"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [641, unbounded] for peak-2. Makespan is last shipment minus first arrival (1s); last arrival is 292s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          },
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "fragile-3"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [1242, unbounded] for fragile-3. Makespan is last shipment minus first arrival (4s); last arrival is 1174s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          },
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "normal-4"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [1216, unbounded] for normal-4. Makespan is last shipment minus first arrival (44s); last arrival is 1169s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          },
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "peak-5"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [641, unbounded] for peak-5. Makespan is last shipment minus first arrival (6s); last arrival is 297s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          },
+          {
+            "checkId": "makespan",
+            "scenarioIds": [
+              "fragile-6"
+            ],
+            "proof": "makespan <= 1 (every) contradicts the physical interval [1235, unbounded] for fragile-6. Makespan is last shipment minus first arrival (11s); last arrival is 1197s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+          }
+        ]
+      },
+      "approved": null,
+      "reasons": [
+        "makespan <= 1 (every) contradicts the physical interval [1295, unbounded] for normal-1. Makespan is last shipment minus first arrival (3s); last arrival is 1198s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1295s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1248s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 505.33333333333326s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+        "makespan <= 1 (every) contradicts the physical interval [641, unbounded] for peak-2. Makespan is last shipment minus first arrival (1s); last arrival is 292s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 389s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 467.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+        "makespan <= 1 (every) contradicts the physical interval [1242, unbounded] for fragile-3. Makespan is last shipment minus first arrival (4s); last arrival is 1174s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1242s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1222s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 483.6666666666667s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+        "makespan <= 1 (every) contradicts the physical interval [1216, unbounded] for normal-4. Makespan is last shipment minus first arrival (44s); last arrival is 1169s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1216s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1181s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 495.3333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+        "makespan <= 1 (every) contradicts the physical interval [641, unbounded] for peak-5. Makespan is last shipment minus first arrival (6s); last arrival is 297s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 401s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 641s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 502.8333333333333s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists.",
+        "makespan <= 1 (every) contradicts the physical interval [1235, unbounded] for fragile-6. Makespan is last shipment minus first arrival (11s); last arrival is 1197s. Each package needs receiving 6s + sorting 4s + size-specific packing + shipping 5s; three transfers need at least 12s and at least the fixed-dock Manhattan distance. Arrival/service-chain bound: 1235s. 1 fixed receiving dock(s) at 6s/package, including every suffix of arrivals and the remaining service chain: 1233s. Work/capacity plus minimum preceding and remaining service: sorters 243s (max 2), packing 466.1666666666667s (max 6), shipping 208.66666666666666s (3 fixed). These optimistic lower bounds ignore queues and placement conflicts; passing them does not prove a layout exists."
+      ]
+    }
+  ],
+  "spend": {
+    "calls": 0,
+    "mockedCalls": 3,
+    "usd": 0,
+    "promptTokens": 0,
+    "cachedTokens": 0,
+    "reservedUsd": 0
+  },
+  "usage": [],
+  "notes": [
+    "An approved DoD preserves the audited goal and passes necessary bounds; it does not establish that a layout achieves it.",
+    "An infeasible goal stops before the auditor and includes a model-independent proof.",
+    "Recorded offline demonstration with mocked model responses; no provider calls made."
+  ]
+}

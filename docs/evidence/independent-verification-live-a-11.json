@@ -1,0 +1,486 @@
+{
+  "verifiedAt": "2026-10-17T20:58:21.607Z",
+  "runId": "live-a-11",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "finalSplitUsed": false,
+  "scope": "6 train + 9 select development scenarios; final split remains locked",
+  "splits": {
+    "train": {
+      "layout": "route-fixer-1",
+      "split": "train",
+      "valid": true,
+      "errors": [],
+      "objective": 3345.5,
+      "dodPassed": true,
+      "failedChecks": [],
+      "scenarios": [
+        {
+          "id": "normal-1",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1453,
+          "drainTime": 258,
+          "throughputPerHour": 247.76,
+          "avgCycleTime": 140.04,
+          "avgWait": 10.5,
+          "maxQueue": 6,
+          "travelCells": 2718,
+          "capex": 200000,
+          "objective": 3453,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "peak-2",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1224,
+          "drainTime": 933,
+          "throughputPerHour": 294.12,
+          "avgCycleTime": 453.55,
+          "avgWait": 89.15,
+          "maxQueue": 51,
+          "travelCells": 2776,
+          "capex": 200000,
+          "objective": 3224,
+          "bottleneck": "recv-1"
+        },
+        {
+          "id": "fragile-3",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1446,
+          "drainTime": 276,
+          "throughputPerHour": 248.96,
+          "avgCycleTime": 181.44,
+          "avgWait": 20.83,
+          "maxQueue": 12,
+          "travelCells": 2786,
+          "capex": 200000,
+          "objective": 3446,
+          "bottleneck": "pack-B"
+        },
+        {
+          "id": "normal-4",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1416,
+          "drainTime": 291,
+          "throughputPerHour": 254.24,
+          "avgCycleTime": 165.6,
+          "avgWait": 17.43,
+          "maxQueue": 9,
+          "travelCells": 2640,
+          "capex": 200000,
+          "objective": 3416,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "peak-5",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1223,
+          "drainTime": 932,
+          "throughputPerHour": 294.36,
+          "avgCycleTime": 438.33,
+          "avgWait": 85.27,
+          "maxQueue": 51,
+          "travelCells": 2686,
+          "capex": 200000,
+          "objective": 3223,
+          "bottleneck": "recv-1"
+        },
+        {
+          "id": "fragile-6",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1311,
+          "drainTime": 125,
+          "throughputPerHour": 274.6,
+          "avgCycleTime": 134.86,
+          "avgWait": 10.11,
+          "maxQueue": 7,
+          "travelCells": 2654,
+          "capex": 200000,
+          "objective": 3311,
+          "bottleneck": "pack-A"
+        }
+      ]
+    },
+    "select": {
+      "layout": "route-fixer-1",
+      "split": "select",
+      "valid": true,
+      "errors": [],
+      "objective": 3283.44,
+      "dodPassed": true,
+      "failedChecks": [],
+      "scenarios": [
+        {
+          "id": "normal-101",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1328,
+          "drainTime": 140,
+          "throughputPerHour": 271.08,
+          "avgCycleTime": 122.01,
+          "avgWait": 6.55,
+          "maxQueue": 4,
+          "travelCells": 2674,
+          "capex": 200000,
+          "objective": 3328,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "peak-102",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1119,
+          "drainTime": 826,
+          "throughputPerHour": 321.72,
+          "avgCycleTime": 421.03,
+          "avgWait": 81.38,
+          "maxQueue": 51,
+          "travelCells": 2608,
+          "capex": 200000,
+          "objective": 3119,
+          "bottleneck": "recv-1"
+        },
+        {
+          "id": "fragile-103",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1471,
+          "drainTime": 286,
+          "throughputPerHour": 244.73,
+          "avgCycleTime": 158.45,
+          "avgWait": 15.39,
+          "maxQueue": 10,
+          "travelCells": 2698,
+          "capex": 200000,
+          "objective": 3471,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "normal-104",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1300,
+          "drainTime": 107,
+          "throughputPerHour": 276.92,
+          "avgCycleTime": 124.78,
+          "avgWait": 7.52,
+          "maxQueue": 4,
+          "travelCells": 2612,
+          "capex": 200000,
+          "objective": 3300,
+          "bottleneck": "pack-B"
+        },
+        {
+          "id": "peak-105",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1119,
+          "drainTime": 830,
+          "throughputPerHour": 321.72,
+          "avgCycleTime": 438.55,
+          "avgWait": 85.46,
+          "maxQueue": 51,
+          "travelCells": 2700,
+          "capex": 200000,
+          "objective": 3119,
+          "bottleneck": "recv-1"
+        },
+        {
+          "id": "fragile-106",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1297,
+          "drainTime": 130,
+          "throughputPerHour": 277.56,
+          "avgCycleTime": 148.23,
+          "avgWait": 13.77,
+          "maxQueue": 8,
+          "travelCells": 2582,
+          "capex": 200000,
+          "objective": 3297,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "normal-107",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1327,
+          "drainTime": 135,
+          "throughputPerHour": 271.29,
+          "avgCycleTime": 139.26,
+          "avgWait": 10.68,
+          "maxQueue": 7,
+          "travelCells": 2740,
+          "capex": 200000,
+          "objective": 3327,
+          "bottleneck": "pack-A"
+        },
+        {
+          "id": "peak-108",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1221,
+          "drainTime": 930,
+          "throughputPerHour": 294.84,
+          "avgCycleTime": 429.61,
+          "avgWait": 83.19,
+          "maxQueue": 51,
+          "travelCells": 2678,
+          "capex": 200000,
+          "objective": 3221,
+          "bottleneck": "recv-1"
+        },
+        {
+          "id": "fragile-109",
+          "packages": 100,
+          "shipped": 100,
+          "unshipped": 0,
+          "missorts": 0,
+          "damaged": 0,
+          "makespan": 1369,
+          "drainTime": 175,
+          "throughputPerHour": 262.97,
+          "avgCycleTime": 137.24,
+          "avgWait": 9.83,
+          "maxQueue": 5,
+          "travelCells": 2748,
+          "capex": 200000,
+          "objective": 3369,
+          "bottleneck": "pack-B"
+        }
+      ]
+    }
+  },
+  "replay": {
+    "scenario": {
+      "id": "peak-202",
+      "seed": 202,
+      "profile": "peak"
+    },
+    "baseline": {
+      "packages": 100,
+      "shipped": 100,
+      "unshipped": 0,
+      "missorts": 16,
+      "damaged": 14,
+      "makespan": 1581,
+      "drainTime": 1286,
+      "throughputPerHour": 227.7,
+      "avgCycleTime": 724.07,
+      "avgWait": 138.14,
+      "maxQueue": 50,
+      "travelCells": 6456,
+      "capex": 180000,
+      "objective": 16581,
+      "bottleneck": "pack-2",
+      "stations": {
+        "recv-1": {
+          "kind": "receiving",
+          "processed": 100,
+          "utilization": 0.38,
+          "maxQueue": 50,
+          "totalWait": 13979
+        },
+        "sort-1": {
+          "kind": "sorter",
+          "processed": 100,
+          "utilization": 0.25,
+          "maxQueue": 0,
+          "totalWait": 0
+        },
+        "pack-1": {
+          "kind": "pack",
+          "processed": 51,
+          "utilization": 0.85,
+          "maxQueue": 30,
+          "totalWait": 19170
+        },
+        "pack-2": {
+          "kind": "pack",
+          "processed": 49,
+          "utilization": 0.89,
+          "maxQueue": 30,
+          "totalWait": 22094
+        },
+        "ship-A": {
+          "kind": "shipping",
+          "processed": 41,
+          "utilization": 0.13,
+          "maxQueue": 1,
+          "totalWait": 2
+        },
+        "ship-B": {
+          "kind": "shipping",
+          "processed": 36,
+          "utilization": 0.11,
+          "maxQueue": 1,
+          "totalWait": 8
+        },
+        "ship-C": {
+          "kind": "shipping",
+          "processed": 23,
+          "utilization": 0.07,
+          "maxQueue": 1,
+          "totalWait": 2
+        }
+      }
+    },
+    "improved": {
+      "packages": 100,
+      "shipped": 100,
+      "unshipped": 0,
+      "missorts": 0,
+      "damaged": 0,
+      "makespan": 1184,
+      "drainTime": 889,
+      "throughputPerHour": 304.05,
+      "avgCycleTime": 442.84,
+      "avgWait": 86.4,
+      "maxQueue": 50,
+      "travelCells": 2742,
+      "capex": 200000,
+      "objective": 3184,
+      "bottleneck": "recv-1",
+      "stations": {
+        "recv-1": {
+          "kind": "receiving",
+          "processed": 100,
+          "utilization": 0.51,
+          "maxQueue": 50,
+          "totalWait": 13979
+        },
+        "sort-1": {
+          "kind": "sorter",
+          "processed": 100,
+          "utilization": 0.34,
+          "maxQueue": 0,
+          "totalWait": 0
+        },
+        "pack-A": {
+          "kind": "pack",
+          "processed": 41,
+          "utilization": 0.92,
+          "maxQueue": 20,
+          "totalWait": 10539
+        },
+        "pack-B": {
+          "kind": "pack",
+          "processed": 36,
+          "utilization": 0.87,
+          "maxQueue": 18,
+          "totalWait": 9485
+        },
+        "pack-C": {
+          "kind": "pack",
+          "processed": 23,
+          "utilization": 0.52,
+          "maxQueue": 3,
+          "totalWait": 557
+        },
+        "ship-A": {
+          "kind": "shipping",
+          "processed": 41,
+          "utilization": 0.17,
+          "maxQueue": 0,
+          "totalWait": 0
+        },
+        "ship-B": {
+          "kind": "shipping",
+          "processed": 36,
+          "utilization": 0.15,
+          "maxQueue": 0,
+          "totalWait": 0
+        },
+        "ship-C": {
+          "kind": "shipping",
+          "processed": 23,
+          "utilization": 0.1,
+          "maxQueue": 0,
+          "totalWait": 0
+        }
+      }
+    },
+    "regeneratedDeepEqual": true,
+    "sha256": "0b1b5c8d249c3ffe41a91944c8110d81568c0e6df6a8696d21234e0ebdd6ff31"
+  },
+  "stationChanges": [
+    {
+      "id": "pack-B",
+      "before": {
+        "id": "pack-B",
+        "kind": "pack",
+        "x": 0,
+        "y": 4,
+        "zones": [
+          "B"
+        ],
+        "sizes": [
+          "S",
+          "M",
+          "L"
+        ]
+      },
+      "after": {
+        "id": "pack-B",
+        "kind": "pack",
+        "x": 3,
+        "y": 5,
+        "zones": [
+          "B"
+        ],
+        "sizes": [
+          "S",
+          "M",
+          "L"
+        ]
+      }
+    }
+  ]
+}

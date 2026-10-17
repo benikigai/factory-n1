@@ -74,6 +74,7 @@ function sideHead(s: ReplaySide, cls: string) {
 export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const A = b.baseline;
   const B = b.improved;
+  const continuedHero = b.runId === "live-a-11";
 
   // Live counters per floor.
   const live = (side: ReplaySide, cls: string) => {
@@ -115,7 +116,11 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const rows = [
     { label: A.label, train: A.train.objective, select: A.select.objective, cls: "base" },
     { label: B.label, train: B.train.objective, select: B.select.objective, cls: "improved" },
-    ...b.comparators.map((c) => ({ ...c, cls: "comparator" })),
+    ...b.comparators.map((c) => ({
+      ...c,
+      label: continuedHero ? c.label.replace("Random hill-climber at equal budget", "Fresh random hill-climber") : c.label,
+      cls: "comparator",
+    })),
   ];
   const bestSelect = Math.min(...rows.map((r) => r.select));
   const comps = h("table", { class: "metrics comps" },
@@ -204,7 +209,13 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   rail.replaceChildren(
     h("section", { class: "live" }, la.card, lb.card),
     h("section", null, h("h3", null, "Before / after"), table),
-    h("section", null, h("h3", null, "Comparators"), comps),
+    h("section", null, h("h3", null, "Comparators"),
+      continuedHero ? h("p", { class: "small k" },
+        "Run 11 continued from run 7. This fresh random-search comparator is not an equal-budget comparison. ",
+        h("a", { href: "./replay.html?run=live-a-7" }, "See run 7's equal-budget result."),
+      ) : null,
+      comps,
+    ),
     h("section", null, h("h3", null, `Accepted changes (${b.accepted.length})`), accepted),
     h("section", null, h("h3", null, `Rejected (${b.rejected.length})`), rejected),
     h("section", null, h("h3", null, `Lessons (${b.lessons.length})`), lessons),
