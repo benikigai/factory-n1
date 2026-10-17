@@ -17,6 +17,8 @@ export interface ReplaySide {
   result: RunResult;
   train: SplitScore;
   select: SplitScore;
+  /** Locked final split (fresh demand seeds), scored once after the run. Absent for development runs. */
+  final?: SplitScore & { zeroDamage: boolean; allShipped: boolean; damagedTotal: number; scenarios: number };
 }
 
 export interface EditReceipt {

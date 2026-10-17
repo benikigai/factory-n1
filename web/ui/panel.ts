@@ -99,6 +99,15 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
       rowEl({ label: "Select", base: A.select.objective, imp: B.select.objective, better: "lower", digits: 2 }),
       h("tr", null, h("th", null, "DoD train"), h("td", { class: "num" }, dod(A.train.dodPassed)), h("td", { class: "num" }, dod(B.train.dodPassed)), h("td", null)),
       h("tr", null, h("th", null, "DoD select"), h("td", { class: "num" }, dod(A.select.dodPassed)), h("td", { class: "num" }, dod(B.select.dodPassed)), h("td", null)),
+      ...(A.final && B.final
+        ? [
+            h("tr", { class: "sep" }, h("th", { colspan: "4" }, `Final split: locked fresh seeds (${A.final.scenarios} days), scored once`)),
+            rowEl({ label: "Final objective", base: A.final.objective, imp: B.final.objective, better: "lower", digits: 2 }),
+            rowEl({ label: "Final damaged (total)", base: A.final.damagedTotal, imp: B.final.damagedTotal, better: "lower", digits: 0 }),
+            h("tr", null, h("th", null, "Zero damage, every day"), h("td", { class: "num" }, dod(A.final.zeroDamage)), h("td", { class: "num" }, dod(B.final.zeroDamage)), h("td", null)),
+            h("tr", null, h("th", null, "DoD final"), h("td", { class: "num" }, dod(A.final.dodPassed)), h("td", { class: "num" }, dod(B.final.dodPassed)), h("td", null)),
+          ]
+        : []),
     ),
   );
 

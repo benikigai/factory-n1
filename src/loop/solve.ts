@@ -51,6 +51,12 @@ export interface SolveOptions {
   reflect?: boolean;
   /** No memory at all: designers see an empty Playbook (for the memory vs no-memory comparison). */
   noMemory?: boolean;
+  /**
+   * Hard per-run maximums. A generation starts only if its worst case still fits, so these are never
+   * exceeded; runs that stop early simply use less. Counts include repairs, probes, tests and attribution.
+   */
+  maxCalls?: number;
+  maxSimEvals?: number;
   /** Injection points for offline tests; default to the live Nemotron agents. */
   deps?: { propose?: typeof propose; reflect?: typeof reflect; research?: typeof research; testHypothesis?: typeof testHypothesis };
 }
@@ -105,6 +111,7 @@ export async function solve(opts: SolveOptions) {
   const runId = opts.runId ?? `solve-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   const startedAt = Date.now();
   const meter0 = meterSnapshot();
+  const calls0 = spend().calls;
   const dir = `runs/${runId}`;
   mkdirSync(dir, { recursive: true });
   const grader = graderHash();
@@ -213,8 +220,21 @@ export async function solve(opts: SolveOptions) {
   };
   writeReplay("live", []);
 
+  // Worst case for one generation: every designer uses all rounds; probes, candidate and gate evals; attribution allowance.
+  const worstCallsPerGen = LENSES.length * ((opts.probes ?? 0) + 3) + (opts.reflect !== false ? 1 : 0);
+  const worstSimsPerGen = LENSES.length * ((opts.probes ?? 0) + 1) + 1 + 16 + (opts.reflect !== false ? 16 : 0);
   try {
   for (let gen = 1; gen <= generations; gen++) {
+    const callsUsed = spend().calls - calls0;
+    const simsUsed = meterDelta(meter0).evaluations;
+    if (opts.maxCalls !== undefined && callsUsed + worstCallsPerGen > opts.maxCalls) {
+      stopReason = `call budget: ${callsUsed} used, next generation could need ${worstCallsPerGen} (max ${opts.maxCalls})`;
+      break;
+    }
+    if (opts.maxSimEvals !== undefined && simsUsed + worstSimsPerGen > opts.maxSimEvals) {
+      stopReason = `simulator budget: ${simsUsed} used, next generation could need ${worstSimsPerGen} (max ${opts.maxSimEvals})`;
+      break;
+    }
     if (graderHash() !== grader) throw new Error("grader source changed during the run; aborting");
     const memory = reduce(ops);
     const prefix = sharedPrefix(task, opts.noMemory ? render(reduce([])) : render(memory));
@@ -383,7 +403,8 @@ export async function solve(opts: SolveOptions) {
   writeFileSync(`${dir}/research.json`, JSON.stringify(researchLog, null, 2));
   const s = spend();
   const summary = {
-    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, wallMs: Date.now() - startedAt,
+    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, callsUsed: spend().calls - calls0,
+    caps: { maxCalls: opts.maxCalls ?? null, maxSimEvals: opts.maxSimEvals ?? null }, wallMs: Date.now() - startedAt,
     baseline: { train: baselineTrain.objective, select: baselineSelect.objective, dodSelect: baselineSelect.dod!.passed },
     champion: { id: champId, train: champTrain.objective, select: champSelect.objective, dodSelect: champSelect.dod!.passed },
     improvementSelectPct: Math.round((1 - champSelect.objective / baselineSelect.objective) * 10000) / 100,
