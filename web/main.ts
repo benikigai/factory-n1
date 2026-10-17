@@ -7,11 +7,13 @@ import { playbackEnd } from './world/state';
 import type { BackendEvent, Experiment, RunEntry, RunSnapshot, ReplayBundle } from './contracts';
 import { buildSnapshot, parseLines } from './snapshot';
 import { flatten, type AgentNode } from './runtime';
+import { loadVisualInspection, renderVisualInspection, type InspectionState } from './ui/visual-inspection';
 
 const $=(id:string)=>document.getElementById(id)!;
 const modeText={recorded:'RECORDED',live:'LIVE',simulator:'SIMULATOR',fixture:'SYNTHETIC'};
 let snapshot:RunSnapshot|null=null,scope:AgentNode|null=null,selected:Selection|null=null;
-let view:'layout'|'agents'='layout',entries:RunEntry[]=[],artifacts:Record<string,string[]>={};
+let view:'layout'|'agents'|'visual'='layout',entries:RunEntry[]=[],artifacts:Record<string,string[]>={};
+let visualInspection:InspectionState={status:'loading',runId:'live-a-11'};
 let counters:CounterEls|null=null,version=0;
 const playback:Playback={t:0,end:1,playing:!matchMedia('(prefers-reduced-motion: reduce)').matches,speed:16};
 
@@ -21,8 +23,13 @@ document.querySelector('#app')!.innerHTML=`
 <nav id="breadcrumbs" aria-label="Agent factory breadcrumbs" hidden></nav>
 <div id="empty-scene" hidden>Loading recorded simulator traces…</div>
 <div id="legend"></div><footer id="controls"></footer><div id="connection" role="status" hidden></div></main>
-<aside id="rail"><section class="run-controls"><div class="run-actions"><label for="run-select">RUN</label><a href="./" class="btn">Back to proof</a></div><select id="run-select" aria-label="Select run"></select><div class="run-state"><span id="run-status">Loading recording…</span></div><div class="view-switch" role="group" aria-label="Factory view"><button id="layout-view" class="btn active">Factory layouts</button><button id="agents-view" class="btn">Agent factories</button></div></section><section id="inspection" hidden></section><section class="run-summary" id="run-summary"></section><div id="metrics-panel"></div><section class="artifact-links" id="run-evidence"></section><section><button id="download" class="btn" disabled>Download run evidence</button></section></aside>
+<aside id="rail"><section class="run-controls"><div class="run-actions"><label for="run-select">RUN</label><a href="./" class="btn">Back to proof</a></div><select id="run-select" aria-label="Select run"></select><div class="run-state"><span id="run-status">Loading recording…</span></div><div class="view-switch" role="group" aria-label="Factory view"><button id="layout-view" class="btn active">Factory layouts</button><button id="agents-view" class="btn">Agent factories</button><button id="visual-view" class="btn">Visual inspector</button></div></section><section id="visual-inspection" hidden></section><section id="inspection" hidden></section><section class="run-summary" id="run-summary"></section><div id="metrics-panel"></div><section class="artifact-links" id="run-evidence"></section><section><button id="download" class="btn" disabled>Download run evidence</button></section></aside>
 `;
+
+const imageCheck = new URLSearchParams(location.search).get('visionCheck');
+if (imageCheck && /^[A-Z0-9]{1,12}$/.test(imageCheck)) {
+  $('stage').append(h('div', { class: 'vision-check', 'aria-label': 'Image input verification marker' }, `IMAGE CHECK: ${imageCheck}`));
+}
 
 async function json<T>(url:string):Promise<T>{const response=await fetch(url);if(!response.ok)throw new Error(`Could not load ${url} (${response.status})`);return response.json();}
 async function lines<T>(url:string):Promise<T[]>{const response=await fetch(url);return response.ok?parseLines<T>(await response.text()):[];}
@@ -39,7 +46,10 @@ function enter(n:AgentNode){selected={type:'agent',node:n};if(n.children.length)
 function setView(next:typeof view){view=next;selected=null;const url=new URL(location.href);url.searchParams.set('view',next);url.searchParams.delete('node');history.replaceState(null,'',url);if(next==='agents'&&snapshot){scope=snapshot.tree;world.setAgents(scope);}else if(snapshot?.replay){world.setBundle(snapshot.replay);world.preset('overview',false);}renderNavigation();renderInspection();}
 function renderNavigation(){
   const agentView=view==='agents';$('stage').classList.toggle('agent-view',agentView);
-  $('layout-view').classList.toggle('active',!agentView);$('agents-view').classList.toggle('active',agentView);
+  $('layout-view').classList.toggle('active',view==='layout');$('agents-view').classList.toggle('active',agentView);$('visual-view').classList.toggle('active',view==='visual');
+  $('app').classList.toggle('visual-view',view==='visual');
+  $('visual-inspection').hidden=view!=='visual';
+  if(view==='visual')renderVisualInspection($('visual-inspection'),visualInspection,seconds=>{playback.t=Math.max(0,Math.min(playback.end,seconds));playback.playing=false;});
   $('breadcrumbs').hidden=!agentView;$('legend').hidden=agentView;
   ($('layout-view') as HTMLButtonElement).disabled=!snapshot?.replay;
   if(scope){const path:AgentNode[]=[];let n:AgentNode|undefined=scope;while(n){path.unshift(n);n=n.parent;}
@@ -47,7 +57,7 @@ function renderNavigation(){
   controls.setCloseupLabel(world.closeupTarget());
 }
 function renderInspection(){
-  const panel=$('inspection');panel.replaceChildren();panel.hidden=!selected&&view==='layout';if(panel.hidden||!snapshot)return;
+  const panel=$('inspection');panel.replaceChildren();panel.hidden=view==='visual'||(!selected&&view==='layout');if(panel.hidden||!snapshot)return;
   panel.append(h('div',{class:'section-heading'},h('h3',null,selected?.type==='station'?'Station inspector':'Agent inspector'),button('Close',()=>{selected=null;setView('layout');},{'aria-label':'Close inspector'})));
   if(selected?.type==='station'){
     const stationId=selected.id;
@@ -91,6 +101,8 @@ function apply(data:RunSnapshot){
 }
 async function choose(id:string){
   const v=++version;message(null);
+  visualInspection={status:'loading',runId:id};
+  void loadVisualInspection(id).then(result=>{if(v!==version)return;visualInspection=result;if(view==='visual')renderNavigation();});
   try{
     const base=`./runs/${encodeURIComponent(id)}`;
     const available=artifacts[id]??['replay.json'];
@@ -103,7 +115,7 @@ async function choose(id:string){
     apply(buildSnapshot(id,replay,events,experiments,summary));
     const url=new URL(location.href);url.searchParams.set('run',id);history.replaceState(null,'',url);
     ($('run-select') as HTMLSelectElement).value=id;
-    const params=new URLSearchParams(location.search);const requested=params.get('view');const nodeId=params.get('node');if(requested==='agents')setView('agents');
+    const params=new URLSearchParams(location.search);const requested=params.get('view');const nodeId=params.get('node');if(requested==='agents'||requested==='visual')setView(requested);
     const target=nodeId?nodes().find(n=>n.id===nodeId):null;if(target)enter(target);
     $('run-evidence').replaceChildren(...available.filter(file=>['replay.json','summary.json','events.jsonl','experiments.jsonl'].includes(file)).map(file=>h('a',{href:`${base}/${file}`,target:'_blank',rel:'noopener'},file)));
   }catch(e){message((e as Error).message);}
@@ -115,7 +127,7 @@ async function loadList(){
   ($('run-select') as HTMLSelectElement).replaceChildren(...entries.map(r=>h('option',{value:r.id},`${r.id} · ${modeText[r.mode].toLowerCase()}`)));
 }
 $('run-select').onchange=()=>void choose(($('run-select') as HTMLSelectElement).value);
-$('layout-view').onclick=()=>setView('layout');$('agents-view').onclick=()=>setView('agents');
+$('layout-view').onclick=()=>setView('layout');$('agents-view').onclick=()=>setView('agents');$('visual-view').onclick=()=>setView('visual');
 $('download').onclick=()=>{if(!snapshot)return;const blob=new Blob([JSON.stringify({id:snapshot.id,mode:snapshot.mode,replay:snapshot.replay,events:snapshot.events,reservedUsd:snapshot.reservedUsd,checks:snapshot.checks},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=h('a',{href:url,download:`${snapshot.id}-evidence.json`});a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&view==='agents'&&!document.querySelector('dialog[open]')){if(scope?.parent)enter(scope.parent);else setView('layout');}});
 let last=performance.now(),lastUi=0;
