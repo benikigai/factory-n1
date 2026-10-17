@@ -1,130 +1,83 @@
 # Factory N+1
 
-A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a parcel fulfillment floor (receive → sort → pack → ship, 100 packages). The agents research real practices with **You.com**, share what they learn in a memory that keeps hypotheses separate from evidence, and test their own work against a frozen simulator. A change is kept only if it measurably beats the current floor on separate validation days.
+A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a parcel fulfillment floor (receive → sort → pack → ship, 100 packages). The agents research real practice with **You.com**, share what they learn in one memory, and test every change against a frozen simulator. A change is kept only if code measures it as better on days the designers never saw.
 
-Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything in this repo was written during the event.
+Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
 
-**Hero run:** `live-a-7` (independently re-scored by Codex) · earlier hero `live-a-5`: [evidence](docs/evidence/hero-run-live-a-5.md), [verification](docs/evidence/independent-verification-live-a-5.md) · [spend accounting](docs/evidence/spend-accounting.json) · [demo script](docs/demo/script.md)
+## Where we are (13:15 PT)
 
-## Result (live-a-7, independently re-scored)
-
-| Layout | Development (train, 6 days) | Validation (9 days) | Goal met? |
-|---|---|---|---|
-| Gen-0 floor | 18,655 | 18,061 | ✗ |
-| Code heuristic: pack stations accept all sizes | 13,905 | 13,194 | ✗ |
-| Random hill-climber, **same 41 simulator evaluations** | 13,813 | 13,099 | ✗ |
-| **Agent champion** (Nemotron 3.5 Super VL, QUALITY lens) | **6,946** | **6,083 (−66.3%)** | ✗ |
-
-Objective is lower-is-better: makespan seconds + 300 per mis-sort + 600 per damaged package + 3,600 per unshipped + capex/100.
-
-**Same peak day replayed in 3D (`peak-202`):** both floors ship 100/100.
-
-| Metric | Gen-0 | Champion |
+| Question | Answer | Proof |
 |---|---|---|
-| Makespan | 1,581 s | 1,184 s |
-| Mis-sorts | 16 | 0 |
-| Damaged | 14 | 4 |
-
-**Zero damage was NOT reached.**
-- The champion ships every package with 0 mis-sorts on all 15 development and validation days.
-- Damage remains on every training day (4–12) and on 7 of 9 validation days (0–17), so the goal check is FAIL.
-- The remaining damage comes from one long sorter→pack route.
-- The grader was frozen throughout (`493a1b03…`), and the run cost 61 model calls, $0.0288 inference plus 2 searches.
-
-**Memory vs no-memory: valid, and negative.**
-- On two fresh factories, under equal hard caps (26 call attempts and 60 simulator evaluations per arm, all held), shared learned memory **lost all 4 pairs**. The median final-split objective was **+2,357** (worse), n = 4 ([details](docs/evidence/memory-eval-valid.md)).
-- Memory arms made more invalid proposals: 7 of 24 vs 2 of 24.
-- The likely cause is lessons tied to one factory, which transferred badly.
-- An earlier attempt failed for infrastructure reasons and is kept labeled INVALID.
+| Do the agents improve the floor? | **Yes, by 66%.** Validation score 18,061 → 6,083 (lower is better). That beats a one-line code fix (13,194) and random search with the same 41 simulator runs (13,099). | Run `live-a-7`, re-scored independently by Codex |
+| Did they reach the goal? | **No.** The champion ships 100/100 with 0 mis-sorts, but 4–12 packages are still damaged per training day, all on one 15-cell route. | `live-a-8` made no further progress; `live-a-9` (a route-fixing designer) is running |
+| Does shared memory help on new factories? | **No, it hurt.** Memory lost all 4 paired tests on two fresh factories (median score +2,357, worse). | [memory-eval-valid.md](docs/evidence/memory-eval-valid.md), n = 4 |
+| Can the numbers be trusted? | One frozen grader (hash `493a1b03…`) scores everything. Agents never score themselves, and every claim they make is checked. | Replays regenerate exactly |
+| What did it cost? | `live-a-7`: 61 model calls, $0.029. All runs: $0.228 inference plus $0.09 search, inside a $1.00 cap. | [spend-accounting.json](docs/evidence/spend-accounting.json) |
 
 ## How it works
 
-```
-one-line goal
-  └─ You.com research (Lightning calls research_factory_practice; every citation must exactly match a returned URL)
-       └─ Shared memory: external hypotheses, kept separate from evidence
-            └─ isolated test: each hypothesis -> its own 1-3 edit change -> simulator -> promoted only if it wins
-  └─ each generation: 2 Nemotron Super VL designers read the same memory snapshot
-       ├─ test drafts with simulate_layout (bounded; every test counts toward the eval budget)
-       └─ submit with the typed propose_layout tool (rule violations come back for one repair)
-  └─ frozen simulator scores every proposal (agents never score themselves)
-       └─ gate: keep only if >=1% better on validation days with no goal-check regression
-            └─ causal receipts: code scores each edit alone, so lessons cite measured causes
-                 └─ reflector writes a lesson from those receipts (accepted or stalled) -> memory -> next generation
-  └─ supervisor (code): duplicates, stalls -> targeted re-research -> stop
-```
+1. **Research.** Nemotron Lightning searches You.com. Every citation must match a URL the search actually returned. Ideas enter memory as untested hypotheses.
+2. **Propose.** Nemotron Super VL designers read the shared memory, test drafts in the simulator, then submit a layout plus a predicted score through a typed tool.
+3. **Grade.** A frozen simulator runs 100 packages on 6 training days and scores the result.
+4. **Gate.** The change is kept only if it is at least 1% better on 9 separate validation days and no goal check gets worse.
+5. **Learn.** Code splits each change into single edits and scores each one alone. The lesson written to memory cites only those measured effects.
 
-### Done Means Done
-- **Goal as code:** the goal is a set of executable checks over simulator metrics. "All shipped" can never be removed.
-- **Tests:** designers check their own drafts with a bounded test tool before submitting.
-- **Predictions are graded:** every proposal predicts its score, and code compares it with the real result.
-  - Blind proposals (`live-a-1`): **4 of 7 predictions were refuted**.
-  - With the test tool (`live-a-5`): **0 of 7**.
-- **Supervisor:** it catches loops (duplicate layouts), stalls (re-plans with targeted research) and decides when to stop.
+The 3D viewer replays the exact scored runs: the baseline and the champion floor side by side, on one clock.
 
-### Shared Brain
-- **Conflict-free:** an append-only log of memory operations, reduced deterministically into one Playbook every agent reads. Parallel writers never conflict, and the same log always gives the same Playbook.
-- **Labeled by evidence:**
-  - *untested external hypothesis* (cited web research);
-  - *intervention improved in an isolated test* (the exact edits and the measured change are shown, not the whole prose claim);
-  - *observed in an accepted experiment* (code receipts).
-- **Citations aren't evidence:** when a designer cites a lesson in a winning proposal, that's recorded as a citation only.
-- **Lean and cheap:** capped and byte-stable, so it works as a shared prompt prefix. Crusoe prefix-cache hits rose from 26% to 38% of prompt tokens across `live-a-5`'s generations.
+## The three tracks
 
-### Version N+1
-- **The layout improves under a ratchet,** and every accepted change carries code-computed receipts.
-- **Gains mostly land in generation 1.** Later generations' candidates were often slightly better but failed the 1% validation margin.
-- **Not shown:** that retained memory makes the solver better on *unseen factories*. The experiment is built and locked:
-  - a frozen Playbook hash;
-  - fresh seeded factories F/G;
-  - identical hard per-arm caps, enforced at model-call dispatch and simulator evaluation;
-  - a locked final split.
+| Track | What we built | Proof | Gap |
+|---|---|---|---|
+| **Version N+1** | Generation-by-generation ratchet, runs that continue from earlier runs, equal-budget comparisons | −66% on validation (`live-a-7`) | Most of the gain comes in generation 1; memory didn't transfer to new factories |
+| **Done Means Done** | Goal written as executable checks ("all shipped" can't be removed), graded predictions, a supervisor that stops or re-plans, hard spend caps | The goal shows FAIL honestly; refuted predictions fell from 4 of 7 to 0 of 7 once designers tested their drafts | The goal is hand-written; a goal compiler is in progress |
+| **Shared Brain** | Append-only memory every agent reads; each lesson labeled by its evidence (untested, tested, or observed in a kept change) | Crusoe prefix-cache hits up to 49% of prompt tokens | No quality gain on new factories (0 of 4) |
 
-  The valid run showed **no benefit, in fact a loss** (see above). The earlier attempt was invalid.
+## Sponsors
 
-## Why Nemotron is load-bearing here
-- **Nemotron 3.5 Super VL** writes every layout through typed tool calls. In `live-a-5`, 8 of 8 proposals arrived as valid tool calls; 6 needed one repair after the task validator returned rule violations.
-- **Nemotron 3.5 Lightning** handles the cheap, bounded work: running research, turning sources into hypotheses, and building isolated test interventions.
-- **The models are kept honest by code.** Nemotron also showed us why:
-  - Lightning once invented a simulator re-run with made-up numbers ([evidence](docs/evidence/2026-10-17-live-roundtrip.md)).
-  - Super VL credited a mis-sort fix to the wrong edit.
+- **Crusoe Managed Inference** serves every model call (about $0.0005 each) and caches the shared memory prompt across agents.
+- **NVIDIA Nemotron:** 3.5 Super VL designs every layout through typed tool calls (8 of 8 valid in `live-a-5`); 3.5 Lightning runs research and builds test edits.
+- **You.com** supplies the research, with exact-URL citation checks. No web idea improved the floor when tested on its own.
 
-  Hence the frozen grader, graded predictions and causal receipts.
+## What we learned
 
-## Limits (stated plainly)
-- A queueing simulation with synthetic rules (for example, fragile packages are damaged on conveyor legs over 12 cells). Not calibrated to a real facility.
-- The goal checks still fail: damage remains. No completed-task claim.
-- n is small: seven live runs on factory A ranged from −33% to −66% on validation. Runs 1–4 predate the memory-label fixes, and their lessons show as legacy labels.
-- **Spend:** returned usage is $0.228 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.744 committed against the $1.00 authorization (raised from $0.50) ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
-- In `live-a-5`, none of the six web hypotheses improved the floor in an isolated test. Three couldn't be tested because of malformed JSON, which is now retried once.
-- The 20-seed final split was never unlocked. No fine-tuning was run; experiment records are saved for later.
+- **The model lied, and the grader caught it.** Lightning once invented a simulator re-run with made-up numbers.
+- **Measure the edit, not the story.** Super VL credited a fix to the wrong change; per-edit scoring found the real cause.
+- **Testing drafts makes agents honest.** Refuted predictions dropped from 4 of 7 to 0 of 7.
+- **Memory can make agents worse.** Lessons tied to one factory's coordinates misled designers on new ones.
+
+## Limits
+
+- The simulator uses synthetic rules (for example, fragile packages break on legs over 12 cells). It is not calibrated to a real facility.
+- Small n: seven runs on factory A ranged from −33% to −66%.
+- The 20-day final test split was never unlocked, and no fine-tuning was run.
 
 ## Run it
 
 ```bash
 npm ci
-npm test                 # 29 tests: simulator identity, memory semantics, full loop offline, 3D trace math
-npm run web              # 3D viewer at http://localhost:5173 (defaults to the recorded hero run live-a-7)
-npm run build:static     # static site in web/dist (viewer + recorded runs, no server code)
+npm test               # simulator, memory, full offline loop, 3D trace math
+npm run web            # local site and 3D replay at http://localhost:5173
+npm run build:static   # static site in web/dist: viewer plus recorded runs, no server code or keys
 ```
 
-A live learning run needs a Crusoe key, plus a You.com key for research. Load them from a secret mount, never a plaintext file, and set explicit spend caps:
+A live run needs a Crusoe key, plus a You.com key for research. Load them from a secret mount, never a plaintext file, and set spend caps:
 
 ```bash
 CALL_BUDGET=120 SPEND_CAP_USD=0.50 node --env-file=<path-to-secret-mount> --import tsx scripts/solve.ts 8 my-run 1
-npm run publish-run -- my-run   # public copy in recorded/ (web excerpts stripped)
+npm run publish-run -- my-run   # public copy in recorded/
 ```
 
-## Repo map
+## Where things are
+
 | Path | What |
 |---|---|
-| `src/sim/` | Frozen simulator and grader (SIM 1.1.0, hash recorded with every experiment) |
-| `src/tasks/`, `layouts/` | Fixed-dock factory tasks A–E |
-| `src/agents/` | Nemotron designers, reflector, rate-limit handling |
-| `src/memory/` | Shared memory, You.com research, isolated hypothesis tests, causal receipts |
-| `src/loop/` | The learning loop and what agents may observe |
-| `src/baselines/` | Equal-budget random hill-climber |
-| `src/llm/` | Crusoe client with spend reservation, typed tool turns, You.com adapter (built by Codex) |
-| `web/` | three.js trace-exact replay (baseline vs champion, one clock) |
+| `src/sim/` | Frozen simulator and grader (SIM 1.1.0) |
+| `src/tasks/`, `layouts/` | Factories A–E with fixed docks, plus F and G for the memory test |
+| `src/agents/`, `src/loop/` | Nemotron designers, reflector, the learning loop |
+| `src/memory/` | Shared memory, You.com research, per-edit scoring |
+| `src/llm/` | Crusoe client with spend caps and typed tool calls |
+| `web/` | three.js replay of the scored runs |
 | `recorded/` | Public copies of recorded runs |
-| `docs/evidence/` | Run evidence and independent verification |
+| `docs/specs/factory-n1.md` | Full as-built spec: claims, proof, runs, work log |
+| `docs/evidence/` | Run evidence, independent checks, spend, [commit hash map](docs/evidence/commit-hash-map.md) after the history rewrite |
+| `docs/demo/script.md` | Demo script |
