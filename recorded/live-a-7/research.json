@@ -1,0 +1,153 @@
+{
+  "note": "Public copy: third-party search excerpts removed; URLs, titles, queries, retrieval times and receipt ids kept.",
+  "data": [
+    {
+      "gap": "Failing checks: Floor clears within 25 minutes (got 1689); At most 1 mis-sort per run (got 20); No damaged packages (got 34). Biggest queue at pack-1. Packages are damaged in transit and mis-sorted.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-plan-1",
+          "text": "Moving sorter stations to a dedicated sorting zone reduces travel distance and congestion, improving sort throughput.",
+          "testableAs": "Relocate sorter stations to a dedicated sorting zone",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/warehouse-sorting/",
+              "title": "Everything You Need to Know About Warehouse Sorting - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-2",
+          "text": "Reconfiguring pack station positions to create a logical flow from receiving to shipping minimizes backtracking and reduces errors.",
+          "testableAs": "Reposition pack stations to establish a logical flow from receiving to shipping",
+          "sources": [
+            {
+              "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+              "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-3",
+          "text": "Grouping pack stations by package size zones (A/B/C) improves sorting accuracy by reducing misidentification of similar products.",
+          "testableAs": "Organize pack stations into designated zones for different package sizes (A/B/C)",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326"
+        }
+      ],
+      "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+      "sources": [
+        {
+          "url": "https://www.shipbob.com/blog/warehouse-sorting/",
+          "title": "Everything You Need to Know About Warehouse Sorting - ShipBob",
+          "excerpts": []
+        },
+        {
+          "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+          "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+          "excerpts": []
+        },
+        {
+          "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+          "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_a937113de44d4add8797d326",
+      "citationRepairs": 0,
+      "dropped": []
+    },
+    {
+      "gap": "Stalled. Still failing: No damaged packages (got 12). Bottleneck pack-A.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-g3-1",
+          "text": "Increasing the number of pack stations from 2 to 6 will reduce queue time at pack by distributing orders across more stations, assuming sorter station placement remains constant.",
+          "testableAs": "Increase pack station count from 2 to 6",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g3-2",
+          "text": "Relocating sorter stations to positions 1-2 will reduce upstream queue time and improve feed rate to pack stations, assuming pack station zones and sizes remain unchanged.",
+          "testableAs": "Relocate sorter stations to positions 1-2",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g3-3",
+          "text": "Reconfiguring pack station zones (A/B/C) and sizes (S/M/L) to match the distribution of order profiles will reduce average pack time per order and lower the exception/rework rate.",
+          "testableAs": "Optimize pack station zone and size configuration per order profile",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130"
+        }
+      ],
+      "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+      "sources": [
+        {
+          "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+          "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+          "excerpts": []
+        },
+        {
+          "url": "https://airfilltechnologies.com/5-signs-your-current-packaging-is-costing-you-money/",
+          "title": "Effective Strategies for Packaging Cost Reduction Without Quality Loss",
+          "excerpts": []
+        },
+        {
+          "url": "https://ifactoryapp.com/ai-vision-camera/logistics-hub-cuts-shipping-errors-65-ai-package-inspection",
+          "title": "Logistics Hub Cuts Shipping Errors 65% with AI Package Inspection",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_ffb84efdb889429099c59130",
+      "citationRepairs": 0,
+      "dropped": []
+    }
+  ]
+}

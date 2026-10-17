@@ -1,0 +1,122 @@
+{
+  "asOf": "2026-10-17 ~13:00 PT",
+  "authorizationUsd": 0.5,
+  "policy": "Uncertain reservations are counted at their recorded bound and are NOT released without per-request billing evidence.",
+  "items": [
+    {
+      "item": "live-a-1",
+      "returnedUsageUsd": 0.0042207,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-1/summary.json usage.usd",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "live-a-2",
+      "returnedUsageUsd": 0.0046367,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-2/summary.json usage.usd",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "live-a-4",
+      "returnedUsageUsd": 0.0275098,
+      "unknownChargeReservationUsd": 0.0526088,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-4/summary.json usage.usd",
+      "unknownChargeReason": "failed request retained (Lightning 1M-token bound)"
+    },
+    {
+      "item": "live-a-5",
+      "returnedUsageUsd": 0.0153066,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-5/summary.json usage.usd",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "live-a-6",
+      "returnedUsageUsd": 0.0196671,
+      "unknownChargeReservationUsd": 0.1062576,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-6/summary.json usage.usd",
+      "unknownChargeReason": "connection error retained (Super VL 1M-token bound)"
+    },
+    {
+      "item": "live-a-7",
+      "returnedUsageUsd": 0.0288228,
+      "unknownChargeReservationUsd": 0.0529288,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-7/summary.json usage.usd",
+      "unknownChargeReason": "failed request retained (Lightning 1M-token bound)"
+    },
+    {
+      "item": "live-a-3",
+      "returnedUsageUsd": 0.0264027,
+      "unknownChargeReservationUsd": 0.0526088,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-3/events.jsonl generation usd (research-call usage not logged; crashed before summary)",
+      "unknownChargeReason": "HTTP 429 crash; reservation estimated as Lightning 1M-token bound + 900 output tokens"
+    },
+    {
+      "item": "memeval-2026-10-17T19-33-01-589Z (INVALID)",
+      "returnedUsageUsd": 0.012492,
+      "unknownChargeReservationUsd": 0.1062576,
+      "youSearches": 0,
+      "actualBasis": "results.json totalSpend.usd",
+      "unknownChargeReason": "connection error retained (Super VL 1M-token bound)"
+    },
+    {
+      "item": "roundtrip runs x2",
+      "returnedUsageUsd": 0.006172,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "docs/evidence/2026-10-17-live-roundtrip.md (pre-reservation client)",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "single-shot probes x2",
+      "returnedUsageUsd": 0.00919,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "probe output (pre-reservation client)",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "codex nemotron-check",
+      "returnedUsageUsd": 0.0009746,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "docs/provider-integration.md",
+      "unknownChargeReason": null
+    },
+    {
+      "item": "codex you-check x2",
+      "returnedUsageUsd": 0.0003286,
+      "unknownChargeReservationUsd": 0.0525288,
+      "youSearches": 2,
+      "actualBasis": "docs/provider-integration.md",
+      "unknownChargeReason": "forced tool_choice HTTP 500 retained (Lightning 1M-token bound)"
+    },
+    {
+      "item": "you.com before/after check",
+      "returnedUsageUsd": 0,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 2,
+      "actualBasis": "docs/evidence/you-com-ab-check.md",
+      "unknownChargeReason": null
+    }
+  ],
+  "totals": {
+    "returnedUsageInferenceUsd": 0.1557,
+    "unknownChargeReservationsUsd": 0.4232,
+    "youSearches": 18,
+    "youSearchBaseUsd": 0.09,
+    "unconfirmed": "highlight-extraction surcharge on 5 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2); You.com docs say extraction may add cost",
+    "conservativeCommittedUsd": 0.6689,
+    "overAuthorizationUsd": 0.1689,
+    "returnedUsagePlusSearchBaseUsd": 0.2457
+  },
+  "status": "Over the $0.50 authorization on the conservative basis. No further paid calls (Ben declined a cap increase)."
+}

@@ -93,7 +93,7 @@ for (const factory of factories) {
     const scenario = makeScenario(SPLITS.final[1].seed, SPLITS.final[1].profile);
     // Train/select are the champion's development scores on this factory; the locked final split is labeled separately.
     const side = (label: string, layout: Layout, a: ArmResult) => ({
-      label, layout, result: simulate(layout, scenario),
+      label, column: label, layout, result: simulate(layout, scenario),
       train: { objective: a.train, dodPassed: evaluate(layout, "train", DEFAULT_DOD).dod!.passed },
       select: { objective: a.select, dodPassed: evaluate(layout, "select", DEFAULT_DOD).dod!.passed },
       final: { objective: a.final.objective, dodPassed: a.final.dodPassed, zeroDamage: a.final.zeroDamage, allShipped: a.final.allShipped, damagedTotal: a.final.damagedTotal, scenarios: a.final.scenarios },

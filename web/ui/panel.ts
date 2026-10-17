@@ -23,6 +23,7 @@ export function renderHud(badge: HTMLElement, meta: HTMLElement, b: ReplayBundle
       h("span", { class: "k" }, "  scenario "), h("b", null, `${b.scenario.id}`), h("span", { class: "k" }, ` (${b.scenario.profile}, seed ${b.scenario.seed})`),
     ),
     h("div", { class: "hud-goal" }, b.task.goal),
+    ...(b.invalid ? [h("div", { class: "hud-invalid", role: "alert" }, `⚠ ${b.invalid}. Not evidence.`)] : []),
   );
 }
 
@@ -67,7 +68,7 @@ function dod(passed: boolean) {
 }
 
 function sideHead(s: ReplaySide, cls: string) {
-  return h("th", { class: `num col-${cls}`, title: s.label }, cls === "base" ? "Baseline" : "Improved");
+  return h("th", { class: `num col-${cls}`, title: s.label }, s.column ?? (cls === "base" ? "Baseline" : "Improved"));
 }
 
 export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {

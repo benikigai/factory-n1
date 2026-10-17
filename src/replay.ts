@@ -12,6 +12,8 @@ export interface SplitScore {
 
 export interface ReplaySide {
   label: string;
+  /** Short column header (e.g. "No memory" / "Shared memory"); defaults to Baseline / Improved. */
+  column?: string;
   layout: Layout;
   /** Full trace of this layout on the shared replay scenario. */
   result: RunResult;
@@ -93,4 +95,6 @@ export interface ReplayBundle {
   lessons: CitedLesson[];
   curve: { gen: number; championSelect: number; candidates: { id: string; train: number | null; accepted: boolean }[] }[];
   usage: { calls: number; usd: number; searches: number; searchUsd: number };
+  /** Set when a run is known to be invalid (e.g. infrastructure failure); the viewer shows it prominently. */
+  invalid?: string;
 }

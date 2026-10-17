@@ -4,27 +4,36 @@ A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a
 
 Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything in this repo was written during the event.
 
-**Hero run:** `live-a-5` · [evidence](docs/evidence/hero-run-live-a-5.md) · [independent verification](docs/evidence/independent-verification-live-a-5.md) · [demo script](docs/demo/script.md)
+**Hero run:** `live-a-7` (independently re-scored by Codex) · earlier hero `live-a-5`: [evidence](docs/evidence/hero-run-live-a-5.md), [verification](docs/evidence/independent-verification-live-a-5.md) · [spend accounting](docs/evidence/spend-accounting.json) · [demo script](docs/demo/script.md)
 
-## Result (live-a-5, independently re-scored)
+## Result (live-a-7, independently re-scored)
 
 | Layout | Development (train, 6 days) | Validation (9 days) | Goal met? |
 |---|---|---|---|
 | Gen-0 floor | 18,655 | 18,061 | ✗ |
 | Code heuristic: pack stations accept all sizes | 13,905 | 13,194 | ✗ |
-| Random hill-climber, **same 23 simulator evaluations** | 13,848 | 13,092 | ✗ |
-| **Agent champion** (Nemotron 3.5 Super VL) | **11,311** | **10,733 (−40.6%)** | ✗ |
+| Random hill-climber, **same 41 simulator evaluations** | 13,813 | 13,099 | ✗ |
+| **Agent champion** (Nemotron 3.5 Super VL, QUALITY lens) | **6,946** | **6,083 (−66.3%)** | ✗ |
 
 Objective is lower-is-better: makespan seconds + 300 per mis-sort + 600 per damaged package + 3,600 per unshipped + capex/100.
 
-Replayed in 3D on the same peak day (`peak-202`), both floors ship 100/100, and:
-- makespan drops from 1,581 to 729 s;
-- mis-sorts drop from 16 to 0;
-- damaged packages go from 14 to 13.
+**Same peak day replayed in 3D (`peak-202`):** both floors ship 100/100.
 
-**The goal ("nothing damaged") is still not met**, and the viewer says so.
+| Metric | Gen-0 | Champion |
+|---|---|---|
+| Makespan | 1,581 s | 1,184 s |
+| Mis-sorts | 16 | 0 |
+| Damaged | 14 | 4 |
 
-Run cost from returned usage: 36 model calls, $0.0153 inference plus about $0.01 for search. Codex independently re-scored every candidate and regenerated both replay traces exactly from the saved layouts and seed (grader `493a1b03…`).
+**Zero damage was NOT reached.**
+- The champion ships every package with 0 mis-sorts on all 15 development and validation days.
+- Damage remains on every training day (4–12) and on 7 of 9 validation days (0–17), so the goal check is FAIL.
+- The remaining damage comes from one long sorter→pack route.
+- The grader was frozen throughout (`493a1b03…`), and the run cost 61 model calls, $0.0288 inference plus 2 searches.
+
+**Memory vs no-memory: no valid result.**
+- The paired evaluation on two fresh factories (`memeval-2026-10-17T19-33-01-589Z`) failed for infrastructure reasons. A transient connection error retained a worst-case spend reservation that starved later arms of calls. It is labeled INVALID and is not evidence.
+- Rerunning was not possible within the $0.50 authorization once uncertain reservations are counted conservatively. See the [status and reconciliation](docs/evidence/budget-and-memory-eval-status.md).
 
 ## How it works
 
@@ -63,7 +72,13 @@ one-line goal
 ### Version N+1
 - **The layout improves under a ratchet,** and every accepted change carries code-computed receipts.
 - **Gains mostly land in generation 1.** Later generations' candidates were often slightly better but failed the 1% validation margin.
-- **Not shown yet:** that a learned solver policy beats a fresh one on *unseen factories*. Five fixed-dock factory layouts (`layouts/`, A–E) are ready for that test; it hasn't been run.
+- **Not shown:** that retained memory makes the solver better on *unseen factories*. The experiment is built and locked:
+  - a frozen Playbook hash;
+  - fresh seeded factories F/G;
+  - identical hard per-arm caps, enforced at model-call dispatch and simulator evaluation;
+  - a locked final split.
+
+  Its one run was invalid (see above).
 
 ## Why Nemotron is load-bearing here
 - **Nemotron 3.5 Super VL** writes every layout through typed tool calls. In `live-a-5`, 8 of 8 proposals arrived as valid tool calls; 6 needed one repair after the task validator returned rule violations.
@@ -77,7 +92,8 @@ one-line goal
 ## Limits (stated plainly)
 - A queueing simulation with synthetic rules (for example, fragile packages are damaged on conveyor legs over 12 cells). Not calibrated to a real facility.
 - The goal checks still fail: damage remains. No completed-task claim.
-- n is small: five live runs on factory A ranged from −33% to −61% on validation (table in the evidence doc). Runs 1–4 predate the memory-label fixes, and their lessons show as legacy labels.
+- n is small: seven live runs on factory A ranged from −33% to −66% on validation. Runs 1–4 predate the memory-label fixes, and their lessons show as legacy labels.
+- **Spend:** returned usage is $0.156 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.669 committed against the $0.50 authorization ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
 - In `live-a-5`, none of the six web hypotheses improved the floor in an isolated test. Three couldn't be tested because of malformed JSON, which is now retried once.
 - The 20-seed final split was never unlocked. No fine-tuning was run; experiment records are saved for later.
 
@@ -86,7 +102,7 @@ one-line goal
 ```bash
 npm ci
 npm test                 # 29 tests: simulator identity, memory semantics, full loop offline, 3D trace math
-npm run web              # 3D viewer at http://localhost:5173 (defaults to the recorded hero run)
+npm run web              # 3D viewer at http://localhost:5173 (defaults to the recorded hero run live-a-7)
 npm run build:static     # static site in web/dist (viewer + recorded runs, no server code)
 ```
 

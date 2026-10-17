@@ -1,0 +1,143 @@
+{
+  "runId": "live-a-7",
+  "taskId": "factory-a",
+  "stopReason": "3 generations without an accepted change",
+  "simVersion": "1.1.0",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "simEvals": 41,
+  "simCalls": {
+    "byPurpose": {
+      "baseline": {
+        "evaluations": 2,
+        "scenarioSims": 15
+      },
+      "candidate": {
+        "evaluations": 9,
+        "scenarioSims": 54
+      },
+      "gate": {
+        "evaluations": 1,
+        "scenarioSims": 9
+      },
+      "probe": {
+        "evaluations": 22,
+        "scenarioSims": 132
+      },
+      "hypothesis-test": {
+        "evaluations": 4,
+        "scenarioSims": 30
+      },
+      "attribution": {
+        "evaluations": 17,
+        "scenarioSims": 90
+      },
+      "replay": {
+        "evaluations": 0,
+        "scenarioSims": 10
+      }
+    },
+    "evaluations": 55,
+    "scenarioSims": 340
+  },
+  "callsUsed": 61,
+  "caps": {
+    "maxCalls": null,
+    "maxSimEvals": null
+  },
+  "wallMs": 129015,
+  "baseline": {
+    "train": 18655.17,
+    "select": 18061.11,
+    "dodSelect": false
+  },
+  "champion": {
+    "id": "g1-quality",
+    "train": 6945.5,
+    "select": 6083.44,
+    "dodSelect": false
+  },
+  "improvementSelectPct": 66.32,
+  "comparators": [
+    {
+      "label": "Code heuristic: pack stations accept all sizes",
+      "train": 13905.17,
+      "select": 13194.44
+    },
+    {
+      "label": "Random hill-climber at equal budget (41 sim evals)",
+      "train": 13813,
+      "select": 13098.67
+    }
+  ],
+  "accepted": 1,
+  "rejected": 11,
+  "lessons": [
+    {
+      "id": "EXT-g3-1",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-3",
+      "kind": "external",
+      "status": "retired",
+      "helped": 0,
+      "trials": 1
+    },
+    {
+      "id": "EXT-plan-1",
+      "kind": "external",
+      "status": "retired",
+      "helped": 0,
+      "trials": 1
+    },
+    {
+      "id": "EXT-plan-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-plan-3",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g1",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g2-avoid",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    }
+  ],
+  "usage": {
+    "calls": 61,
+    "usd": 0.028822810000000008,
+    "promptTokens": 221502,
+    "cachedTokens": 85952,
+    "reservedUsd": 0.052928800000000005,
+    "searches": {
+      "attempts": 2,
+      "estimatedUsd": 0.01
+    }
+  }
+}

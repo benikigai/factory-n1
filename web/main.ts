@@ -9,8 +9,8 @@ import { createWarehouse } from "./world/warehouse.ts";
 import { playbackEnd } from "./world/state.ts";
 
 const params = new URLSearchParams(location.search);
-const rawRun = params.get("run") || "live-a-5";
-const runId = /^[A-Za-z0-9._-]+$/.test(rawRun) && !rawRun.startsWith(".") ? rawRun : "live-a-5";
+const rawRun = params.get("run") || "live-a-7";
+const runId = /^[A-Za-z0-9._-]+$/.test(rawRun) && !rawRun.startsWith(".") ? rawRun : "live-a-7";
 const url = `/runs/${encodeURIComponent(runId)}/replay.json`;
 
 const $ = (id: string) => document.getElementById(id)!;

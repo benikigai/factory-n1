@@ -137,3 +137,5 @@ tr.sep th { color: var(--muted); font-size: 11px; padding-top: 8px; }
   :root { --rail-w: 280px; }
   .hud-goal, #legend { display: none; }
 }
+
+.hud-invalid { margin-top: 6px; padding: 6px 10px; border-radius: 6px; background: #5a1414; color: #ffd7d7; font-weight: 600; border: 1px solid #c0392b; }
