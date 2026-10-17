@@ -1,14 +1,14 @@
 # C1 checkpoint integration handoff
 
-Prepared 2026-10-17 for Claude and the parent Codex task. The shared `src/loop/solve.ts` has not been edited.
+Prepared 2026-10-17 for Claude and the parent Codex task. Ben subsequently approved applying the patch in the isolated `codex/final-site` branch. That branch now includes the integration; Claude's working checkout was not changed.
 
-## Apply
+## Patch record
 
-Apply `docs/integration/solve-checkpoint.patch` to `src/loop/solve.ts`. The patch also contains the agreed C2 `approvedDoD` integration, so do not apply a second goal-contract patch.
+`docs/integration/solve-checkpoint.patch` records the combined C1 and C2 `approvedDoD` integration. It is already applied in this branch. Do not apply it again after merging this branch.
 
 Patch SHA-256: `4571d155bd98394d252b972071cb2f7f1a65341ce7a53141f985bbdc5f42cadc`.
 
-`git apply --check docs/integration/solve-checkpoint.patch` passed against commit `bef0265f74b99ea62af3f31e4e8a8fada03cdc8d` and the current shared source.
+`git apply --check docs/integration/solve-checkpoint.patch` passed against commit `bef0265f74b99ea62af3f31e4e8a8fada03cdc8d` before application.
 
 ## Behavior
 
@@ -36,4 +36,4 @@ Seven new checkpoint tests cover manifest mismatch, refusal of unbound existing 
 
 Ordinary exhausted provider failures remain recorded proposal attempts, so a terminal run containing those failures returns the cached result. A deliberate retry uses a new run ID. Thrown loop errors leave the run unfinished and resume from the previous committed generation. This preserves the existing failure-classification behavior without silently repeating paid work.
 
-No paid API calls, commits, pushes, deployments, or new dependencies were made for C1. The pending action is applying this reviewed patch in the shared checkout, then rerunning the three commands above there.
+The integrated branch passed all 63 tests, both TypeScript checks, and `npm run build:static`. No additional paid API calls or dependencies were needed. Merge the branch to receive the integration; there is no separate solver-patch step after merge.

@@ -24,8 +24,8 @@ The final test run passed 63 tests. Both TypeScript checks and the static build 
 - Goal compiler: 15 offline tests pass. The single authorized live round made four calls, cost $0.0004162, and rejected both goals. Its two validation issues were corrected offline. The corrected behavior has not been verified in another live round.
 - Feasibility bounds passed a separate check against 672 actual simulator runs. Passing a necessary bound does not prove an achievable factory layout.
 
-## Solver integration handoff
+## Solver integration
 
-Claude owns `src/loop/solve.ts`. The combined C1/C2 integration is supplied as `docs/integration/solve-checkpoint.patch`; the source is not edited on this branch pending the owner's integration or Ben's explicit override. `docs/integration/checkpoint-handoff.md` contains the patch hash and apply instructions.
+Ben explicitly approved applying the combined C1/C2 patch to `src/loop/solve.ts` in the isolated `codex/final-site` branch. The integration is now present in this branch; Claude's working checkout is unchanged. `docs/integration/solve-checkpoint.patch` remains as the reviewed patch record and must not be applied again after merging this branch.
 
 The patch binds the approved goal to checkpoints. Custom approved goals require `research:false` and `probes:0` until helper evaluations accept the same contract. A completed run that records ordinary provider failures stays completed on same-ID restart; deliberately retry it under a new run ID. Interrupted, uncommitted generations can resume while retaining consumed attempts and uncertain charges.
