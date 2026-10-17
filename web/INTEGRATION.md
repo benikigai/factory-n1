@@ -7,6 +7,7 @@ All browser imports and run artifacts are local to this repository. `npm run bui
 ## Routes
 
 - `/`: live-a-7 proof board, recorded trace preview, comparisons, memory study, source evidence, and separate offline/live goal compiler receipts.
+- `/?speed=60`: the same landing page with a 60x hero replay for video capture. Station labels stay hidden in the small hero; the full replay retains them.
 - `/replay.html?run=live-a-7`: exact baseline/champion trace replay, controls, station inspection and run evidence.
 - `/replay.html?run=live-a-7&view=agents`: recorded role hierarchy.
 - `/replay.html?run=live-a-7&view=agents&node=g1-quality`: accepted Quality proposal and clickable tool receipts.

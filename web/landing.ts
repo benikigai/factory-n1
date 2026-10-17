@@ -44,15 +44,12 @@ const [bundle, summary, a8, mem, spend] = await Promise.all([
 ]);
 
 /* ---------- Hero: the real scored replay ---------- */
-const playback = { t: 0, end: 1, playing: true, speed: 16 };
+const speedOverride = Number(new URLSearchParams(location.search).get("speed"));
+const playback = { t: 0, end: 1, playing: true, speed: Number.isFinite(speedOverride) && speedOverride > 0 ? speedOverride : 16 };
 let frames: ReturnType<ReturnType<typeof createWarehouse>["render"]> = null;
 if (bundle) {
   const world = createWarehouse($("hero-scene"), () => {});
   world.setBundle(bundle);
-  $("hero-scene").querySelectorAll('[role="button"]').forEach(label => {
-    label.removeAttribute("role");
-    label.removeAttribute("tabindex");
-  });
   world.preset("overview", false);
   // The hero camera is fixed (no orbit), so refit it whenever the stage changes size.
   new ResizeObserver(() => world.preset("overview", false)).observe($("hero-scene"));

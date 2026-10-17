@@ -73,7 +73,7 @@ code { font-family: var(--mono); font-size: 0.86em; color: #cfd6df; background: 
 .hero-tag.left { left: max(28px, calc((100vw - 1240px) / 2 + 28px)); color: var(--muted); }
 .hero-tag.right { left: 50%; color: var(--accent); border-color: rgba(124, 240, 180, 0.35); }
 /* In-scene labels (the replay page styles these in style.css; the landing page does not load it) */
-.hero-scene .st-label { font: 600 10px/1 var(--mono); color: #e9edf2; background: rgba(11, 14, 19, 0.82); border: 1px solid var(--line-2); padding: 3px 6px; border-radius: 4px; white-space: nowrap; }
+.hero-scene .st-label { display: none !important; }
 .hero-scene .st-pack { border-color: rgba(196, 162, 122, 0.5); }
 .hero-scene .st-shipping { border-color: rgba(96, 165, 250, 0.4); }
 .hero-scene .floor-title { text-align: center; padding: 6px 12px; border-radius: 8px; background: rgba(11, 14, 19, 0.86); border: 1px solid var(--line-2); white-space: nowrap; }
