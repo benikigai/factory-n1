@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Factory N+1 Replay</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <main id="stage">
+        <div id="scene"></div>
+        <header id="hud">
+          <div class="brand">Factory N+1</div>
+          <div id="mode-badge" class="mode">LOADING</div>
+          <div id="hud-meta"></div>
+        </header>
+        <div id="legend"></div>
+        <footer id="controls"></footer>
+        <div id="error" hidden></div>
+      </main>
+      <aside id="rail"></aside>
+    </div>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

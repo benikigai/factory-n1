@@ -1,0 +1,153 @@
+{
+  "note": "Public copy: third-party search excerpts removed; URLs, titles, queries, retrieval times and receipt ids kept.",
+  "data": [
+    {
+      "gap": "Failing checks: No damaged packages (got 12). Biggest queue at pack-A. Packages are damaged in transit and mis-sorted.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-plan-1",
+          "text": "If pack stations are restricted to zones A and B with small (S) and medium (M) package sizes, then packing errors will decrease compared to unrestricted zone/size access.",
+          "testableAs": "Restrict pack station package zones to A/B and sizes to S/M",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+          "retrievedAt": "2026-10-17T20:00:39.697Z",
+          "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-2",
+          "text": "If pack stations use right-sized boxes (appropriately sized packaging) instead of oversized boxes, then shipping costs will decrease and damage risk will reduce.",
+          "testableAs": "Implement right-sized box selection at pack stations",
+          "sources": [
+            {
+              "url": "https://spherewms.com/blog/optimizing-pick-and-pack-warehouse",
+              "title": "Pick and Pack Warehouses: Solving Common Pain Points",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+          "retrievedAt": "2026-10-17T20:00:39.697Z",
+          "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-plan-3",
+          "text": "If standardized packing procedures with quality checks are enforced at pack stations, then missing items and transit damage will be reduced.",
+          "testableAs": "Standardize packing procedures with quality checks at pack stations",
+          "sources": [
+            {
+              "url": "https://impactexpress.co.uk/how-to-pick-and-pack-in-a-warehouse-strategies-best-practices/",
+              "title": "How to Pick and Pack in a Warehouse: Strategies & Best Practices",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+          "retrievedAt": "2026-10-17T20:00:39.697Z",
+          "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+        }
+      ],
+      "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+      "sources": [
+        {
+          "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+          "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+          "excerpts": []
+        },
+        {
+          "url": "https://spherewms.com/blog/optimizing-pick-and-pack-warehouse",
+          "title": "Pick and Pack Warehouses: Solving Common Pain Points",
+          "excerpts": []
+        },
+        {
+          "url": "https://impactexpress.co.uk/how-to-pick-and-pack-in-a-warehouse-strategies-best-practices/",
+          "title": "How to Pick and Pack in a Warehouse: Strategies & Best Practices",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_dd9b38cc7dde4caea9085f6d",
+      "citationRepairs": 1,
+      "dropped": []
+    },
+    {
+      "gap": "Stalled. Still failing: No damaged packages (got 12). Bottleneck pack-A.",
+      "ops": [
+        {
+          "op": "add_external",
+          "id": "EXT-g2-1",
+          "text": "Placing sorter stations at positions 1-2 reduces mis-sorts by enabling earlier directional sorting before pack stations, as automated sortation systems direct items based on size and weight to correct locations.",
+          "testableAs": "Move sorter stations to positions 1-2",
+          "sources": [
+            {
+              "url": "https://www.linnworks.com/blog/how-to-reduce-product-damage-in-warehouse/",
+              "title": "10 Proven Strategies to Minimize Warehouse Product Damage",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g2-2",
+          "text": "Increasing pack station count from 2 to 6 reduces packing errors by distributing volume, allowing intelligent packaging selection algorithms to recommend appropriate box sizes per order without bottlenecks.",
+          "testableAs": "Increase pack station count from 2 to 6",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+        },
+        {
+          "op": "add_external",
+          "id": "EXT-g2-3",
+          "text": "Assigning pack station positions to specific package zones (A/B/C) and sizes (S/M/L) reduces errors by ensuring items are routed to stations that match their dimensions, supporting automated sortation and packaging selection.",
+          "testableAs": "Assign pack stations to specific package zones and sizes (A/B/C, S/M/L)",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+        }
+      ],
+      "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+      "sources": [
+        {
+          "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+          "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+          "excerpts": []
+        },
+        {
+          "url": "https://cyzerg.com/blog/optimizing-the-pick-and-pack-process-challenges-and-solutions/",
+          "title": "Optimizing the Pick and Pack Process: Challenges & Solutions",
+          "excerpts": []
+        },
+        {
+          "url": "https://www.linnworks.com/blog/how-to-reduce-product-damage-in-warehouse/",
+          "title": "10 Proven Strategies to Minimize Warehouse Product Damage",
+          "excerpts": []
+        }
+      ],
+      "receiptId": "call_92d5c2f66b764d8e803b4050",
+      "citationRepairs": 0,
+      "dropped": []
+    }
+  ]
+}

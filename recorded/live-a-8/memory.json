@@ -1,0 +1,1045 @@
+{
+  "note": "Public copy: third-party search excerpts removed; URLs, titles, queries, retrieval times and receipt ids kept.",
+  "data": {
+    "ops": [
+      {
+        "op": "add_external",
+        "id": "EXT-plan-1",
+        "text": "Moving sorter stations to a dedicated sorting zone reduces travel distance and congestion, improving sort throughput.",
+        "testableAs": "Relocate sorter stations to a dedicated sorting zone",
+        "sources": [
+          {
+            "url": "https://www.shipbob.com/blog/warehouse-sorting/",
+            "title": "Everything You Need to Know About Warehouse Sorting - ShipBob",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+        "retrievedAt": "2026-10-17T19:29:37.977Z",
+        "toolReceiptId": "call_a937113de44d4add8797d326"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-plan-2",
+        "text": "Reconfiguring pack station positions to create a logical flow from receiving to shipping minimizes backtracking and reduces errors.",
+        "testableAs": "Reposition pack stations to establish a logical flow from receiving to shipping",
+        "sources": [
+          {
+            "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+            "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+        "retrievedAt": "2026-10-17T19:29:37.977Z",
+        "toolReceiptId": "call_a937113de44d4add8797d326"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-plan-3",
+        "text": "Grouping pack stations by package size zones (A/B/C) improves sorting accuracy by reducing misidentification of similar products.",
+        "testableAs": "Organize pack stations into designated zones for different package sizes (A/B/C)",
+        "sources": [
+          {
+            "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+            "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+        "retrievedAt": "2026-10-17T19:29:37.977Z",
+        "toolReceiptId": "call_a937113de44d4add8797d326"
+      },
+      {
+        "op": "tested",
+        "id": "EXT-plan-1",
+        "improved": false,
+        "evidence": {
+          "gen": 0,
+          "candidateId": "test-EXT-plan-1",
+          "accepted": false,
+          "deltaSelect": -62.22,
+          "isolated": true,
+          "edits": [
+            {
+              "edit": "sort-1 (20,2) -> (2,2) (not valid on its own)",
+              "deltaAlone": 0
+            },
+            {
+              "edit": "pack-1 (2,2) -> (20,2) (not valid on its own)",
+              "deltaAlone": 0
+            }
+          ]
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-3",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-quality",
+          "accepted": true,
+          "deltaSelect": -11977.67
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "add_verified",
+        "id": "VER-g1",
+        "text": "Relocate pack stations to dock-adjacent cells to eliminate route damage and reduce objective cost.",
+        "scope": "Pack station placement near docks",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-quality",
+          "accepted": true,
+          "deltaSelect": -11977.67,
+          "edits": [
+            {
+              "edit": "sort-1 (20,2) -> (12,7)",
+              "deltaAlone": -48.34
+            },
+            {
+              "edit": "remove pack-1",
+              "deltaAlone": 1106
+            },
+            {
+              "edit": "remove pack-2",
+              "deltaAlone": 1089.33
+            },
+            {
+              "edit": "add pack pack-A at (14,13)",
+              "deltaAlone": -2101
+            },
+            {
+              "edit": "add pack pack-B at (0,4)",
+              "deltaAlone": -1708.34
+            },
+            {
+              "edit": "add pack pack-C at (12,2)",
+              "deltaAlone": -1269.67
+            }
+          ]
+        },
+        "author": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+      },
+      {
+        "op": "retire",
+        "id": "EXT-plan-1",
+        "reason": "isolated test showed no improvement (1 test)"
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-3",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "add_verified",
+        "id": "VER-g2-avoid",
+        "text": "Moving pack-B to (0,2) did not reduce damage or objective; avoid this relocation.",
+        "scope": "pack-B relocation to (0,2)",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null,
+          "edits": [
+            {
+              "edit": "pack-B (0,4) -> (0,2)",
+              "deltaAlone": 0
+            }
+          ]
+        },
+        "author": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g3-1",
+        "text": "Increasing the number of pack stations from 2 to 6 will reduce queue time at pack by distributing orders across more stations, assuming sorter station placement remains constant.",
+        "testableAs": "Increase pack station count from 2 to 6",
+        "sources": [
+          {
+            "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+            "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+        "retrievedAt": "2026-10-17T19:31:20.211Z",
+        "toolReceiptId": "call_ffb84efdb889429099c59130"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g3-2",
+        "text": "Relocating sorter stations to positions 1-2 will reduce upstream queue time and improve feed rate to pack stations, assuming pack station zones and sizes remain unchanged.",
+        "testableAs": "Relocate sorter stations to positions 1-2",
+        "sources": [
+          {
+            "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+            "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+        "retrievedAt": "2026-10-17T19:31:20.211Z",
+        "toolReceiptId": "call_ffb84efdb889429099c59130"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g3-3",
+        "text": "Reconfiguring pack station zones (A/B/C) and sizes (S/M/L) to match the distribution of order profiles will reduce average pack time per order and lower the exception/rework rate.",
+        "testableAs": "Optimize pack station zone and size configuration per order profile",
+        "sources": [
+          {
+            "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+            "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+        "retrievedAt": "2026-10-17T19:31:20.211Z",
+        "toolReceiptId": "call_ffb84efdb889429099c59130"
+      },
+      {
+        "op": "tested",
+        "id": "EXT-g3-3",
+        "improved": false,
+        "evidence": {
+          "gen": 3,
+          "candidateId": "test-EXT-g3-3",
+          "accepted": false,
+          "deltaSelect": 4223.34,
+          "isolated": true,
+          "edits": [
+            {
+              "edit": "pack-A zones A -> A,B",
+              "deltaAlone": 16.67
+            },
+            {
+              "edit": "pack-B zones B -> B,C",
+              "deltaAlone": 500.83
+            },
+            {
+              "edit": "pack-C zones C -> A,C",
+              "deltaAlone": 1315.67
+            }
+          ]
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-g3-1",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 4,
+          "candidateId": "g4-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "retire",
+        "id": "EXT-g3-3",
+        "reason": "isolated test showed no improvement (1 test)"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-plan-1",
+        "text": "If pack stations are restricted to zones A and B with small (S) and medium (M) package sizes, then packing errors will decrease compared to unrestricted zone/size access.",
+        "testableAs": "Restrict pack station package zones to A/B and sizes to S/M",
+        "sources": [
+          {
+            "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+            "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+        "retrievedAt": "2026-10-17T20:00:39.697Z",
+        "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-plan-2",
+        "text": "If pack stations use right-sized boxes (appropriately sized packaging) instead of oversized boxes, then shipping costs will decrease and damage risk will reduce.",
+        "testableAs": "Implement right-sized box selection at pack stations",
+        "sources": [
+          {
+            "url": "https://spherewms.com/blog/optimizing-pick-and-pack-warehouse",
+            "title": "Pick and Pack Warehouses: Solving Common Pain Points",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+        "retrievedAt": "2026-10-17T20:00:39.697Z",
+        "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-plan-3",
+        "text": "If standardized packing procedures with quality checks are enforced at pack stations, then missing items and transit damage will be reduced.",
+        "testableAs": "Standardize packing procedures with quality checks at pack stations",
+        "sources": [
+          {
+            "url": "https://impactexpress.co.uk/how-to-pick-and-pack-in-a-warehouse-strategies-best-practices/",
+            "title": "How to Pick and Pack in a Warehouse: Strategies & Best Practices",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse package damage prevention transit sorting mis-sort reduction pack-A queue bottleneck",
+        "retrievedAt": "2026-10-17T20:00:39.697Z",
+        "toolReceiptId": "call_dd9b38cc7dde4caea9085f6d"
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-g3-1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "add_verified",
+        "id": "VER-g1-avoid",
+        "text": "Adding pack stations at A2, B2, and C2 increased objective despite reducing makespan; avoid adding pack capacity at these locations.",
+        "scope": "factory layout pack station placement",
+        "evidence": {
+          "gen": 1,
+          "candidateId": "g1-capacity",
+          "accepted": false,
+          "deltaSelect": null,
+          "edits": [
+            {
+              "edit": "add pack pack-A2 at (16,11)",
+              "deltaAlone": 108
+            },
+            {
+              "edit": "add pack pack-B2 at (2,2)",
+              "deltaAlone": 171
+            },
+            {
+              "edit": "add pack pack-C2 at (10,0)",
+              "deltaAlone": 200
+            }
+          ]
+        },
+        "author": "nvidia/NVIDIA-Nemotron-3.5-Super-VL"
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-g3-1",
+        "evidence": {
+          "gen": 2,
+          "candidateId": "g2-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g2-1",
+        "text": "Placing sorter stations at positions 1-2 reduces mis-sorts by enabling earlier directional sorting before pack stations, as automated sortation systems direct items based on size and weight to correct locations.",
+        "testableAs": "Move sorter stations to positions 1-2",
+        "sources": [
+          {
+            "url": "https://www.linnworks.com/blog/how-to-reduce-product-damage-in-warehouse/",
+            "title": "10 Proven Strategies to Minimize Warehouse Product Damage",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+        "retrievedAt": "2026-10-17T20:02:02.604Z",
+        "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g2-2",
+        "text": "Increasing pack station count from 2 to 6 reduces packing errors by distributing volume, allowing intelligent packaging selection algorithms to recommend appropriate box sizes per order without bottlenecks.",
+        "testableAs": "Increase pack station count from 2 to 6",
+        "sources": [
+          {
+            "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+            "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+        "retrievedAt": "2026-10-17T20:02:02.604Z",
+        "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+      },
+      {
+        "op": "add_external",
+        "id": "EXT-g2-3",
+        "text": "Assigning pack station positions to specific package zones (A/B/C) and sizes (S/M/L) reduces errors by ensuring items are routed to stations that match their dimensions, supporting automated sortation and packaging selection.",
+        "testableAs": "Assign pack stations to specific package zones and sizes (A/B/C, S/M/L)",
+        "sources": [
+          {
+            "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+            "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+            "excerpts": []
+          }
+        ],
+        "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+        "retrievedAt": "2026-10-17T20:02:02.604Z",
+        "toolReceiptId": "call_92d5c2f66b764d8e803b4050"
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-flow",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "VER-g1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-quality",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-g3-1",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      },
+      {
+        "op": "cited",
+        "id": "EXT-plan-2",
+        "evidence": {
+          "gen": 3,
+          "candidateId": "g3-capacity",
+          "accepted": false,
+          "deltaSelect": null
+        }
+      }
+    ],
+    "state": {
+      "version": 53,
+      "lessons": [
+        {
+          "id": "EXT-g2-1",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Placing sorter stations at positions 1-2 reduces mis-sorts by enabling earlier directional sorting before pack stations, as automated sortation systems direct items based on size and weight to correct locations.",
+          "testableAs": "Move sorter stations to positions 1-2",
+          "sources": [
+            {
+              "url": "https://www.linnworks.com/blog/how-to-reduce-product-damage-in-warehouse/",
+              "title": "10 Proven Strategies to Minimize Warehouse Product Damage",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-g2-2",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Increasing pack station count from 2 to 6 reduces packing errors by distributing volume, allowing intelligent packaging selection algorithms to recommend appropriate box sizes per order without bottlenecks.",
+          "testableAs": "Increase pack station count from 2 to 6",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-g2-3",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Assigning pack station positions to specific package zones (A/B/C) and sizes (S/M/L) reduces errors by ensuring items are routed to stations that match their dimensions, supporting automated sortation and packaging selection.",
+          "testableAs": "Assign pack stations to specific package zones and sizes (A/B/C, S/M/L)",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck damage reduction sort mis-sort prevention",
+          "retrievedAt": "2026-10-17T20:02:02.604Z",
+          "toolReceiptId": "call_92d5c2f66b764d8e803b4050",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-g3-1",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Increasing the number of pack stations from 2 to 6 will reduce queue time at pack by distributing orders across more stations, assuming sorter station placement remains constant.",
+          "testableAs": "Increase pack station count from 2 to 6",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 4,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-g3-2",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Relocating sorter stations to positions 1-2 will reduce upstream queue time and improve feed rate to pack stations, assuming pack station zones and sizes remain unchanged.",
+          "testableAs": "Relocate sorter stations to positions 1-2",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-g3-3",
+          "kind": "external",
+          "status": "retired",
+          "text": "Reconfiguring pack station zones (A/B/C) and sizes (S/M/L) to match the distribution of order profiles will reduce average pack time per order and lower the exception/rework rate.",
+          "testableAs": "Optimize pack station zone and size configuration per order profile",
+          "sources": [
+            {
+              "url": "https://cyzerg.com/blog/warehouse-packing-station-5-factors-to-consider-to-avoid-bottlenecks/",
+              "title": "5 Tips for a Smooth-Flowing Warehouse Packing Station",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse packaging bottleneck pack-A mis-sort damage reduction 25 minutes 100 packages",
+          "retrievedAt": "2026-10-17T19:31:20.211Z",
+          "toolReceiptId": "call_ffb84efdb889429099c59130",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 1,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": [
+            {
+              "gen": 3,
+              "candidateId": "test-EXT-g3-3",
+              "accepted": false,
+              "deltaSelect": 4223.34,
+              "isolated": true,
+              "edits": [
+                {
+                  "edit": "pack-A zones A -> A,B",
+                  "deltaAlone": 16.67
+                },
+                {
+                  "edit": "pack-B zones B -> B,C",
+                  "deltaAlone": 500.83
+                },
+                {
+                  "edit": "pack-C zones C -> A,C",
+                  "deltaAlone": 1315.67
+                }
+              ]
+            }
+          ],
+          "retiredReason": "isolated test showed no improvement (1 test)"
+        },
+        {
+          "id": "EXT-plan-1",
+          "kind": "external",
+          "status": "retired",
+          "text": "Moving sorter stations to a dedicated sorting zone reduces travel distance and congestion, improving sort throughput.",
+          "testableAs": "Relocate sorter stations to a dedicated sorting zone",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/warehouse-sorting/",
+              "title": "Everything You Need to Know About Warehouse Sorting - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 1,
+          "cited": 2,
+          "citedInAccepted": 0,
+          "evidence": [
+            {
+              "gen": 0,
+              "candidateId": "test-EXT-plan-1",
+              "accepted": false,
+              "deltaSelect": -62.22,
+              "isolated": true,
+              "edits": [
+                {
+                  "edit": "sort-1 (20,2) -> (2,2) (not valid on its own)",
+                  "deltaAlone": 0
+                },
+                {
+                  "edit": "pack-1 (2,2) -> (20,2) (not valid on its own)",
+                  "deltaAlone": 0
+                }
+              ]
+            }
+          ],
+          "retiredReason": "isolated test showed no improvement (1 test)"
+        },
+        {
+          "id": "EXT-plan-2",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Reconfiguring pack station positions to create a logical flow from receiving to shipping minimizes backtracking and reduces errors.",
+          "testableAs": "Reposition pack stations to establish a logical flow from receiving to shipping",
+          "sources": [
+            {
+              "url": "https://na.bhs1.com/blog/post/5-ways-to-reduce-warehouse-picking-error-rates",
+              "title": "5 Ways to Reduce Warehouse Picking Error Rates - Blog",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 10,
+          "citedInAccepted": 0,
+          "evidence": []
+        },
+        {
+          "id": "EXT-plan-3",
+          "kind": "external",
+          "status": "hypothesis",
+          "text": "Grouping pack stations by package size zones (A/B/C) improves sorting accuracy by reducing misidentification of similar products.",
+          "testableAs": "Organize pack stations into designated zones for different package sizes (A/B/C)",
+          "sources": [
+            {
+              "url": "https://www.shipbob.com/blog/reduce-picking-and-packing-errors/",
+              "title": "How to Make Fewer Picking & Packing Mistakes in Your Warehouse - ShipBob",
+              "excerpts": []
+            }
+          ],
+          "query": "warehouse layout practices to reduce package damage and mis-sort rates in high-volume fulfillment centers",
+          "retrievedAt": "2026-10-17T19:29:37.977Z",
+          "toolReceiptId": "call_a937113de44d4add8797d326",
+          "basis": "untested",
+          "helped": 0,
+          "trials": 0,
+          "cited": 2,
+          "citedInAccepted": 1,
+          "evidence": []
+        },
+        {
+          "id": "VER-g1",
+          "kind": "verified",
+          "status": "verified",
+          "text": "Relocate pack stations to dock-adjacent cells to eliminate route damage and reduce objective cost.",
+          "scope": "Pack station placement near docks",
+          "sources": [],
+          "basis": "observed-from-experiment",
+          "helped": 0,
+          "trials": 0,
+          "cited": 16,
+          "citedInAccepted": 0,
+          "evidence": [
+            {
+              "gen": 1,
+              "candidateId": "g1-quality",
+              "accepted": true,
+              "deltaSelect": -11977.67,
+              "edits": [
+                {
+                  "edit": "sort-1 (20,2) -> (12,7)",
+                  "deltaAlone": -48.34
+                },
+                {
+                  "edit": "remove pack-1",
+                  "deltaAlone": 1106
+                },
+                {
+                  "edit": "remove pack-2",
+                  "deltaAlone": 1089.33
+                },
+                {
+                  "edit": "add pack pack-A at (14,13)",
+                  "deltaAlone": -2101
+                },
+                {
+                  "edit": "add pack pack-B at (0,4)",
+                  "deltaAlone": -1708.34
+                },
+                {
+                  "edit": "add pack pack-C at (12,2)",
+                  "deltaAlone": -1269.67
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "VER-g1-avoid",
+          "kind": "verified",
+          "status": "verified",
+          "text": "Adding pack stations at A2, B2, and C2 increased objective despite reducing makespan; avoid adding pack capacity at these locations.",
+          "scope": "factory layout pack station placement",
+          "sources": [],
+          "basis": "observed-from-rejected-experiment",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": [
+            {
+              "gen": 1,
+              "candidateId": "g1-capacity",
+              "accepted": false,
+              "deltaSelect": null,
+              "edits": [
+                {
+                  "edit": "add pack pack-A2 at (16,11)",
+                  "deltaAlone": 108
+                },
+                {
+                  "edit": "add pack pack-B2 at (2,2)",
+                  "deltaAlone": 171
+                },
+                {
+                  "edit": "add pack pack-C2 at (10,0)",
+                  "deltaAlone": 200
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "VER-g2-avoid",
+          "kind": "verified",
+          "status": "verified",
+          "text": "Moving pack-B to (0,2) did not reduce damage or objective; avoid this relocation.",
+          "scope": "pack-B relocation to (0,2)",
+          "sources": [],
+          "basis": "observed-from-rejected-experiment",
+          "helped": 0,
+          "trials": 0,
+          "cited": 0,
+          "citedInAccepted": 0,
+          "evidence": [
+            {
+              "gen": 2,
+              "candidateId": "g2-quality",
+              "accepted": false,
+              "deltaSelect": null,
+              "edits": [
+                {
+                  "edit": "pack-B (0,4) -> (0,2)",
+                  "deltaAlone": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

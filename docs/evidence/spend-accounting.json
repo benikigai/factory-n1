@@ -1,7 +1,7 @@
 {
-  "asOf": "2026-10-17 ~13:30 PT",
-  "authorizationUsd": 1.0,
-  "policy": "Ben raised the total ceiling to $1.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
+  "asOf": "2026-10-17 ~14:20 PT",
+  "authorizationUsd": 2.0,
+  "policy": "Ben raised the ceiling to $1.00, then authorized spend as needed to finish the demo today; working ceiling $2.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
   "items": [
     {
       "item": "live-a-1",
@@ -114,17 +114,41 @@
       "youSearches": 0,
       "actualBasis": "results.json totalSpend.usd",
       "unknownChargeReason": "retained byte-bounded reservation(s) from a failed/uncertain request"
+    },
+    {
+      "item": "live-a-8",
+      "returnedUsageUsd": 0.0300491,
+      "unknownChargeReservationUsd": 0.0005506,
+      "youSearches": 2,
+      "actualBasis": "runs/live-a-8/summary.json usage.usd",
+      "unknownChargeReason": "retained byte-bounded reservation(s) from a failed/uncertain request"
+    },
+    {
+      "item": "live-a-9",
+      "returnedUsageUsd": 0.0281843,
+      "unknownChargeReservationUsd": 0.005232,
+      "youSearches": 0,
+      "actualBasis": "runs/live-a-9/summary.json usage.usd",
+      "unknownChargeReason": "retained byte-bounded reservation(s) from a failed/uncertain request"
+    },
+    {
+      "item": "live-a-10 launch attempts x2",
+      "returnedUsageUsd": 0,
+      "unknownChargeReservationUsd": 0,
+      "youSearches": 0,
+      "actualBasis": "runs/live-a-10.log: CRUSOE_API_KEY not set (1Password mount delivered nothing); exited before any request",
+      "unknownChargeReason": null
     }
   ],
   "totals": {
-    "returnedUsageInferenceUsd": 0.2278,
-    "unknownChargeReservationsUsd": 0.4258,
-    "youSearches": 18,
-    "youSearchBaseUsd": 0.09,
-    "unconfirmed": "highlight-extraction surcharge on 5 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2); You.com docs say extraction may add cost",
-    "conservativeCommittedUsd": 0.7436,
-    "returnedUsagePlusSearchBaseUsd": 0.3178,
-    "remainingUnderAuthorizationUsd": 0.2564
+    "returnedUsageInferenceUsd": 0.286,
+    "unknownChargeReservationsUsd": 0.4316,
+    "youSearches": 20,
+    "youSearchBaseUsd": 0.1,
+    "unconfirmed": "highlight-extraction surcharge on 7 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2, live-a-8 x2); You.com docs say extraction may add cost",
+    "conservativeCommittedUsd": 0.8176,
+    "returnedUsagePlusSearchBaseUsd": 0.386,
+    "remainingUnderAuthorizationUsd": 1.1824
   },
-  "status": "Within the $1.00 authorization on the conservative basis."
+  "status": "Within the $2.00 working ceiling on the conservative basis ($0.8176 committed)."
 }

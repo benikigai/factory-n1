@@ -1,0 +1,176 @@
+{
+  "runId": "live-a-8",
+  "taskId": "factory-a",
+  "stopReason": "3 generations without an accepted change",
+  "simVersion": "1.1.0",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "simEvals": 31,
+  "simCalls": {
+    "byPurpose": {
+      "baseline": {
+        "evaluations": 4,
+        "scenarioSims": 30
+      },
+      "candidate": {
+        "evaluations": 6,
+        "scenarioSims": 36
+      },
+      "gate": {
+        "evaluations": 0,
+        "scenarioSims": 0
+      },
+      "probe": {
+        "evaluations": 25,
+        "scenarioSims": 150
+      },
+      "hypothesis-test": {
+        "evaluations": 0,
+        "scenarioSims": 0
+      },
+      "attribution": {
+        "evaluations": 7,
+        "scenarioSims": 42
+      },
+      "replay": {
+        "evaluations": 0,
+        "scenarioSims": 8
+      }
+    },
+    "evaluations": 42,
+    "scenarioSims": 266,
+    "chargedToCap": 38
+  },
+  "callsUsed": 58,
+  "providerFailures": 0,
+  "budgetFailures": 0,
+  "armCapHits": 0,
+  "providerAttempts": 58,
+  "caps": {
+    "maxCalls": null,
+    "maxSimEvals": null
+  },
+  "wallMs": 123396,
+  "baseline": {
+    "train": 18655.17,
+    "select": 18061.11,
+    "dodSelect": false
+  },
+  "champion": {
+    "id": "from:live-a-7",
+    "train": 6945.5,
+    "select": 6083.44,
+    "dodSelect": false
+  },
+  "improvementSelectPct": 66.32,
+  "comparators": [
+    {
+      "label": "Code heuristic: pack stations accept all sizes",
+      "train": 13905.17,
+      "select": 13194.44
+    },
+    {
+      "label": "Random hill-climber at equal budget (31 sim evals)",
+      "train": 13831,
+      "select": 13108
+    }
+  ],
+  "accepted": 0,
+  "rejected": 9,
+  "lessons": [
+    {
+      "id": "EXT-g2-1",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g2-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g2-3",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-1",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-g3-3",
+      "kind": "external",
+      "status": "retired",
+      "helped": 0,
+      "trials": 1
+    },
+    {
+      "id": "EXT-plan-1",
+      "kind": "external",
+      "status": "retired",
+      "helped": 0,
+      "trials": 1
+    },
+    {
+      "id": "EXT-plan-2",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "EXT-plan-3",
+      "kind": "external",
+      "status": "hypothesis",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g1",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g1-avoid",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    },
+    {
+      "id": "VER-g2-avoid",
+      "kind": "verified",
+      "status": "verified",
+      "helped": 0,
+      "trials": 0
+    }
+  ],
+  "usage": {
+    "calls": 58,
+    "usd": 0.03004913999999999,
+    "promptTokens": 246985,
+    "cachedTokens": 120768,
+    "reservedUsd": 0.0005506,
+    "searches": {
+      "attempts": 2,
+      "estimatedUsd": 0.01
+    }
+  }
+}

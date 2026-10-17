@@ -62,11 +62,31 @@ function serveRuns(req: IncomingMessage, res: ServerResponse, next: (err?: unkno
   createReadStream(real).on("error", () => fail(res, 500, "read error")).pipe(res);
 }
 
+/** Read-only GET /evidence/<file> -> <repo>/docs/evidence/<file> (dev only; the static build copies them). */
+const evidenceDir = path.join(repoRoot, "docs", "evidence");
+function serveEvidence(req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) {
+  const pathname = (req.url ?? "").split("?")[0];
+  if (!pathname.startsWith("/evidence/")) return next();
+  const name = decodeURIComponent(pathname.slice("/evidence/".length));
+  if (!/^[A-Za-z0-9._-]+$/.test(name) || name.startsWith(".")) return fail(res, 400, "bad path");
+  const file = name === "spec-as-built.md" ? path.join(repoRoot, "docs", "specs", "factory-n1.md") : path.join(evidenceDir, name);
+  try {
+    if (!statSync(file).isFile()) return fail(res, 404, "not found");
+  } catch {
+    return fail(res, 404, "not found");
+  }
+  res.statusCode = 200;
+  res.setHeader("Content-Type", TYPES[path.extname(file).toLowerCase()] ?? "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  createReadStream(file).pipe(res);
+}
+
 function runsPlugin(): Plugin {
   return {
     name: "factory-n1-runs",
     configureServer(server) {
       server.middlewares.use(serveRuns);
+      server.middlewares.use(serveEvidence);
     },
     configurePreviewServer(server) {
       server.middlewares.use(serveRuns);
@@ -84,6 +104,9 @@ export default defineConfig({
   },
   preview: { port: 4173, strictPort: false },
   build: {
+    rollupOptions: {
+      input: { index: path.join(webDir, "index.html"), replay: path.join(webDir, "replay.html") },
+    },
     outDir: path.join(webDir, "dist"),
     emptyOutDir: true,
     target: "es2022",
