@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
+import { CallBudget } from "./budget.ts";
 
 try {
   process.loadEnvFile(".env");
@@ -24,7 +25,8 @@ export function resolveModels(catalog: string[]): { missing: string[] } {
   const missing: string[] = [];
   const find = (id: string) => catalog.find((c) => c.toLowerCase() === id.toLowerCase());
   const lightning = find(MODELS.lightning);
-  if (lightning) MODELS.lightning = lightning;
+  if (!lightning) throw new Error(`required Lightning model missing from catalog: ${MODELS.lightning}`);
+  MODELS.lightning = lightning;
   for (const role of ["super", "auditor"] as const) {
     const hit = find(MODELS[role]);
     if (hit) MODELS[role] = hit;
@@ -40,29 +42,29 @@ export function resolveModels(catalog: string[]): { missing: string[] } {
 const PRICES: Record<string, [number, number, number]> = {
   "nemotron-3.5-lightning": [0.05, 0.2, 0.03],
   "nemotron-3-super": [0.3, 2.4, 0.15],
-  // Super VL price not yet published by Crusoe; assume Super 3 rates.
-  "nemotron-3.5-super": [0.3, 2.4, 0.15],
+  "nemotron-3.5-super": [0.1, 0.4, 0.08],
   "nemotron-3-nano-30b": [0.05, 0.2, 0.03],
   "deepseek-v4-flash": [0.14, 0.28, 0.03],
   "deepseek-v4-pro": [1.74, 3.48, 0.15],
-  "gpt-oss-120b": [0.05, 0.2, 0.05],
+  "gpt-oss-120b": [0.05, 0.25, 0.05],
   "glm-5.3-flash": [0.15, 0.5, 0.03],
 };
 
-function price(model: string): [number, number, number] {
+export function price(model: string): [number, number, number] {
   const key = Object.keys(PRICES).find((k) => model.toLowerCase().includes(k));
-  // Unknown models are priced like the most expensive one so the cap errs safe.
-  return key ? PRICES[key] : [1.74, 3.48, 0.15];
+  if (!key) throw new Error(`No verified price for ${model}; add its published rate before calling it`);
+  return PRICES[key];
 }
 
 /**
- * Hard per-process spend limits. Defaults suit smoke tests and short runs;
+ * Per-process spend limits. Defaults suit smoke tests and short runs;
  * raise them explicitly (CALL_BUDGET, SPEND_CAP_USD) for longer loops.
  */
 export const LIMITS = {
   calls: Number(process.env.CALL_BUDGET ?? 40),
   usd: Number(process.env.SPEND_CAP_USD ?? 0.5),
 };
+const budget = new CallBudget(LIMITS);
 
 let client: OpenAI | null = null;
 
@@ -70,8 +72,8 @@ export function crusoe(): OpenAI {
   if (!client) {
     const apiKey = process.env.CRUSOE_API_KEY;
     if (!apiKey) throw new Error("CRUSOE_API_KEY is not set. Launch with node --env-file=<1Password mount> (see README).");
-    // The SDK retries 429/503 with exponential backoff.
-    client = new OpenAI({ baseURL: CRUSOE_BASE_URL, apiKey, maxRetries: 6, timeout: 120_000 });
+    // An automatic retry can bill a second request after an ambiguous timeout.
+    client = new OpenAI({ baseURL: CRUSOE_BASE_URL, apiKey, maxRetries: 0, timeout: 90_000 });
   }
   return client;
 }
@@ -92,37 +94,44 @@ export const usageLedger: UsageRecord[] = [];
 
 export function spend() {
   return {
-    calls: usageLedger.length,
+    calls: budget.snapshot().attempts,
     usd: usageLedger.reduce((a, u) => a + u.usd, 0),
     promptTokens: usageLedger.reduce((a, u) => a + u.promptTokens, 0),
     cachedTokens: usageLedger.reduce((a, u) => a + u.cachedTokens, 0),
+    reservedUsd: budget.snapshot().reservedUsd,
   };
 }
 
-type ChatParams = ChatCompletionCreateParamsNonStreaming & {
+export type ChatParams = ChatCompletionCreateParamsNonStreaming & {
   /** Crusoe passes this through to the model's chat template (e.g. enable_thinking). */
   chat_template_kwargs?: Record<string, unknown>;
 };
 
 export async function chat(agent: string, params: ChatParams): Promise<ChatCompletion> {
-  const s = spend();
-  if (s.calls >= LIMITS.calls || s.usd >= LIMITS.usd) {
-    throw new Error(`spend cap reached: ${s.calls}/${LIMITS.calls} calls, $${s.usd.toFixed(4)}/$${LIMITS.usd}`);
-  }
-  const t0 = Date.now();
-  const res = await crusoe().chat.completions.create({ max_tokens: 2048, ...params } as ChatCompletionCreateParamsNonStreaming);
-  const u = res.usage;
-  const prompt = u?.prompt_tokens ?? 0;
-  const cached = u?.prompt_tokens_details?.cached_tokens ?? 0;
-  const completion = u?.completion_tokens ?? 0;
+  const maxTokens = params.max_completion_tokens ?? params.max_tokens ?? 2048;
+  if (!Number.isInteger(maxTokens) || maxTokens < 1 || maxTokens > 65_536) throw new Error("max output tokens must be 1..65536");
   const [pin, pout, pcache] = price(params.model);
+  // Reserve a full 1M-token input, covering our catalog models including image inputs.
+  // Release unused capacity only when usage arrives. Other processes have their own caps.
+  const reservation = budget.reserve((1_048_576 * Math.max(pin, pcache) + maxTokens * pout) / 1e6);
+  const t0 = Date.now();
+  const res = await crusoe().chat.completions.create({
+    ...(params.max_completion_tokens === undefined ? { max_tokens: maxTokens } : {}), ...params,
+  } as ChatCompletionCreateParamsNonStreaming);
+  const u = res.usage;
+  if (!u) throw new Error("Provider omitted usage; request reservation retained because billing is unknown");
+  const prompt = u?.prompt_tokens ?? 0;
+  const cached = Math.min(prompt, Math.max(0, u?.prompt_tokens_details?.cached_tokens ?? 0));
+  const completion = u?.completion_tokens ?? 0;
+  const usd = ((prompt - cached) * pin + cached * pcache + completion * pout) / 1e6;
+  budget.settle(reservation, usd);
   usageLedger.push({
     agent,
     model: params.model,
     promptTokens: prompt,
     completionTokens: completion,
     cachedTokens: cached,
-    usd: ((prompt - cached) * pin + cached * pcache + completion * pout) / 1e6,
+    usd,
     ms: Date.now() - t0,
   });
   return res;
