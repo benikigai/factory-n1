@@ -52,3 +52,7 @@ This is locally verified and has not been merged or publicly deployed. No paid m
 ## Local-only presenter controls
 
 The one-minute and four-minute tours now load only in Vite development mode. Production builds exclude their buttons, timer UI and narration code. The build guard rejects presenter-control text if it leaks into a future public bundle. Local browser verification found both controls and exercised the short tour; the production preview had zero presenter buttons and zero coach panels, while the factory view and optimizer comparison remained available. All 113 tests and the production build passed. This change has not been deployed to Vercel.
+
+## Audience-facing copy
+
+Both walkthroughs now describe the factory directly. Presenter instructions and speaker-note labels were removed, numerical results use normal numeric formatting, and the internal detailed-tour ID no longer refers to judges. The short tour and all detailed-tour targets were exercised after the change. The 12 targeted tests, viewer typecheck and static production build passed. The controls remain local-only. No Vercel deployment was performed.

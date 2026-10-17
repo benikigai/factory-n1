@@ -10,7 +10,7 @@ interface DemoHooks {
   error(message: string): void;
 }
 
-/** Presentation timers only navigate recorded evidence and local simulator previews. */
+/** Walkthrough timers only navigate recorded evidence and local simulator previews. */
 export function mountGuidedDemo(before: HTMLElement, hooks: DemoHooks) {
   let tour: DemoTour | null = null;
   let index = -1;
@@ -26,17 +26,17 @@ export function mountGuidedDemo(before: HTMLElement, hooks: DemoHooks) {
   });
   const back = h('button', {class:'btn', id:'demo-back'}, 'Back');
   const next = h('button', {class:'btn primary', id:'demo-next'}, 'Next');
-  const exit = h('button', {class:'btn', id:'demo-exit'}, 'Exit demo');
+  const exit = h('button', {class:'btn', id:'demo-exit'}, 'Exit walkthrough');
   const pause = h('button', {class:'btn', id:'demo-pause'}, 'Pause timer');
   const progress = h('span', {id:'demo-progress'});
-  const clock = h('span', {id:'demo-clock',role:'timer','aria-label':'Demo elapsed time'});
+  const clock = h('span', {id:'demo-clock',role:'timer','aria-label':'Walkthrough elapsed time'});
   const title = h('h2', {id:'demo-title'});
   const cue = h('p', {id:'demo-cue'});
-  const speech = h('div', {id:'demo-speech', tabindex:'0', 'aria-label':'What to say', 'aria-live':'polite'});
-  const coach = h('section', {id:'guided-demo', hidden:true, 'aria-label':'Guided demo'},
+  const speech = h('div', {id:'demo-speech', tabindex:'0', 'aria-label':'Walkthrough explanation', 'aria-live':'polite'});
+  const coach = h('section', {id:'guided-demo', hidden:true, 'aria-label':'Guided walkthrough'},
     h('div', {class:'demo-heading'}, progress, clock, exit), title, cue, speech,
     h('div', {class:'demo-navigation'}, pause, back, next));
-  before.before(h('div',{class:'demo-options','aria-label':'Choose demo length'},...starts));
+  before.before(h('div',{class:'demo-options','aria-label':'Choose walkthrough length'},...starts));
   document.body.append(coach);
   const fmt = (seconds:number) => `${Math.floor(seconds/60)}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
   function time() { return tour ? Math.min(tour.seconds, elapsed + (paused ? 0 : (performance.now()-startedAt)/1000)) : 0; }
@@ -60,8 +60,8 @@ export function mountGuidedDemo(before: HTMLElement, hooks: DemoHooks) {
         index=position.index;
         const step=tour.steps[index];
         title.textContent=step.title;
-        cue.textContent=`${step.seconds}s · ${step.cue}`;
-        speech.replaceChildren(...step.say.map(text=>h('p',null,text)));speech.scrollTop=0;
+        cue.textContent=`${step.seconds}s · ${step.caption}`;
+        speech.replaceChildren(...step.content.map(text=>h('p',null,text)));speech.scrollTop=0;
         hooks.show(step);
       }
       progress.textContent=`${tour.label.toUpperCase()} · ${index+1} / ${tour.steps.length}`;

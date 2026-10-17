@@ -7,7 +7,7 @@ export function renderNemotronResults(root: HTMLElement) {
     h('h3', null, '1. Critic · predict factory outcomes'),
     h('div', { class: 'tune-stat' }, h('strong', null, '0/100 → 100/100'), h('span', null, 'responses matching the required format · base → tuned')),
     h('p', null, h('b', null, 'What it proved: '), 'Training taught the model to return the required structured response.'),
-    h('p', { class: 'tune-limit' }, h('b', null, 'What it did not prove: '), 'Reliable factory predictions. It recognized none of the 17 goal-passing layouts. The simulator remains the judge.'),
+    h('p', { class: 'tune-limit' }, h('b', null, 'What it did not prove: '), 'Reliable factory predictions. It recognized none of the 17 goal-passing layouts. Simulator results remain the source of truth.'),
     h('details', {id:'critic-test-details'}, h('summary', null, 'Critic test details'),
       h('p', null, '600 training examples from 30 synthetic buildings. Evaluation used 100 held-out examples from five other buildings, with 100 calls per model.'),
       h('dl', { class: 'station-stats' },

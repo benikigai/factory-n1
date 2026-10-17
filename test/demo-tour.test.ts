@@ -61,16 +61,16 @@ test('station failures distinguish the safe boundary and upstream damage',()=>{
 });
 
 
-test('the two tours fit their time and spoken-word budgets',()=>{
+test('the two tours fit their time and reading budgets',()=>{
   for(const tour of DEMO_TOURS){
     assert.equal(tour.steps.reduce((sum,step)=>sum+step.seconds,0),tour.seconds);
-    const words=tour.steps.flatMap(step=>step.say).join(' ').split(/\s+/).length;
+    const words=tour.steps.flatMap(step=>step.content).join(' ').split(/\s+/).length;
     assert.ok(words<=tour.seconds*2.25,`${tour.id}: ${words} words leaves too little time for clicks`);
     assert.equal(demoPosition(tour,0).index,0);
     assert.equal(demoPosition(tour,tour.seconds-.1).complete,false);
     assert.equal(demoPosition(tour,tour.seconds).complete,true);
     assert.equal(demoPosition(tour,tour.seconds+10).index,tour.steps.length-1);
-    for(const step of tour.steps)assert.ok(step.say.join(' ').split(/\s+/).length<=step.seconds*2, `${step.title} exceeds 120 words/minute`);
+    for(const step of tour.steps)assert.ok(step.content.join(' ').split(/\s+/).length<=step.seconds*2, `${step.title} exceeds 120 words/minute`);
     let offset=0;
     for(let i=0;i<tour.steps.length;i++){
       assert.equal(demoPosition(tour,offset).index,i);
@@ -79,4 +79,10 @@ test('the two tours fit their time and spoken-word budgets',()=>{
   }
   assert.equal(DEMO_TOURS[0].steps.length,4);
   assert.equal(DEMO_TOURS[1].steps.length,8);
+});
+
+
+test('walkthrough copy describes the product without presenter instructions',()=>{
+  const copy=DEMO_TOURS.flatMap(tour=>tour.steps.flatMap(step=>[step.title,step.caption,...step.content])).join(' ');
+  assert.doesNotMatch(copy,/point to|show the|introduce|what to say|read aloud|judges|we trained|our baseline|leave this result/i);
 });
