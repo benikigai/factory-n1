@@ -21,28 +21,29 @@
 
 ---
 
-## Live Voiceover Script (Read Aloud by Ben — 135 Words, ~2.25 Words/Sec)
+## Live Voiceover Script (Ben's Voice — 127 Words, Plainspoken, Zero Em Dashes)
 
 `[0:00–0:06 · /?speed=60 landing hero, or /replay.html?run=live-a-11 at 60×]`  
-"For a few cents a run, Nemotron agents took this jammed warehouse to its goal. And they never grade their own work."
+"Left floor is jammed. Right floor clears every box. Four cents of Nemotron."
 
 `[0:06–0:15 · /replay.html?run=live-a-11, zoom 1.45× on the right floor with station labels]`  
-"Factory N+1: version N+1 ships only if it beats version N. Receiving, sorting, packing, three shipping docks, a hundred packages."
+"We call it Factory N plus one. A new layout only ships if it beats the old one. Simple rule."
 
-`[0:15–0:25 · /replay.html?run=live-a-7&view=agents]`  
-"Nemotron Lightning researches warehouse practice on You.com. Nemotron Super VL designers propose layouts. A frozen simulator grades them, and a change survives only if it wins on days they never saw."
+`[0:15–0:25 · /replay.html?run=live-a-7&view=agents (+ 0:21–0:25 view=visual)]`  
+"Lightning looks up warehouse rules on You.com. Super VL sketches layouts on Crusoe. A locked simulator grades every day."
 
-`[0:25–0:30 · /replay.html?run=<live-run-id> started via Run live > Continue from run 7 on localhost:5173 — LIVE badge + floor updating]`  
-"This is running live, Nemotron on Crusoe, right now."
+`[0:25–0:30 · localhost:5173/replay.html?run=live-demo-2 (or live laptop run with LIVE badge)]`  
+"Here is a live run from my laptop today. Sixty six seconds."  
+*(If rolling a brand-new live run mid-take: "This is running live on my laptop right now.")*
 
-`[0:30–0:48 · /#revisions & /#inspection: equal-budget comparison + Rev 0 → Rev 7 FAIL → Rev 11 APPROVED table]`  
-"Run seven put a pack station by each dock: two-thirds better, ahead of a code fix and random search. Fragile packages still broke. Run eleven built on it, moved one station inland, and met the goal."
+`[0:30–0:48 · /#inspection & /#revisions: equal-budget comparison + Rev 0 → Rev 7 FAIL → Rev 8–10 HELD → Rev 11 APPROVED]`  
+"Run seven beat a code fix and random search on the same budget. Still broke four fragile boxes, and three runs stalled counting steps wrong. We gave it a ruler. Run eleven moved one pack table in, zero broken."
 
 `[0:48–0:55 · /#inspection (4/7 → 0/7 Claims checked — fabricated re-run)]`  
-"One model faked a simulator run. The grader caught it."
+"One model even faked a simulator score. The grader caught it cold."
 
 `[0:55–1:00 · /#top, pull back to 1.0×]`  
-"Factory N+1. The next version earns it."
+"Factory N plus one. The next version earns it."
 
 ---
 

@@ -50,37 +50,37 @@ const SEGMENTS = [
     id: '01_hook_00-06',
     start: 0,
     end: 6,
-    text: 'For a few cents a run, Nemotron agents took this jammed warehouse to its goal. And they never grade their own work.',
+    text: 'Left floor is jammed. Right floor clears every box. Four cents of Nemotron.',
   },
   {
     id: '02_floor_06-15',
     start: 6,
     end: 15,
-    text: 'Factory N plus one: version N plus one ships only if it beats version N. Receiving, sorting, packing, three shipping docks, a hundred packages.',
+    text: 'We call it Factory N plus one. A new layout only ships if it beats the old one. Simple rule.',
   },
   {
     id: '03a_agents_15-25',
     start: 15,
     end: 25,
-    text: 'Nemotron Lightning researches warehouse practice on You dot com. Super V L designers propose layouts. A frozen simulator grades them on days they never saw.',
+    text: 'Lightning looks up warehouse rules on You dot com. Super V L sketches layouts on Crusoe. A locked simulator grades every day.',
   },
   {
     id: '03b_live_25-30',
     start: 25,
     end: 30,
-    text: 'Recorded from a live laptop run today: Nemotron on Crusoe reaching the goal.',
+    text: 'Here is a live run from my laptop today. Sixty six seconds.',
   },
   {
     id: '04_lineage_30-48',
     start: 30,
     end: 48,
-    text: 'Run seven put a pack station by each dock: two-thirds better, ahead of a code fix and random search. Fragile packages still broke. Run eleven built on it, moved one station inland, and met the goal.',
+    text: 'Run seven beat a code fix and random search on the same budget. Still broke four fragile boxes, and three runs stalled counting steps wrong. We gave it a ruler. Run eleven moved one pack table in, zero broken.',
   },
   {
     id: '05_trust_48-55',
     start: 48,
     end: 55,
-    text: 'One model faked a simulator run. The grader caught it.',
+    text: 'One model even faked a simulator score. The grader caught it cold.',
   },
   {
     id: '06_close_55-60',
@@ -97,7 +97,7 @@ async function ensureMasterAudio() {
   }
   const envFromFile = loadEnvFile(process.env.ELEVENLABS_ENV_FILE);
   const apiKey = process.env.ELEVENLABS_API_KEY || envFromFile.ELEVENLABS_API_KEY;
-  const voiceId = process.env.ELEVENLABS_VOICE_ID || envFromFile.ELEVENLABS_VOICE_ID || 'ipHMy8vtmr3GFb9rxAm0';
+  const voiceId = process.env.ELEVENLABS_VOICE_ID || envFromFile.ELEVENLABS_VOICE_ID || 'ykEL2qy430IhnwQ830iE';
   if (!apiKey) {
     throw new Error('Missing ELEVENLABS_API_KEY in environment or ELEVENLABS_ENV_FILE.');
   }
