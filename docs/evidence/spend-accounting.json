@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-17 ~14:45 PT",
+  "asOf": "2026-10-17 ~14:55 PT",
   "authorizationUsd": 2.0,
   "policy": "Ben raised the ceiling to $1.00, then authorized spend as needed to finish the demo today; working ceiling $2.00 (earlier commitments retained). Uncertain reservations are counted at their recorded bound and not released without per-request billing evidence.",
   "items": [
@@ -174,5 +174,17 @@
     "returnedUsagePlusSearchBaseUsd": 0.4996,
     "remainingUnderAuthorizationUsd": 1.0689
   },
-  "status": "Within the $2.00 working ceiling on the conservative basis ($0.9311 committed). Separate: Codex's A100 fine-tune pilot under Ben's $6 cap, to be added when Codex reports actual spend."
+  "status": "Within the $2.00 working ceiling on the conservative basis ($0.9311 committed). Separate: Codex's A100 fine-tune pilot under Ben's $6 cap, to be added when Codex reports actual spend.",
+  "separateBudgets": [
+    {
+      "item": "Nemotron 8B critic fine-tune pilot (Crusoe A100 80GB VM, Codex)",
+      "approvedCapUsd": 6,
+      "approvedBy": "Ben",
+      "estimatedUsd": 0.596935,
+      "billedUsd": null,
+      "basis": "docs/evidence/nemotron-finetune-pilot.md: at most 1,067 s from VM creation to confirmed deletion at $2/GPU-hour plus prorated boot storage",
+      "status": "VM deleted with receipts (docs/evidence/nemotron-vm-deletion-receipt.json); billed amount pending Crusoe's daily usage update",
+      "note": "Separate from the $2.00 inference ceiling, which covers model calls and searches."
+    }
+  ]
 }

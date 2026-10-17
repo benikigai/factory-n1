@@ -49,7 +49,13 @@ The 3D viewer replays the exact scored runs: the baseline and the champion floor
 
 - The simulator uses synthetic rules (for example, fragile packages break on legs over 12 cells). It is not calibrated to a real facility.
 - Small n: seven runs on factory A ranged from −33% to −66%.
-- The 20-day final test split was never unlocked, and no fine-tuning was run.
+- The original factory agent's 20-day final test split remains locked. A separate Nemotron 8B critic fine-tuning pilot used its own disjoint synthetic test buildings; it did not change the frozen demo.
+
+## Separate critic fine-tuning pilot
+
+After Crusoe's native fine-tuning estimate failed on missing model/pricing metadata, we trained a LoRA adapter for a pinned Nemotron Nano 8B on one Crusoe A100. One epoch over 600 simulator-labeled examples took 216.455 seconds. Validation used 100 examples; a separate frozen test compared base and adapter on 100 examples from five unseen buildings under equal limits.
+
+The adapter learned the output contract: exact-schema responses rose from 0/100 to 100/100. Prediction quality was not reliable: zero-damage accuracy on valid layouts was 18/75 (24%), below the 54.7% majority-label diagnostic, with 35 false-safe zero-damage outputs across all cases. We did not integrate this critic into the optimizer. The unchanged simulator remains the grader. See [pilot receipt](docs/evidence/nemotron-finetune-pilot.md) and [independent audit](docs/evidence/nemotron-8b-heldout-independent-audit.md).
 
 ## Run it
 
