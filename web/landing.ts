@@ -63,7 +63,7 @@ if (bundle) {
     playback.playing = false;
     playback.t = playback.end;
   }
-  $("hero-clock").innerHTML = `<span>T+ <b id="clock-t">00:00</b> / ${mmss(playback.end)} · ${playback.speed}×</span><button id="clock-btn" type="button">${playback.playing ? "Pause" : "Play"}</button>`;
+  $("hero-clock").innerHTML = `<span>T+ <b id="clock-t">00:00</b> / ${mmss(playback.end)} · ${playback.speed}× replay</span><button id="clock-btn" type="button">${playback.playing ? "Pause" : "Play"}</button>`;
   $("clock-btn").addEventListener("click", () => {
     playback.playing = !playback.playing;
     $("clock-btn").textContent = playback.playing ? "Pause" : "Play";
@@ -75,7 +75,7 @@ if (bundle) {
   const inspect = () => {
     const t = playback.t;
     const done = t >= playback.end - 0.5;
-    const cell = (v: string, ok: boolean | null) => `<td><span class="v">${v}</span><span class="st ${ok === null ? "run" : ok ? "pass" : "fail"}">${ok === null ? "···" : ok ? "PASS" : "FAIL"}</span></td>`;
+    const cell = (v: string, ok: boolean | null) => `<td><span class="v">${v}</span><span class="st ${ok === null ? "run" : ok ? "pass" : "fail"}">${ok === null ? "—" : ok ? "PASS" : "FAIL"}</span></td>`;
     const rows: [string, (i: number) => string][] = [
       ["All 100 packages ship", (i) => {
         const fin = sides[i].s.result.metrics.shipped;
@@ -112,7 +112,9 @@ if (bundle) {
     if (frames && now - lastUi > 150) {
       lastUi = now;
       const [a, b] = frames;
-      world.setCounters(`shipped ${a.shipped}/100 · damaged ${a.damaged}`, `shipped ${b.shipped}/100 · damaged ${b.damaged}`);
+      const count = (f: typeof a) => `${f.shipped}/100 shipped · <span class="${f.damaged ? "bad" : ""}">${f.damaged} damaged</span>`;
+      $("cnt-0").innerHTML = count(a);
+      $("cnt-1").innerHTML = count(b);
       inspect();
     }
     requestAnimationFrame(tick);
@@ -142,21 +144,22 @@ if (bundle && summary && a7) {
   const b = bundle.baseline.result.metrics;
   const c = bundle.improved.result.metrics;
   const m7 = a7replay?.improved.result.metrics;
-  const peak = (m: { missorts: number; damaged: number; makespan: number }) => `${m.missorts} · ${m.damaged} · ${fmt(m.makespan)} s`;
+  const peak = (m: { missorts: number; damaged: number }) => `${m.missorts} · ${m.damaged}`;
   const st = (cls: string, text: string) => `<span class="st ${cls}">${text}</span>`;
-  const rows = [
-    ["0", "Original floor", "—", fmt(summary.baseline.select), peak(b), st("fail", "FAIL")],
-    ["7", "Zone-dedicated pack stations beside each dock", "Quality designer", `${fmt(a7.champion.select)} <small>${drop(summary.baseline.select, a7.champion.select, 0)}</small>`, m7 ? peak(m7) : "—", st(a7.champion.dodSelect ? "pass" : "fail", a7.champion.dodSelect ? "PASS" : "FAIL")],
-    ["8–10", "Nothing accepted. Designers mis-measured route lengths (called a 17-cell leg 12)", "Route designer", fmt(a7.champion.select), "—", st("hold", "HELD")],
-    ["11", "pack-B moved 3 cells inland; every conveyor leg ≤ 12 cells", "Route designer + <code>measure_legs</code> ruler", `<b>${fmt(summary.champion.select)}</b> <small>${drop(summary.baseline.select, summary.champion.select, 0)}</small>`, peak(c), st(summary.champion.dodSelect ? "pass" : "fail", summary.champion.dodSelect ? "APPROVED" : "FAIL")],
+  type Rev = { n: string; change: string; by: string; obj: number; delta?: string; peak: string; goal: string; current?: boolean };
+  const rows: Rev[] = [
+    { n: "0", change: "Original floor", by: "", obj: summary.baseline.select, peak: peak(b), goal: st("fail", "FAIL") },
+    { n: "7", change: "Zone-dedicated pack stations beside each dock", by: "Quality designer", obj: a7.champion.select, delta: drop(summary.baseline.select, a7.champion.select, 0), peak: m7 ? peak(m7) : "—", goal: st(a7.champion.dodSelect ? "pass" : "fail", a7.champion.dodSelect ? "PASS" : "FAIL") },
+    { n: "8–10", change: "Nothing accepted: designers mis-measured route lengths, calling a 17-cell leg 12", by: "Route designer", obj: a7.champion.select, peak: "—", goal: st("hold", "HELD") },
+    { n: "11", change: "pack-B moved 3 cells inland, so every conveyor leg is ≤ 12 cells", by: "Route designer with the measure_legs ruler", obj: summary.champion.select, delta: drop(summary.baseline.select, summary.champion.select, 0), peak: peak(c), goal: st(summary.champion.dodSelect ? "pass" : "fail", summary.champion.dodSelect ? "APPROVED" : "FAIL"), current: true },
   ];
   $("revtable").innerHTML =
-    `<thead><tr><th>Rev</th><th>Change</th><th>By</th><th>Objective</th><th>Peak day: mis-sorts · damaged · time</th><th>Goal</th></tr></thead><tbody>` +
-    rows.map((r, i) => `<tr class="${i === rows.length - 1 ? "current" : ""}">${r.map((x) => `<td>${x}</td>`).join("")}</tr>`).join("") +
+    `<thead><tr><th>Rev</th><th>Change</th><th>Objective</th><th class="hide-sm">Peak day: mis-sorts · damaged</th><th>Goal</th></tr></thead><tbody>` +
+    rows.map((r) => `<tr class="${r.current ? "current" : ""}"><td class="n">${r.n}</td><td>${esc(r.change)}${r.by ? `<span class="by">${esc(r.by)}</span>` : ""}</td><td class="m">${fmt(r.obj)}${r.delta ? `<small>${r.delta}</small>` : ""}</td><td class="m hide-sm">${r.peak}</td><td>${r.goal}</td></tr>`).join("") +
     `</tbody>`;
   $("rev-note").innerHTML =
-    "Objective: average over 9 validation days the designers never saw (lower is better). Rev 11 continued from rev 7 after we gave the designers a ruler; the final test split stays locked. " +
-    `<a href="./evidence/zero-damage-feasibility.md">Why it took a ruler →</a>`;
+    "Objective is the average over 9 validation days the designers never saw. Rev 11 continued from rev 7 after the designers got a ruler; the final test split stays locked. " +
+    `<a href="./evidence/zero-damage-feasibility.md">Why it took a ruler</a>`;
 }
 
 /* ---------- Inspection stamps ---------- */
@@ -164,14 +167,14 @@ if (bundle && summary && a7) {
   const heur = a7?.comparators.find((x) => x.label.startsWith("Code heuristic"));
   const rand = a7?.comparators.find((x) => x.label.startsWith("Random"));
   const stamp = (tag: string, big: string, body: string, href: string) =>
-    `<article class="card"><span class="stamp">${tag}</span><div class="big">${big}</div><p>${body}</p><a href="${href}">Evidence →</a></article>`;
+    `<article class="proof"><p class="label">${tag}</p><div class="big">${big}</div><p>${body}</p><a href="${href}">Evidence</a></article>`;
   $("stamps").innerHTML = [
     a7 && heur && rand
-      ? stamp("Equal budget", fmt(a7.champion.select), `Rev 7 vs a one-line code fix (${fmt(heur.select)}) and blind random search (${fmt(rand.select)}), each given the same ${a7.simEvals} simulator runs.`, "./replay.html?run=live-a-7")
+      ? stamp("Equal budget", fmt(a7.champion.select), `Rev 7, against ${fmt(heur.select)} for a one-line code fix and ${fmt(rand.select)} for blind random search, each given the same ${a7.simEvals} simulator runs.`, "./replay.html?run=live-a-7")
       : "",
-    stamp("Claims checked", "4/7 → 0/7", "Designer predictions refuted by the simulator, before and after they could test drafts. A model also reported a simulator run that never happened; the grader caught it.", "./evidence/2026-10-17-live-roundtrip.md"),
+    stamp("Claims checked", "4/7 → 0/7", "Designer predictions the simulator refuted, before and after designers could test drafts. When a model reported a simulator run that never happened, the grader caught it.", "./evidence/2026-10-17-live-roundtrip.md"),
     mem
-      ? stamp("Negative result", `${mem.wins}–${mem.losses}`, `Shared memory lost all ${mem.n} pre-registered tests on fresh factories (wins–losses). Shown, not tuned away.`, "./evidence/memory-eval-valid.md")
+      ? stamp("Negative result, shown", `${mem.wins} of ${mem.n}`, `Shared memory won none of ${mem.n} pre-registered tests on fresh factories. We report it rather than tune it away.`, "./evidence/memory-eval-valid.md")
       : "",
   ].join("");
 }
@@ -179,15 +182,15 @@ if (bundle && summary && a7) {
 /* ---------- Bill of materials ---------- */
 {
   const cache = summary ? `${fmt((summary.usage.cachedTokens / summary.usage.promptTokens) * 100)}% prompt-cache hits` : "";
-  const rows: [string, string, string, string][] = [
-    ["1", "Crusoe Managed Inference", "Serves every model call; caches the shared memory prefix", `${spend ? `$${spend.totals.returnedUsageInferenceUsd.toFixed(3)} all inference today` : ""}${cache ? ` · ${cache} (rev 11)` : ""}`],
-    ["2", "NVIDIA Nemotron 3.5 Super VL + Lightning", "Super VL designs through typed tool calls; Lightning researches and runs isolated tests", "27 ruler calls → 1 approved move · 0 refuted claims (rev 11)"],
-    ["3", "You.com Search API", "Grounded research with search receipts", `${spend ? spend.totals.youSearches : "—"} live searches · every citation matched to a returned URL`],
-    ["4", "Frozen simulator (ours)", "Scores every change; agents never grade themselves", bundle ? `SIM ${esc(bundle.simVersion)} · hash ${esc(bundle.graderHash.slice(0, 8))} · audited before use` : "—"],
+  const rows: [string, string, string][] = [
+    ["Crusoe Managed Inference", "Serves every model call and caches the shared-memory prefix", `${spend ? `$${spend.totals.returnedUsageInferenceUsd.toFixed(3)} all inference today` : ""}${cache ? `<small>${cache} in rev 11</small>` : ""}`],
+    ["NVIDIA Nemotron 3.5", "Super VL designs through typed tool calls; Lightning researches and runs isolated tests", "27 ruler calls → 1 approved move<small>0 refuted claims in rev 11</small>"],
+    ["You.com Search API", "Grounded research with search receipts", `${spend ? spend.totals.youSearches : "—"} live searches<small>every citation matched to a returned URL</small>`],
+    ["Frozen simulator", "Ours. Scores every change; agents never grade themselves", bundle ? `SIM ${esc(bundle.simVersion)} · ${esc(bundle.graderHash.slice(0, 8))}<small>audited before use</small>` : "—"],
   ];
   $("bomtable").innerHTML =
-    `<thead><tr><th>Item</th><th>Part</th><th>Role</th><th>Measured</th></tr></thead><tbody>` +
-    rows.map((r) => `<tr>${r.map((x) => `<td>${x}</td>`).join("")}</tr>`).join("") +
+    `<thead><tr><th>Part</th><th class="hide-sm">Role</th><th>Measured</th></tr></thead><tbody>` +
+    rows.map(([part, role, m]) => `<tr><td><b>${part}</b></td><td class="hide-sm">${role}</td><td class="m">${m}</td></tr>`).join("") +
     `</tbody>`;
 }
 
@@ -204,7 +207,7 @@ const ev: [string, string][] = [
   ["./evidence/spec-as-built.md", "Spec, as built"],
   [REPO, "Source on GitHub"],
 ];
-$("evlist").innerHTML = ev.map(([h, k], i) => `<a href="${h}"${h.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}><span>${String(i + 1).padStart(2, "0")}</span>${esc(k)} ↗</a>`).join("");
+$("evlist").innerHTML = ev.map(([h, k]) => `<a href="${h}"${h.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${esc(k)}</a>`).join("");
 $("foot-note").textContent =
   `Every number on this page is read from recorded runs. ` +
   (spend ? `Project spend today: $${spend.totals.returnedUsageInferenceUsd.toFixed(3)} inference + $${spend.totals.youSearchBaseUsd.toFixed(2)} search. ` : "") +
