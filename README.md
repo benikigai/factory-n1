@@ -95,7 +95,7 @@ one-line goal
 - A queueing simulation with synthetic rules (for example, fragile packages are damaged on conveyor legs over 12 cells). Not calibrated to a real facility.
 - The goal checks still fail: damage remains. No completed-task claim.
 - n is small: seven live runs on factory A ranged from −33% to −66% on validation. Runs 1–4 predate the memory-label fixes, and their lessons show as legacy labels.
-- **Spend:** returned usage is $0.156 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.744 committed against the $1.00 authorization (raised from $0.50) ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
+- **Spend:** returned usage is $0.228 inference plus $0.09 base search. Counting unknown-charge reservations from failed requests at their recorded bounds gives a conservative $0.744 committed against the $1.00 authorization (raised from $0.50) ([accounting](docs/evidence/spend-accounting.json)). Those reservations aren't released without billing evidence, and no further paid calls are being made.
 - In `live-a-5`, none of the six web hypotheses improved the floor in an isolated test. Three couldn't be tested because of malformed JSON, which is now retried once.
 - The 20-seed final split was never unlocked. No fine-tuning was run; experiment records are saved for later.
 
