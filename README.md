@@ -31,7 +31,7 @@ The 3D viewer replays the exact scored runs: the baseline and the champion floor
 ### The loop
 
 ```mermaid
-flowchart LR
+flowchart TD
     R["Research<br/>Nemotron Lightning + You.com<br/>citations must match returned URLs"] --> M[("Shared memory<br/>append-only, evidence-labeled")]
     M --> P["Propose<br/>Nemotron Super VL designers<br/>test drafts, submit layout + predicted score"]
     P --> G["Grade<br/>frozen simulator SIM 1.1.0<br/>100 packages x 6 training days"]
@@ -48,22 +48,16 @@ The final 20-day test split stays locked. A supervisor stops or re-plans, and ha
 ### Architecture
 
 ```mermaid
-flowchart TB
-    subgraph Inference["Crusoe Managed Inference"]
-        SVL["Nemotron 3.5 Super VL<br/>designers, typed tool calls"]
+flowchart LR
+    YOU["You.com search"] --> LTN
+    subgraph CRU["Crusoe Managed Inference"]
+        SVL["Nemotron 3.5 Super VL<br/>designers"]
         LTN["Nemotron 3.5 Lightning<br/>research, test edits"]
     end
-    YOU["You.com search"] --> LTN
-    subgraph Loop["src/ learning loop"]
-        AG["agents/ + loop/"] --> SIM["sim/ frozen grader"]
-        AG <--> MEM["memory/ shared brain"]
-        DOD["dod/ goal as executable checks"] --> SIM
-    end
-    SVL <--> AG
-    LTN <--> MEM
-    SIM --> REC["recorded/ public run copies"]
-    REC --> WEB["web/ proof board + three.js replay"]
-    WEB --> VER["Vercel static site<br/>factory-n1.vercel.app"]
+    SVL <--> LOOP["src/ learning loop<br/>agents, shared memory,<br/>goal as executable checks"]
+    LTN <--> LOOP
+    LOOP --> SIM["Frozen simulator<br/>the only grader"]
+    SIM --> WEB["recorded/ runs to<br/>three.js replay on Vercel"]
 ```
 
 ### See it
