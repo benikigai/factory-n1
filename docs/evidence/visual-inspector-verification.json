@@ -1,0 +1,20 @@
+{
+  "verifiedAt": "2026-10-17T21:19:14.801Z",
+  "runId": "live-a-11",
+  "model": "nvidia/NVIDIA-Nemotron-3.5-Super-VL",
+  "imageSha256": "791d4a655b06a25bc47dd362f074a2fc6d4c94105c375f1b49782ad51d7dedc7",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "markerOmittedFromText": true,
+  "markerMatched": true,
+  "receiptsRecomputedDeepEqual": 5,
+  "supportedNumericFindings": 1,
+  "finalSplitUsed": false,
+  "usage": {
+    "calls": 3,
+    "usd": 0.00166222,
+    "promptTokens": 12983,
+    "cachedTokens": 3264,
+    "reservedUsd": 0
+  },
+  "scope": "Recorded post-run inspection; no layout edits, no fine-tuning, no causal or fresh-factory claim."
+}
