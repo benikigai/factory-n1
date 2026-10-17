@@ -12,7 +12,7 @@ import type { AgentNode } from "../runtime";
 import { teamLayout } from "./team-layout";
 import type { Frame } from "./state.ts";
 
-const GAP = 10;
+const GAP = 6;
 const BG = "#151a21";
 
 export type CameraPreset = "overview" | "closeup";
@@ -87,6 +87,10 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
   let bundle: ReplayBundle | null = null;
   let tween: { from: THREE.Vector3; to: THREE.Vector3; tFrom: THREE.Vector3; tTo: THREE.Vector3; t0: number; dur: number } | null = null;
   let firstLayout = true;
+  // Keep the overview framed when the window or rail changes size, until the viewer moves the camera.
+  let userMoved = false;
+  let currentPreset: CameraPreset = "overview";
+  controls.addEventListener("start", () => { userMoved = true; });
 
   function resize() {
     const w = Math.max(1, host.clientWidth);
@@ -95,6 +99,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     labelRenderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    if (floors.length && !userMoved && !tween) preset(currentPreset, false);
   }
   new ResizeObserver(resize).observe(host);
   resize();
@@ -113,13 +118,15 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     const halfW = (maxX - minX) / 2;
     const vfov = THREE.MathUtils.degToRad(camera.fov);
     const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
-    const dist = Math.max(halfW / Math.tan(hfov / 2), (depth / 2 + 6) / Math.tan(vfov / 2)) * 1.08;
-    const dir = new THREE.Vector3(0, 0.74, 0.67).normalize();
+    const dist = Math.max(halfW / Math.tan(hfov / 2), (depth / 2 + 6) / Math.tan(vfov / 2)) * 1.06;
+    const dir = new THREE.Vector3(0, 0.86, 0.5).normalize();
     const target = new THREE.Vector3((minX + maxX) / 2, 0, 1.2);
     return { pos: target.clone().addScaledVector(dir, dist), target };
   }
 
   function preset(name: CameraPreset, animate = true) {
+    userMoved = false;
+    currentPreset = name;
     const pose = presetPose(name);
     if (!animate) {
       camera.position.copy(pose.pos);
@@ -136,8 +143,8 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     bundle = next;agentScope=null;
     if (floors) for (const f of floors) f.dispose();
     const wa = next.baseline.layout.grid.w;
-    const base = createFloor(next.baseline, -GAP / 2 - wa, next.baseline.label || "Gen-0 baseline", "base",{onStation:id=>onSelect({type:"station",side:"baseline",id})});
-    const imp = createFloor(next.improved, GAP / 2, next.improved.label || "Improved", "improved",{onStation:id=>onSelect({type:"station",side:"improved",id})});
+    const base = createFloor(next.baseline, -GAP / 2 - wa, "Before · starting floor", "base",{onStation:id=>onSelect({type:"station",side:"baseline",id})});
+    const imp = createFloor(next.improved, GAP / 2, `After · ${next.runId.replace(/^live-a-/, "Run ")}`, "improved",{onStation:id=>onSelect({type:"station",side:"improved",id})});
     scene.add(base.group, imp.group);
     floors = [base, imp];
     // Fit the sun's shadow frustum to both floors.

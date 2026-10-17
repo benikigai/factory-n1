@@ -15,13 +15,9 @@ export function renderHud(badge: HTMLElement, meta: HTMLElement, b: ReplayBundle
   badge.textContent = m.label;
   badge.className = `mode mode-${b.mode}`;
   badge.title = m.hint;
+  const run = b.runId.replace(/^live-a-/, "Run ");
   meta.replaceChildren(
-    h("div", { class: "hud-line" },
-      h("span", { class: "k" }, "run "), h("b", null, b.runId),
-      h("span", { class: "k" }, "  sim v"), h("b", null, b.simVersion),
-      h("span", { class: "k" }, "  grader "), h("code", { title: b.graderHash }, b.graderHash.slice(0, 10)),
-      h("span", { class: "k" }, "  scenario "), h("b", null, `${b.scenario.id}`), h("span", { class: "k" }, ` (${b.scenario.profile}, seed ${b.scenario.seed})`),
-    ),
+    h("div", { class: "hud-title" }, run, h("span", { class: "hud-sub" }, ` · ${b.scenario.profile} day · 100 packages`)),
     h("div", { class: "hud-goal" }, b.task.goal),
     ...(b.invalid ? [h("div", { class: "hud-invalid", role: "alert" }, `⚠ ${b.invalid}. Not evidence.`)] : []),
   );
@@ -206,21 +202,84 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
     `${u.calls} calls · $${u.usd.toFixed(2)} inference · ${u.searches} searches · $${u.searchUsd.toFixed(2)} search`,
   );
 
-  rail.replaceChildren(
-    h("section", { class: "live" }, la.card, lb.card),
-    h("section", null, h("h3", null, "Before / after"), table),
-    h("section", null, h("h3", null, "Comparators"),
-      continuedHero ? h("p", { class: "small k" },
-        "Run 11 continued from run 7. This fresh random-search comparator is not an equal-budget comparison. ",
-        h("a", { href: "./replay.html?run=live-a-7" }, "See run 7's equal-budget result."),
-      ) : null,
-      comps,
+  // The result: one score, one verdict, the four goal checks on the replayed day.
+  const pct = Math.round((1 - B.select.objective / A.select.objective) * 100);
+  const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, "0")}`;
+  const checks = (mt: RunMetrics): [string, boolean, string][] => [
+    ["All 100 shipped", mt.unshipped === 0, `${mt.shipped}/${mt.packages}`],
+    ["Clears in 25 min", mt.makespan <= 1500, clock(mt.makespan)],
+    ["At most 1 mis-sort", mt.missorts <= 1, String(mt.missorts)],
+    ["Nothing damaged", mt.damaged === 0, String(mt.damaged)],
+  ];
+  const ca = checks(A.result.metrics), cb = checks(B.result.metrics);
+  const mark = ([, ok, v]: [string, boolean, string]) => h("td", { class: `num ${ok ? "ok" : "no"}` }, h("span", { class: "tick" }, ok ? "✓" : "✗"), ` ${v}`);
+  const result = h("section", { class: "result" },
+    h("div", { class: "eyebrow" }, "Validation score · 9 held-out days · lower is better"),
+    h("div", { class: "score" },
+      h("span", { class: "score-from" }, fmtNum(A.select.objective)),
+      h("span", { class: "score-arrow" }, "→"),
+      h("span", { class: "score-to" }, fmtNum(B.select.objective)),
+      h("span", { class: `score-delta ${pct > 0 ? "good" : "bad"}` }, `${pct > 0 ? "−" : "+"}${Math.abs(pct)}%`),
     ),
-    h("section", null, h("h3", null, `Accepted changes (${b.accepted.length})`), accepted),
-    h("section", null, h("h3", null, `Rejected (${b.rejected.length})`), rejected),
-    h("section", null, h("h3", null, `Lessons (${b.lessons.length})`), lessons),
-    h("section", null, h("h3", null, "Usage"), usage, h("div", { class: "small k" }, `created ${b.createdAt}`)),
+    h("div", { class: `verdict ${B.select.dodPassed ? "pass" : "fail"}` }, B.select.dodPassed ? "Goal met on every validation day" : "Goal not met on the validation days"),
+    h("table", { class: "checks" },
+      h("thead", null, h("tr", null, h("th", null, `Goal checks · ${b.scenario.profile} day shown`), h("th", { class: "num" }, "Before"), h("th", { class: "num" }, "After"))),
+      h("tbody", null, ca.map((c, k) => h("tr", null, h("th", null, c[0]), mark(c), mark(cb[k])))),
+    ),
   );
+
+  // The work: every generation, every proposal, why it was kept or refused.
+  const short = (id: string) => id.replace(/^g\d+-/, "");
+  const reasonFor = (id: string) => b.rejected.find((r) => r.candidateId === id)?.reason ?? "";
+  const continued = b.curve.length > 0 && Math.abs(b.curve[0].championSelect - A.select.objective) > 0.01;
+  const step = (cls: string, title: string, score: number | null, ...body: (HTMLElement | null)[]) =>
+    h("li", { class: `step ${cls}` },
+      h("div", { class: "step-head" }, h("span", { class: "step-title" }, title), score === null ? null : h("span", { class: "step-score" }, fmtNum(score))),
+      ...body);
+  const gens = b.curve.filter((g) => g.gen > 0).map((g) => {
+    const kept = b.accepted.find((a) => a.gen === g.gen);
+    const items = g.candidates.map((c) =>
+      h("li", { class: `cand ${c.accepted ? "kept" : "refused"}` },
+        h("span", { class: "tick" }, c.accepted ? "✓" : "✗"),
+        h("span", { class: "cand-name" }, short(c.id)),
+        h("span", { class: "cand-score" }, c.train === null ? "not scored" : `train ${fmtNum(c.train)}`),
+        h("div", { class: "cand-why" }, c.accepted ? "Kept: at least 1% better on held-out days, no goal check worse" : reasonFor(c.id)),
+      ));
+    return step(kept ? "gen-kept" : "gen-flat", `Generation ${g.gen}`, g.championSelect,
+      h("ul", { class: "cands" }, items),
+      kept ? h("div", { class: "edits" },
+        h("div", { class: "edits-title" }, "What changed, each edit scored alone by code"),
+        h("ul", null, kept.edits.map((e) => h("li", null, h("code", null, e.edit), h("span", { class: `num ${e.deltaAlone < 0 ? "good" : e.deltaAlone > 0 ? "bad" : ""}` }, fmtDelta(e.deltaAlone, 0))))),
+        h("details", { class: "why" }, h("summary", null, "Designer's reasoning"), h("p", null, kept.rationale)),
+      ) : null,
+    );
+  });
+  const work = h("section", { class: "work" },
+    h("h3", null, "How the agents got here"),
+    h("p", { class: "small k work-key" }, "Each generation, Nemotron designers propose floors and code keeps at most one. Right-hand numbers are held-out scores."),
+    h("ol", { class: "timeline" },
+      step("gen-start", "Starting floor", A.select.objective),
+      continued ? step("gen-start", "Continued from an earlier run's best floor", b.curve[0].championSelect) : null,
+      ...gens,
+    ),
+  );
+
+  const more = (title: string, ...kids: (HTMLElement | null)[]) => h("details", { class: "more" }, h("summary", null, title), ...kids);
+  rail.replaceChildren(
+    result,
+    work,
+    more("This day in numbers", table),
+    more("Against simple baselines",
+      continuedHero ? h("p", { class: "small k" },
+        "Run 11 continued from run 7, so this is not an equal-budget comparison. ",
+        h("a", { href: "./replay.html?run=live-a-7" }, "Run 7 has the equal-budget result."),
+      ) : null,
+      comps),
+    more(`Lessons in shared memory (${b.lessons.length})`, ...lessons),
+    more("Cost and provenance", usage,
+      h("div", { class: "small k" }, `grader ${b.graderHash.slice(0, 12)} · sim v${b.simVersion} · scenario ${b.scenario.id} · ${b.createdAt}`)),
+  );
+  void accepted; void rejected;
 
   const set = (el: HTMLElement, v: number) => {
     const s = String(v);
@@ -242,7 +301,6 @@ export function renderLegend(el: HTMLElement) {
   const sw = (cls: string, text: string) => h("span", { class: "lg" }, h("i", { class: cls }), text);
   el.replaceChildren(
     sw("z-a", "zone A"), sw("z-b", "zone B"), sw("z-c", "zone C"),
-    sw("fragile", "fragile"), sw("damaged", "damaged"), sw("missort", "missorted (blink)"),
-    sw("andon", "stack light: queue <3 / ≥3 / ≥8"),
+    sw("fragile", "fragile"), sw("damaged", "damaged"), sw("missort", "mis-sorted"),
   );
 }
