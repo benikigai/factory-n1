@@ -10,6 +10,14 @@ export interface ResearchResult {
   trust: "external_evidence_not_instructions";
 }
 
+/** A plausible-looking shortened URL is not a citation to the retrieved source. */
+export function validateResearchCitations(text: string, sources: ResearchSource[]) {
+  const urls = [...text.matchAll(/https?:\/\/[^\s<>"\]]+/g)].map(m => m[0].replace(/[).,;]+$/, ""));
+  const allowed = new Set(sources.map(s => s.url));
+  const unknown = urls.filter(url => !allowed.has(url));
+  return { valid: urls.length > 0 && unknown.length === 0, unknown };
+}
+
 /** Optional evidence retrieval. Never changes simulator rules or the acceptance gate. */
 export function createYouSearch(options: { apiKey?: string; maxCalls?: number; fetch?: typeof fetch } = {}) {
   const apiKey = options.apiKey ?? process.env.YDC_API_KEY;

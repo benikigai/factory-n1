@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createYouSearch } from "../src/llm/you-search.ts";
+import { createYouSearch, validateResearchCitations } from "../src/llm/you-search.ts";
+
+test("research citations must match retrieved URLs exactly", () => {
+  const sources = [{ url: "https://example.com/packing-station-factors", title: "Packing", excerpts: [] }];
+  assert.equal(validateResearchCitations("See https://example.com/packing-station-factors.", sources).valid, true);
+  assert.equal(validateResearchCitations("See https://example.com/packing-factors/", sources).valid, false);
+  assert.equal(validateResearchCitations("No citation", sources).valid, false);
+});
 
 test("search deduplicates concurrent queries, preserves citations, and enforces its budget", async () => {
   let requests = 0;

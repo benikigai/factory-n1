@@ -48,8 +48,16 @@ Call it once while planning to gather cited factory practices, then retain its s
 - `scripts/you-check.ts` ran Lightning → `research_factory_practice` → a real You.com search → a cited final reply.
 - Estimated cost: one search $0.005, two inference calls $0.0001307. Evidence is in `runs/research-check/<timestamp>/result.json` (ignored by Git).
 
+**Exact-citation check:** `validateResearchCitations()` rejects any URL in the reply that isn't exactly one of the returned source URLs. The first live reply cited a shortened URL; `you-check.ts` now does one bounded repair. The re-run (`runs/research-check/2026-10-17T18-38-12-912Z`) passed exact URL validation after one repair: 3 inference calls (~$0.0001979) + one search (~$0.005).
+
 **Capability finding:** a forced named `tool_choice` returned HTTP 500 before the search ran. Its billing is unknown, so $0.0525288 was conservatively reserved. Automatic tool selection worked. **Use automatic `tool_choice`, not forced named tools.**
 
 ## Verify
 
-`npm run typecheck` and `npm test` pass: 15 tests, including reservation races, malformed tool calls, unknown tools, call limits, sanitized errors, search caching and the simulator identity regressions. No commit or push was made by this integration work.
+`npm run typecheck` and `npm test` pass: 16 tests, including reservation races, malformed tool calls, unknown tools, call limits, sanitized errors, search caching, exact-citation validation and the simulator identity regressions.
+
+## Secret isolation
+
+- The dedicated 1Password environment has its own backing vault, with only Ben granted full access.
+- The mount is an owner-only (0600) named pipe.
+- Claude and Codex read it as the same macOS user; there are no per-agent vault identities. No remote fleet access is provisioned. No commit or push was made by this integration work.
