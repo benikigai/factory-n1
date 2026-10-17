@@ -59,9 +59,14 @@ export function nextRunId(runsDir: string): string {
   return `live-demo-${(used.length ? Math.max(...used) : 0) + 1}`;
 }
 
-let child: ChildProcess | null = null;
-let current: { runId: string; preset: string; startedAt: number } | null = null;
-let last: { runId: string; exitCode: number | null; signal: string | null; message: string } | null = null;
+// Kept on globalThis so a Vite config reload (which re-imports this module in the same process) does not
+// forget a running child: otherwise status would say idle, a second run could start, and Stop would not work.
+type LiveState = {
+  child: ChildProcess | null;
+  current: { runId: string; preset: string; startedAt: number } | null;
+  last: { runId: string; exitCode: number | null; signal: string | null; message: string } | null;
+};
+const state: LiveState = ((globalThis as { __factoryLive?: LiveState }).__factoryLive ??= { child: null, current: null, last: null });
 
 function send(res: ServerResponse, code: number, body: unknown) {
   res.statusCode = code;
@@ -104,23 +109,23 @@ export function liveRunner(repoRoot: string) {
       return send(res, 200, {
         available: true,
         configured,
-        running: Boolean(current),
-        runId: current?.runId ?? null,
-        preset: current?.preset ?? null,
+        running: Boolean(state.current),
+        runId: state.current?.runId ?? null,
+        preset: state.current?.preset ?? null,
         caps: liveCaps(),
         presets: Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, p.label])),
-        last,
+        last: state.last,
       });
     }
 
     if (pathname === "/api/run/stop" && method === "POST") {
-      if (!child || !current) return send(res, 409, { error: "No live run is running." });
-      child.kill("SIGINT");
-      return send(res, 202, { stopping: current.runId });
+      if (!state.child || !state.current) return send(res, 409, { error: "No live run is running." });
+      state.child.kill("SIGINT");
+      return send(res, 202, { stopping: state.current.runId });
     }
 
     if (pathname === "/api/run" && method === "POST") {
-      if (current) return send(res, 409, { error: `${current.runId} is already running. One live run at a time.`, runId: current.runId });
+      if (state.current) return send(res, 409, { error: `${state.current.runId} is already running. One live run at a time.`, runId: state.current.runId });
       if (!configured) return send(res, 412, { error: "Set FACTORY_ENV_FILE to the 1Password env mount before starting the dev server." });
       let presetId = "";
       try {
@@ -148,12 +153,12 @@ export function liveRunner(repoRoot: string) {
         },
       );
       closeSync(log);
-      child = proc;
-      current = { runId, preset: presetId, startedAt: Date.now() };
+      state.child = proc;
+      state.current = { runId, preset: presetId, startedAt: Date.now() };
       proc.on("exit", (code, signal) => {
-        last = { runId, exitCode: code, signal, message: code === 0 ? "finished" : lastLine(logFile) || `exited with ${signal ?? code}` };
-        child = null;
-        current = null;
+        state.last = { runId, exitCode: code, signal, message: code === 0 ? "finished" : lastLine(logFile) || `exited with ${signal ?? code}` };
+        state.child = null;
+        state.current = null;
       });
       return send(res, 202, { runId, preset: presetId, caps });
     }
