@@ -4,6 +4,10 @@ A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a
 
 Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
 
+**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html)
+
+![Rev 0, the original floor, and Rev 11, the agents' floor, replaying the same scored day on one clock](docs/readme/landing.gif)
+
 ## Where we are (13:50 PT)
 
 | Question | Answer | Proof |
@@ -23,6 +27,52 @@ Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Franci
 5. **Learn.** Code splits each change into single edits and scores each one alone. The lesson written to memory cites only those measured effects.
 
 The 3D viewer replays the exact scored runs: the baseline and the champion floor side by side, on one clock.
+
+### The loop
+
+```mermaid
+flowchart LR
+    R["Research<br/>Nemotron Lightning + You.com<br/>citations must match returned URLs"] --> M[("Shared memory<br/>append-only, evidence-labeled")]
+    M --> P["Propose<br/>Nemotron Super VL designers<br/>test drafts, submit layout + predicted score"]
+    P --> G["Grade<br/>frozen simulator SIM 1.1.0<br/>100 packages x 6 training days"]
+    G --> K{"Gate<br/>at least 1% better on 9 validation days<br/>and no goal check worse?"}
+    K -- "yes: keep" --> L["Learn<br/>score each single edit alone"]
+    K -- "no: reject" --> P
+    L -- "lesson cites measured effects only" --> M
+    L --> N["Next generation starts from the champion"]
+    N --> P
+```
+
+The final 20-day test split stays locked. A supervisor stops or re-plans, and hard call and spend caps bound every run.
+
+### Architecture
+
+```mermaid
+flowchart TB
+    subgraph Inference["Crusoe Managed Inference"]
+        SVL["Nemotron 3.5 Super VL<br/>designers, typed tool calls"]
+        LTN["Nemotron 3.5 Lightning<br/>research, test edits"]
+    end
+    YOU["You.com search"] --> LTN
+    subgraph Loop["src/ learning loop"]
+        AG["agents/ + loop/"] --> SIM["sim/ frozen grader"]
+        AG <--> MEM["memory/ shared brain"]
+        DOD["dod/ goal as executable checks"] --> SIM
+    end
+    SVL <--> AG
+    LTN <--> MEM
+    SIM --> REC["recorded/ public run copies"]
+    REC --> WEB["web/ proof board + three.js replay"]
+    WEB --> VER["Vercel static site<br/>factory-n1.vercel.app"]
+```
+
+### See it
+
+![3D replay of run live-a-11: Gen-0 baseline vs agent champion, with the before/after table](docs/readme/replay.gif)
+
+| Proof board | 3D replay |
+|---|---|
+| [![Landing proof board](docs/readme/landing.png)](https://factory-n1.vercel.app) | [![3D replay with before/after table](docs/readme/replay.png)](https://factory-n1.vercel.app/replay.html) |
 
 ## The three tracks
 
