@@ -58,6 +58,11 @@ export interface SolveOptions {
    */
   maxCalls?: number;
   maxSimEvals?: number;
+  /**
+   * Continue from an earlier run's champion (Version N+1 across runs). Gen-0 comparisons and the replay
+   * baseline still use the task's initial layout.
+   */
+  startFrom?: { runId: string; layout: Layout };
   /** Injection points for offline tests; default to the live Nemotron agents. */
   deps?: { propose?: typeof propose; reflect?: typeof reflect; research?: typeof research; testHypothesis?: typeof testHypothesis };
 }
@@ -135,13 +140,13 @@ export async function solve(opts: SolveOptions) {
   const ops: MemoryOp[] = [...(opts.initialOps ?? [])];
   const dod = DEFAULT_DOD;
 
-  let champion = task.initial;
-  let champId = "gen0";
-  let champTrain = meteredEvaluate("baseline", champion, "train", dod);
-  let champSelect = meteredEvaluate("baseline", champion, "select", dod);
-  const baselineTrain = champTrain;
-  const baselineSelect = champSelect;
-  const seen = new Set([hashLayout(champion)]);
+  const baselineTrain = meteredEvaluate("baseline", task.initial, "train", dod);
+  const baselineSelect = meteredEvaluate("baseline", task.initial, "select", dod);
+  let champion = opts.startFrom?.layout ?? task.initial;
+  let champId = opts.startFrom ? `from:${opts.startFrom.runId}` : "gen0";
+  let champTrain = opts.startFrom ? meteredEvaluate("baseline", champion, "train", dod) : baselineTrain;
+  let champSelect = opts.startFrom ? meteredEvaluate("baseline", champion, "select", dod) : baselineSelect;
+  const seen = new Set([hashLayout(task.initial), hashLayout(champion)]);
   const accepted: AcceptedChange[] = [];
   const rejected: RejectedCandidate[] = [];
   const curve: ReplayBundle["curve"] = [{ gen: 0, championSelect: champSelect.objective, candidates: [] }];
