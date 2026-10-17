@@ -4,170 +4,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factory N+1</title>
-    <meta name="description" content="Nemotron agents on Crusoe redesign a fulfillment floor; a frozen simulator decides what stays. Every number on this page is recomputed from recorded runs." />
+    <meta name="description" content="NVIDIA Nemotron agents on Crusoe redesigned a warehouse floor 82% better for 4 cents. Nothing shipped unless a frozen simulator proved it." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./landing.css" />
-    <link rel="stylesheet" href="./argon-landing.css" />
   </head>
   <body>
-    <nav class="nav">
-      <a class="wordmark" href="#top">Factory <span>N+1</span></a>
-      <div class="nav-links">
-        <a href="#proof">Proof</a>
-        <a href="#tracks">Tracks</a>
-        <a href="#sponsors">Stack</a>
-        <a href="#log">Log</a>
-        <a href="./replay.html?run=live-a-11" class="nav-cta">Open workbench</a>
-        <a id="repo-link" target="_blank" rel="noopener">GitHub ↗</a>
-      </div>
-    </nav>
+    <div class="sheet">
+      <div class="ruler ruler-top" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
 
-    <header class="hero hero-card" id="top">
-      <div class="hero-copy">
-        <p class="eyebrow">Recursive Agents Hackathon · Crusoe × Cerebral Valley</p>
-        <h1>A factory that improves<br /><em>only when the evidence does.</em></h1>
-        <p class="lede">Nemotron agents research, redesign and test a fulfillment floor. A frozen simulator decides what stays. Watch the same 100 packages move through the starting layout and the agents’ best layout, on one clock.</p>
-        <div class="sponsor-pills"><span class="sponsor-pill"><b>Crusoe</b> Inference + prompt cache</span><span class="sponsor-pill"><b>NVIDIA</b> Nemotron 3.5</span><span class="sponsor-pill"><b>You.com</b> Grounded research</span></div>
-        <div class="hero-cta-row"><a class="btn-hero" href="./replay.html?run=live-a-11">Explore the recorded factory</a><a class="btn-secondary" href="./replay.html?run=live-a-11&amp;view=agents">Meet the agent team</a></div>
-        <div class="hero-result" id="hero-result"></div>
-        <div class="hero-meta" id="hero-meta"></div>
-      </div>
-      <div class="hero-stage" aria-label="Recorded run live-a-11 comparison">
-        <div class="hero-scene" id="hero-scene" aria-label="3D replay of the recorded hero run"></div>
+      <nav class="nav">
+        <a class="wordmark" href="#top">FACTORY <b>N+1</b></a>
+        <div class="nav-links">
+          <a href="#revisions">Revisions</a>
+          <a href="#inspection">Inspection</a>
+          <a href="#bom">Stack</a>
+          <a id="nav-replay" href="./replay.html">Open replay ↗</a>
+          <a id="repo-link" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
+      </nav>
 
-        <div class="hero-tag left">Starting floor</div>
-        <div class="hero-tag right">Agents' floor</div>
-        <div class="hero-clock" id="hero-clock"></div>
-      </div>
-    </header>
+      <header class="hero" id="top">
+        <p class="kicker">Recursive Agents Hackathon · Crusoe × Cerebral Valley · 2026-10-17</p>
+        <h1>Agents redesigned this warehouse <mark id="h-pct">82%</mark> better for <span id="h-cost">4¢</span>.</h1>
+        <p class="sub">Nothing ships unless a frozen simulator proves it.</p>
+        <p class="lede">NVIDIA Nemotron agents on Crusoe research, redesign and test a fulfillment floor. Below, the same 100 packages run through the original floor and the agents' latest revision, replayed from the exact traces that were scored.</p>
 
-    <section class="architecture"><div class="wrap"><div class="section-header"><div><p class="section-kicker">Five stages, one measured feedback loop</p><h2>Research. Propose. Test. Keep. Remember.</h2></div><a class="btn-secondary" href="./replay.html?run=live-a-11&amp;view=agents">Inspect the hierarchy</a></div><div class="pipeline-grid">
-      <article class="pipeline-step"><span class="step-idx">01 / GOAL</span><h3>Executable checks</h3><p>Every package ships, within 25 minutes, with at most one mis-sort and nothing damaged.</p></article>
-      <article class="pipeline-step"><span class="step-idx">02 / RESEARCH</span><h3>Grounded hypotheses</h3><p>You.com sources become hypotheses. Isolated simulator tests decide which earn evidence.</p></article>
-      <article class="pipeline-step"><span class="step-idx">03 / DESIGN</span><h3>Competing lenses</h3><p>Route, Quality and Flow designers share a Playbook and test bounded layout proposals.</p></article>
-      <article class="pipeline-step"><span class="step-idx">04 / GATE</span><h3>Measured revisions</h3><p>Keep a change only after at least 1% validation gain and no goal-check regression.</p></article>
-      <article class="pipeline-step"><span class="step-idx">05 / MEMORY</span><h3>Receipts that persist</h3><p>Measured lessons, rejected edits and external hypotheses retain distinct evidence labels.</p></article>
-    </div></div></section>
-    <section class="proof" id="proof">
-      <div class="wrap">
-        <div class="kpis" id="kpis"></div>
-        <div class="card lineage" id="lineage"></div>
-        <div class="split">
-          <div class="card dod">
-            <div class="card-kicker">Done means done · checks run as code, on the replay clock</div>
-            <p class="goal" id="goal"></p>
-            <table class="dod-table" id="dod"></table>
-            <p class="fine" id="dod-note"></p>
+        <div class="stage">
+          <div class="stage-scene" id="hero-scene" aria-label="3D replay: original floor and the agents' revision, same packages, same clock"></div>
+          <div class="callout left"><b>REV 0</b> original floor</div>
+          <div class="callout right"><b>REV 11</b> agents' floor</div>
+          <div class="clock" id="hero-clock"></div>
+        </div>
+
+        <div class="under">
+          <div class="inspect">
+            <div class="label">Live inspection · checks run as code on the replay clock</div>
+            <table id="dod"></table>
           </div>
-          <div class="card race">
-            <div class="card-kicker">Run 7 · same task, same simulator budget</div>
-            <h3>Agents vs a one-line heuristic vs blind search</h3>
-            <div id="race"></div>
-            <p class="fine">Run 7 and blind search each used 41 search evaluations. Validation objective on 9 days, separate from 6 training days. Run 11 continued from run 7: 70 cumulative search evaluations (41 + 29), not an equal-budget comparison. <a href="./replay.html?run=live-a-7">Open run 7</a>. Lower is better.</p>
-          </div>
+          <table class="titleblock" id="titleblock"></table>
         </div>
-      </div>
-    </section>
+      </header>
 
-    <section class="tracks" id="tracks">
-      <div class="wrap">
-        <p class="section-kicker">The three problem statements</p>
-        <h2>What we proved, what we didn't.</h2>
-        <div class="track-grid">
-          <article class="track">
-            <div class="track-tag">Version N+1</div>
-            <h3>It keeps a change only if code measures it better.</h3>
-            <div id="runs-chart" class="chart"></div>
-            <ul class="facts" id="n1-facts"></ul>
-            <p class="gap"><b>Limit:</b> runs 8–10 stalled. Run 11 then met the goal on all 15 development days; the final split stays locked.</p>
-          </article>
-          <article class="track">
-            <div class="track-tag">Done means done</div>
-            <h3>Agents don't grade their own homework.</h3>
-            <div class="refute">
-              <div><span class="big neg">4/7</span><span>predictions refuted when designers worked blind</span></div>
-              <div><span class="big pos">0/7</span><span>after a bounded <code>simulate_layout</code> test tool</span></div>
-            </div>
-            <ul class="facts">
-              <li>We audited the grader first: <b>98 of 100</b> package traces were scrambled by an indexing bug. Fixed with a regression test that fails if the bug returns, then frozen and hashed.</li>
-              <li>A goal check that fails is shown as FAIL. Invalid runs are labeled INVALID, never scored.</li>
-            </ul>
-            <p class="gap"><b>Scope:</b> the recorded hero uses the frozen four-check goal on 15 development days. Goal-compiler evidence is separate and listed below when available.</p>
-          </article>
-          <article class="track">
-            <div class="track-tag">Shared brain</div>
-            <h3>Memory with receipts. Transfer failed this test.</h3>
-            <div class="labels-legend">
-              <span class="lbl l-untested">Untested web hypothesis</span>
-              <span class="lbl l-iso">Intervention improved (isolated test)</span>
-              <span class="lbl l-obs">Observed in accepted change</span>
-              <span class="lbl l-rej">Observed in REJECTED change</span>
-            </div>
-            <div id="memory-chart" class="chart"></div>
-            <ul class="facts" id="memory-facts"></ul>
-          </article>
-        </div>
-      </div>
-    </section>
+      <section id="revisions">
+        <div class="sec-head"><span class="sec-no">01</span><h2>Revision history</h2><p>Each revision is a change the agents proposed and the simulator accepted. Lower objective is better.</p></div>
+        <table class="revtable" id="revtable"></table>
+        <p class="note" id="rev-note"></p>
+      </section>
 
-    <section class="stack" id="sponsors">
-      <div class="wrap">
-        <p class="section-kicker">The stack, measured</p>
-        <h2>What each sponsor uniquely made possible.</h2>
-        <div class="stack-grid">
-          <article class="sp sp-crusoe">
-            <div class="sp-name">Crusoe Managed Inference</div>
-            <p class="sp-cap">One OpenAI-compatible endpoint serving Nemotron 3.5 Super VL the day after launch, with MemoryAlloy prefix caching.</p>
-            <div class="sp-num" id="sp-crusoe"></div>
-            <p class="sp-insight">Our shared Playbook is rendered byte-stable, so it doubles as a cacheable prompt prefix: cached prompt tokens grew as memory grew.</p>
-          </article>
-          <article class="sp sp-nvidia">
-            <div class="sp-name">NVIDIA Nemotron 3.5</div>
-            <p class="sp-cap">Super VL designs and reflects through typed tool calls; Lightning runs research and isolated test interventions cheaply.</p>
-            <div class="sp-num" id="sp-nvidia"></div>
-            <p class="sp-insight">Strong at structured proposals under a tool contract, and it over-claims. So predictions are graded and causes come from receipts.</p>
-          </article>
-          <article class="sp sp-you">
-            <div class="sp-name">You.com Search</div>
-            <p class="sp-cap">boost_domains, token-budgeted highlights and search receipts, with every citation checked against the exact returned URLs.</p>
-            <div class="sp-num" id="sp-you"></div>
-            <p class="sp-insight">Web ideas enter memory as hypotheses and earn trust only through an isolated simulator test. In our runs none did, and we say so.</p>
-          </article>
-        </div>
-      </div>
-    </section>
+      <section id="inspection">
+        <div class="sec-head"><span class="sec-no">02</span><h2>Inspection record</h2><p>Why the numbers can be trusted.</p></div>
+        <div class="stamps" id="stamps"></div>
+      </section>
 
-    <section class="insights">
-      <div class="wrap">
-        <p class="section-kicker">What we learned</p>
-        <ol class="insight-list" id="insights"></ol>
-      </div>
-    </section>
+      <section id="process">
+        <div class="sec-head"><span class="sec-no">03</span><h2>Process</h2><p>One loop. The model proposes; code decides.</p></div>
+        <ol class="flow">
+          <li><b>Goal</b><span>4 executable checks</span></li>
+          <li><b>Research</b><span>You.com, cited</span></li>
+          <li><b>Design</b><span>Nemotron, typed tools</span></li>
+          <li><b>Simulate</b><span>frozen grader</span></li>
+          <li><b>Gate</b><span>≥1% on held-out days</span></li>
+          <li><b>Remember</b><span>evidence-labeled</span></li>
+        </ol>
+      </section>
 
-    <section class="log" id="log">
-      <div class="wrap two">
-        <div>
-          <p class="section-kicker">Work log</p>
-          <h2>Built today, in public.</h2>
-          <p class="muted">Author times (PT). Every entry links to its commit.</p>
-        </div>
-        <ol class="timeline" id="timeline"></ol>
-      </div>
-    </section>
+      <section id="bom">
+        <div class="sec-head"><span class="sec-no">04</span><h2>Bill of materials</h2><p>What each part of the stack did, measured.</p></div>
+        <table class="bom" id="bomtable"></table>
+      </section>
 
-    <section class="evidence" id="evidence-section">
-      <div class="wrap">
-        <p class="section-kicker">Evidence</p>
-        <div class="evidence-grid" id="evidence"></div>
-        <div id="goal-compiler" class="goal-compiler" hidden></div>
-      </div>
-    </section>
+      <section id="evidence">
+        <div class="sec-head"><span class="sec-no">05</span><h2>Evidence</h2><p>Every number above is read from these recorded files.</p></div>
+        <div class="evlist" id="evlist"></div>
+      </section>
 
-    <footer class="foot">
-      <div class="wrap">
-        <p id="foot-note"></p>
-      </div>
-    </footer>
-
+      <footer class="foot" id="foot-note"></footer>
+    </div>
     <script type="module" src="./landing.ts"></script>
   </body>
 </html>

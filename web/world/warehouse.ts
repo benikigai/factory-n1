@@ -28,8 +28,9 @@ export interface Warehouse {
 }
 
 export type Selection = {type:"station";side:"baseline"|"improved";id:string}|{type:"agent";node:AgentNode};
-export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)=>void): Warehouse {
-  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+/** paper: transparent background so the floors sit on the page (the landing's drafting sheet), with a shadow-only ground. */
+export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)=>void, opts: { paper?: boolean } = {}): Warehouse {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !!opts.paper, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -44,8 +45,10 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
   host.appendChild(labelRenderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(BG);
-  scene.fog = new THREE.Fog(BG, 70, 170);
+  if (!opts.paper) {
+    scene.background = new THREE.Color(BG);
+    scene.fog = new THREE.Fog(BG, 70, 170);
+  }
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.55;
@@ -64,7 +67,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
 
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(600, 600),
-    new THREE.MeshStandardMaterial({ color: "#252a31", roughness: 1 }),
+    opts.paper ? new THREE.ShadowMaterial({ color: "#15171a", opacity: 0.16 }) : new THREE.MeshStandardMaterial({ color: "#252a31", roughness: 1 }),
   );
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.13;
