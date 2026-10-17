@@ -9,8 +9,7 @@ import { buildSnapshot, parseLines } from './snapshot';
 import { flatten, type AgentNode } from './runtime';
 import { DEMAND_PROFILES, previewDemand, stationRole, stationFailures, ROUTING_RULE, DAMAGE_RULE, MISSORT_RULE, type DemandProfile } from './factory-guide';
 import { renderNemotronResults } from './nemotron-results';
-import { DEMO_RUN, type DemoStep, demoAgent } from './demo-tour';
-import { mountGuidedDemo } from './ui/guided-demo';
+import type { DemoStep } from './demo-tour';
 import { loadVisualInspection, renderVisualInspection, type InspectionState } from './ui/visual-inspection';
 
 const $=(id:string)=>document.getElementById(id)!;
@@ -19,6 +18,7 @@ let snapshot:RunSnapshot|null=null,scope:AgentNode|null=null,selected:Selection|
 let view:'layout'|'agents'|'visual'='layout',entries:RunEntry[]=[],artifacts:Record<string,string[]>={};
 let visualInspection:InspectionState={status:'loading',runId:'live-a-11'};
 let counters:CounterEls|null=null,version=0;
+let guide:{refresh():void}|null=null;
 let demand:DemandProfile|null=null,displayReplay:ReplayBundle|null=null;
 const playback:Playback={t:0,end:1,playing:!matchMedia('(prefers-reduced-motion: reduce)').matches,speed:16};
 
@@ -149,7 +149,7 @@ function apply(data:RunSnapshot){
   displayReplay=data.replay?(demand?previewDemand(data.replay,demand):data.replay):null;
   if(view==='agents'&&scope)world.setAgents(scope);else if(data.replay&&previousReplay!==data.replay){world.setBundle(displayReplay!);if(isNew)world.preset('overview',false);}
   playback.end=displayReplay?Math.max(1,playbackEnd(displayReplay.baseline.result.trace,displayReplay.improved.result.trace)):1;playback.t=Math.min(playback.t,playback.end);controls.setEnd(playback.end);
-  renderNavigation();renderData();renderInspection();guide.refresh();
+  renderNavigation();renderData();renderInspection();guide?.refresh();
 }
 /** Fetch one run. Live runs grow while we watch, so every file is optional and fetched fresh. */
 async function fetchRun(id:string){
@@ -199,7 +199,9 @@ async function loadList(){
   entries=catalog.runs.map(id=>({id,mode:id==='sample'?'fixture':'recorded',state:'complete',createdAt:''}));
   ($('run-select') as HTMLSelectElement).replaceChildren(...entries.map(r=>h('option',{value:r.id},`${r.id} · ${modeText[r.mode].toLowerCase()}`)));
 }
-const guide=mountGuidedDemo(document.querySelector('.view-switch')!,{
+// Presenter tools are local-only and excluded from the public build.
+if(import.meta.env.DEV)void Promise.all([import('./ui/guided-demo'),import('./demo-tour')]).then(([{mountGuidedDemo},{DEMO_RUN,demoAgent}])=>{
+guide=mountGuidedDemo(document.querySelector('.view-switch')!,{
   ready:()=>entries.some(r=>r.id===DEMO_RUN),
   load:async()=>{if(snapshot?.id!==DEMO_RUN)await choose(DEMO_RUN);if(snapshot?.id!==DEMO_RUN||!snapshot.replay)throw new Error('Run 11 is unavailable.');},
   lock:active=>{($('run-select') as HTMLSelectElement).disabled=active;$('operator-content').inert=active;},
@@ -223,6 +225,7 @@ function showDemoStep(step:DemoStep){
   document.querySelectorAll('.demo-focus').forEach(el=>el.classList.remove('demo-focus'));target.classList.add('demo-focus');
   requestAnimationFrame(()=>{world.preset('overview',false);target.style.scrollMarginTop='14px';target.scrollIntoView({block:'start',behavior:'instant'});});
 }
+});
 $('run-select').onchange=()=>void choose(($('run-select') as HTMLSelectElement).value);
 $('layout-view').onclick=()=>setView('layout');$('agents-view').onclick=()=>setView('agents');$('visual-view').onclick=()=>setView('visual');
 $('download').onclick=()=>{if(!snapshot)return;const blob=new Blob([JSON.stringify({id:snapshot.id,mode:snapshot.mode,replay:snapshot.replay,events:snapshot.events,reservedUsd:snapshot.reservedUsd,checks:snapshot.checks},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=h('a',{href:url,download:`${snapshot.id}-evidence.json`});a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};

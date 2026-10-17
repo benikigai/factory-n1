@@ -1,6 +1,6 @@
 # Factory N+1 timed judge demos
 
-Open `/replay.html?run=live-a-11`. Choose **1-minute demo** or **4-minute judges demo**. Both use the recorded run, automatically advance, and make no paid calls. The timer begins after run 11 loads.
+Use the local dev server at `http://localhost:5184/replay.html?run=live-a-11`. Presenter controls are excluded from production builds, including the public Vercel site. Choose **1-minute demo** or **4-minute judges demo**. Both use the recorded run, automatically advance, and make no paid calls. The timer begins after run 11 loads.
 
 Pause timer while answering a question. Next and Back jump to the start of a stop. The final result or evidence panel remains visible when the time ends; Finish returns to the clean factory.
 

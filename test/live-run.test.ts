@@ -90,3 +90,12 @@ test("inspect: validated request, fixed caps, result and spend read from the ins
   writeFileSync(path.join(dir, "inspection.json"), JSON.stringify({ imageInput: { verified: true }, findings: [{}, {}], budget: { calls: 3, usd: 0.0017 } }));
   assert.deepEqual(readInspectResult("live-demo-2", dir), { runId: "live-demo-2", ok: true, message: "finished", verified: true, findings: 2, calls: 3, usd: 0.0017 });
 });
+
+
+test("static guard rejects presenter controls in the public bundle", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "fn1-presenter-"));
+  writeFileSync(path.join(dir, "replay.js"), '"1-minute demo"; "4-minute judges demo"; "Pause timer";');
+  assert.deepEqual(findForbidden(dir), [
+    "replay.js: 1-minute demo", "replay.js: 4-minute judges demo", "replay.js: Pause timer",
+  ]);
+});

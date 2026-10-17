@@ -48,3 +48,7 @@ The critic's 0/100 → 100/100 result describes response format, not reliable ou
 Run `npm run web -- --host 127.0.0.1 --port 5184 --strictPort` in this checkout. The landing is `/`; the presentation is `/replay.html?run=live-a-11`. The same relative links work in the production build. The scripts are in `docs/DEMO-SCRIPT.md` and derive from `web/demo-tour.ts`. Timed tours auto-advance; Pause timer holds the current stop. Manual Next/Back jump to the scheduled beginning of a stop. On completion, the last evidence remains visible until Finish.
 
 This is locally verified and has not been merged or publicly deployed. No paid model calls, paid inspections, training jobs or final-split evaluations were run. Live launches require the existing 1Password-backed `FACTORY_ENV_FILE` mount; no credentials were copied. The static export plays all recorded evidence without a backend. This is not a full accessibility audit.
+
+## Local-only presenter controls
+
+The one-minute and four-minute tours now load only in Vite development mode. Production builds exclude their buttons, timer UI and narration code. The build guard rejects presenter-control text if it leaks into a future public bundle. Local browser verification found both controls and exercised the short tour; the production preview had zero presenter buttons and zero coach panels, while the factory view and optimizer comparison remained available. All 113 tests and the production build passed. This change has not been deployed to Vercel.
