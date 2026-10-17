@@ -13,8 +13,8 @@ From the quick-fixes session, 2026-10-17. Ben approved this script. Render it wi
 
 | File | Target length | Text to speak |
 |---|---|---|
-| `01-hook` | ≤ 8.0 s | Factory N plus one is a simulated warehouse that redesigns itself. Factory N plus one ships only if it beats Factory N. |
-| `02-result` | ≤ 8.0 s | On its busiest day, the first version broke fourteen packages. Version eleven broke none. |
+| `01-hook` | ≤ 7.0 s | Factory N plus one is a recursive, self-improving factory. Factory N plus one ships only if it beats Factory N. |
+| `02-result` | ≤ 9.0 s | In our simulated package warehouse, the first version broke fourteen packages on its busiest day. Version eleven broke none. |
 | `03-team` | ≤ 11.0 s | The redesigning is done by AI agents: NVIDIA's Nemotron models on Crusoe's cloud, using You dot com to research real warehouse layouts. |
 | `04-simulator` | ≤ 10.0 s | Every idea is tested in a simulator the AI can't change, and it only stays if it wins on days the AI never practiced on. |
 | `05-ruler` | ≤ 11.0 s | The agents kept misjudging distances, so we gave them a measuring tool. On the next run, they moved one packing station three squares, and the floor cleared six minutes faster. |
@@ -40,7 +40,7 @@ Total must be 60.0 s or less. If a clip runs long, lower the pause lengths or ra
 
 | Clip | Screen at localhost:5173 | Caption |
 |---|---|---|
-| 01 | `/?speed=60` hero, both floors running | FACTORY N+1 · ships only if it beats Factory N |
+| 01 | `/?speed=60` hero, both floors running | FACTORY N+1 · recursive, self-improving · ships only if it beats Factory N |
 | 02 | Same hero, zoom from the left floor to the right one | Version 0: 14 broken → Version 11: 0 broken |
 | 03 | `/#bom` Packing slip, then the LIVE run tab (Run live → Continue from run 7) | NVIDIA Nemotron · Crusoe · You.com |
 | 04 | `/#process` Route strip, ending on Simulate and Gate | Kept only if it wins on unseen days |
