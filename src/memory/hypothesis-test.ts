@@ -35,27 +35,29 @@ export async function testHypothesis(opts: {
   margin: number;
 }): Promise<HypothesisTest> {
   const none = (untestable: string): HypothesisTest => ({ op: null, layout: null, train: null, select: null, improved: false, untestable, simEvals: 0 });
+  const messages = [
+    {
+      role: "system" as const,
+      content: `You implement ONE hypothesis as the smallest possible change (1 to ${MAX_TEST_EDITS} edits) to a factory layout, so it can be tested in isolation. Only sorter positions, pack station positions, adding/removing a pack station, and pack-station zones/sizes may change. Docks and grid are fixed. The change must differ from the current layout. Reply with strict JSON only (no comments, no trailing text): {"layout": <the complete modified layout>}`,
+    },
+    {
+      role: "user" as const,
+      content: `Hypothesis: ${opts.lesson.text}\nHow to test: ${opts.lesson.testableAs ?? "n/a"}\n\nCurrent layout:\n${JSON.stringify(opts.champion)}`,
+    },
+  ];
+  const ask = (msgs: typeof messages | { role: "user" | "system" | "assistant"; content: string }[]) =>
+    retryOn429(() => chat("hypothesis-test", { model: MODELS.lightning, max_tokens: 2500, temperature: 0, chat_template_kwargs: { enable_thinking: false }, messages: msgs }));
   let layout: Layout;
   try {
-    const res = await retryOn429(() =>
-      chat("hypothesis-test", {
-        model: MODELS.lightning,
-        max_tokens: 2500,
-        temperature: 0,
-        chat_template_kwargs: { enable_thinking: false },
-        messages: [
-          {
-            role: "system",
-            content: `You implement ONE hypothesis as the smallest possible change (1 to ${MAX_TEST_EDITS} edits) to a factory layout, so it can be tested in isolation. Only sorter positions, pack station positions, adding/removing a pack station, and pack-station zones/sizes may change. Docks and grid are fixed. Reply with JSON only: {"layout": <the complete modified layout>}`,
-          },
-          {
-            role: "user",
-            content: `Hypothesis: ${opts.lesson.text}\nHow to test: ${opts.lesson.testableAs ?? "n/a"}\n\nCurrent layout:\n${JSON.stringify(opts.champion)}`,
-          },
-        ],
-      }),
-    );
-    layout = parseJson<{ layout: Layout }>(res.choices[0]?.message.content).layout;
+    const first = await ask(messages);
+    const text = first.choices[0]?.message.content ?? "";
+    try {
+      layout = parseJson<{ layout: Layout }>(text).layout;
+    } catch (parseError) {
+      // One repair: malformed JSON is a formatting failure, not a test result.
+      const second = await ask([...messages, { role: "assistant", content: text }, { role: "user", content: `That was not valid JSON (${String((parseError as Error).message).slice(0, 80)}). Reply again with strict JSON only: {"layout": ...}` }]);
+      layout = parseJson<{ layout: Layout }>(second.choices[0]?.message.content).layout;
+    }
   } catch (e) {
     return none(`no usable intervention: ${String((e as Error).message).slice(0, 100)}`);
   }
