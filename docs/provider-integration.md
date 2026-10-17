@@ -41,7 +41,14 @@ NemoClaw and OpenShell are optional execution isolation, not a requirement for h
 
 `createYouSearch` in `src/llm/you-search.ts` exposes a bounded `research_factory_practice` tool and a direct `search` method. It uses `YDC_API_KEY`, POST `/v1/search`, three sources, a 15-second timeout, at most three requests, and deduplicates identical in-flight queries. Search content is labeled external evidence, not instructions or simulator rules. No new dependency was added.
 
-Call it once while planning to gather cited factory practices, then retain its sources in shared context. Do not search every candidate or let retrieved text modify the frozen grader. The adapter is tested with fixtures; account/key setup and a live search must pass before calling this integration live. [You.com API reference](https://you.com/docs/api-reference/search/v1-search).
+Call it once while planning to gather cited factory practices, then retain its sources in shared context. Do not search every candidate or let retrieved text modify the frozen grader. [You.com API reference](https://you.com/docs/api-reference/search/v1-search).
+
+**Status: live-verified 2026-10-17 ~11:37 PT.**
+- `YDC_API_KEY` (key `factory-n1-2026-10-17`) is stored concealed in the same 1Password environment and mount as the Crusoe key. The account has $10 starter credits, with no auto top-up, subscription or purchase.
+- `scripts/you-check.ts` ran Lightning → `research_factory_practice` → a real You.com search → a cited final reply.
+- Estimated cost: one search $0.005, two inference calls $0.0001307. Evidence is in `runs/research-check/<timestamp>/result.json` (ignored by Git).
+
+**Capability finding:** a forced named `tool_choice` returned HTTP 500 before the search ran. Its billing is unknown, so $0.0525288 was conservatively reserved. Automatic tool selection worked. **Use automatic `tool_choice`, not forced named tools.**
 
 ## Verify
 
