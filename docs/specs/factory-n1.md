@@ -16,9 +16,9 @@
 | Agents beat a code heuristic and blind search at the **same simulator budget** | ✅ every run with comparators | `live-a-7`: validation **18,061 → 6,083 (−66.3%)** vs heuristic 13,194 and random search 13,099 with the same 41 evaluations. Independently re-scored (Codex) |
 | One frozen grader everywhere | ✅ | SIM 1.1.0, hash `493a1b03…` in every record; replays regenerate exactly |
 | Model claims are checked, not trusted | ✅ | CLAIM REFUTED: **4/7** blind predictions (`live-a-1`) vs **0/7** after designers test drafts (`live-a-5`) |
-| Zero damage | ❌ **not reached yet** | Best champion ships 100/100 with 0 mis-sorts on all 15 days; damage 4–12 per training day, all from one 15-cell route. `live-a-8` and `live-a-9` made no progress: the route fixer shortened sorter→pack-B but created a 17-cell pack-B→ship leg, so damage moved. Lens revised to bound both legs; `live-a-10` is blocked until the 1Password key mount is unlocked |
+| Zero damage | ❌ **not reached yet** | Best champion ships 100/100 with 0 mis-sorts on all 15 days; damage 4–12 per training day, all from one 15-cell route. `live-a-8` and `live-a-9` made no progress: the route fixer shortened sorter→pack-B but created a 17-cell pack-B→ship leg, so damage moved. `live-a-10` (lens revised to bound both legs) also made no change; 6 of 9 proposals were duplicates. A local sweep shows the fix exists: 47 of 295 pack-B cells give zero damage, exactly those with both legs ≤ 12, and pack-B at (6,4) passes the full goal on all 15 development days. The designers stayed on the dock wall and mis-measured legs ([evidence](../evidence/zero-damage-feasibility.md)) |
 | Retained shared memory helps on fresh factories | ❌ **refuted for this memory** | Pre-registered paired test, equal hard caps: **0 wins / 0 ties / 4 losses**, median +2,357 (worse), n = 4 |
-| Spend is controlled and auditable | ✅ | Every run capped; `spend-accounting.json` splits returned usage ($0.286) from unknown-charge reservations ($0.432); $0.818 committed on the conservative basis against a $2.00 working ceiling |
+| Spend is controlled and auditable | ✅ | Every run capped; `spend-accounting.json` splits returned usage ($0.313) from unknown-charge reservations ($0.432); $0.844 committed on the conservative basis against a $2.00 working ceiling |
 
 **Our perspective:** recursive self-improvement only matters if it's **honest**. The model proposes and the grader disposes. Every on-screen number is computed by code, and negative results are shown as prominently as wins. That's what lets a judge trust the −66%.
 
@@ -111,7 +111,7 @@ Deliberately not used: NemoClaw/OpenShell (sandbox infrastructure, off the criti
 | **live-a-7** | rejected-lesson labels, 2 draft tests | **→ 6,083 (−66.3%)** | **hero**; independently verified |
 | live-a-8 | continue from a-7, 3 draft tests | no change | duplicates; 49% cache hits |
 | live-a-9 | continue from a-7, ROUTE FIXER lens, no research | no change | damage moved to the pack→ship leg; 429s from research handled |
-| live-a-10 | revised route lens (both legs) | not run | key mount empty twice; exited before any request ($0) |
+| live-a-10 | revised route lens (both legs), no research | no change | 42 calls, $0.027; leg arithmetic wrong (claimed 12, actual 17); zero-damage cells exist ([feasibility](../evidence/zero-damage-feasibility.md)) |
 | memeval-…19-33-01 | memory vs none, F/G | INVALID | connection error starved arms |
 | **memeval-…19-41-04** | memory vs none, F/G | **0W/0T/4L** | valid negative result |
 
