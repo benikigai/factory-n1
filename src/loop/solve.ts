@@ -13,8 +13,9 @@ import { reflect } from "../agents/reflector.ts";
 import { hillclimb } from "../baselines/hillclimb.ts";
 import { MODELS, spend, usageLedger } from "../llm/crusoe.ts";
 import { createYouSearch } from "../llm/you-search.ts";
-import { attribute } from "../memory/attribution.ts";
+import { attribute, diffLayouts } from "../memory/attribution.ts";
 import { observe } from "./observe.ts";
+import { meterDelta, meteredEvaluate, meteredSimulate, meterSnapshot } from "./meter.ts";
 import { research } from "../memory/research.ts";
 import { testHypothesis } from "../memory/hypothesis-test.ts";
 import { reduce, render, retirements, toCited, type Evidence, type MemoryOp } from "../memory/store.ts";
@@ -38,6 +39,18 @@ export interface SolveOptions {
   log?: (line: string) => void;
   /** Draft tests each designer may run with simulate_layout per generation (each counts as a sim eval). */
   probes?: number;
+  /**
+   * Run designers one at a time. Same snapshot and semantics; keeps the client's worst-case
+   * spend reservation (~$0.106 per in-flight Super VL call) inside small caps.
+   */
+  sequentialDesigners?: boolean;
+  /** Frozen memory to start from (e.g. a learned Playbook snapshot). Applied before generation 1. */
+  initialOps?: MemoryOp[];
+  /** Evaluation switches. research=false skips You.com research and isolated tests; reflect=false writes no lessons. */
+  research?: boolean;
+  reflect?: boolean;
+  /** No memory at all: designers see an empty Playbook (for the memory vs no-memory comparison). */
+  noMemory?: boolean;
   /** Injection points for offline tests; default to the live Nemotron agents. */
   deps?: { propose?: typeof propose; reflect?: typeof reflect; research?: typeof research; testHypothesis?: typeof testHypothesis };
 }
@@ -90,6 +103,8 @@ export async function solve(opts: SolveOptions) {
   const margin = opts.margin ?? 0.01;
   const log = opts.log ?? ((l: string) => console.log(l));
   const runId = opts.runId ?? `solve-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const startedAt = Date.now();
+  const meter0 = meterSnapshot();
   const dir = `runs/${runId}`;
   mkdirSync(dir, { recursive: true });
   const grader = graderHash();
@@ -106,13 +121,13 @@ export async function solve(opts: SolveOptions) {
   const reflectFn = opts.deps?.reflect ?? reflect;
   const researchFn = opts.deps?.research ?? research;
   const testFn = opts.deps?.testHypothesis ?? testHypothesis;
-  const ops: MemoryOp[] = [];
+  const ops: MemoryOp[] = [...(opts.initialOps ?? [])];
   const dod = DEFAULT_DOD;
 
   let champion = task.initial;
   let champId = "gen0";
-  let champTrain = evaluate(champion, "train", dod);
-  let champSelect = evaluate(champion, "select", dod);
+  let champTrain = meteredEvaluate("baseline", champion, "train", dod);
+  let champSelect = meteredEvaluate("baseline", champion, "select", dod);
   const baselineTrain = champTrain;
   const baselineSelect = champSelect;
   const seen = new Set([hashLayout(champion)]);
@@ -175,12 +190,12 @@ export async function solve(opts: SolveOptions) {
 
   const failingNow = champTrain.dod!.checks.filter((c) => !c.passed).map((c) => `${c.description} (got ${c.actual})`).join("; ");
   const bottleneck = champTrain.results[0]?.metrics.bottleneck;
-  await doResearch(`Failing checks: ${failingNow}. Biggest queue at ${bottleneck}. Packages are damaged in transit and mis-sorted.`, "EXT-plan", 0);
+  if (opts.research !== false) await doResearch(`Failing checks: ${failingNow}. Biggest queue at ${bottleneck}. Packages are damaged in transit and mis-sorted.`, "EXT-plan", 0);
 
   const writeReplay = (mode: ReplayBundle["mode"], comparators: ReplayBundle["comparators"]) => {
     const scenario = makeScenario(202, "peak");
     const side = (label: string, layout: Layout, train: Evaluation, select: Evaluation): ReplaySide => ({
-      label, layout, result: simulate(layout, scenario),
+      label, layout, result: meteredSimulate("replay", layout, scenario),
       train: { objective: train.objective, dodPassed: train.dod!.passed },
       select: { objective: select.objective, dodPassed: select.dod!.passed },
     });
@@ -202,11 +217,14 @@ export async function solve(opts: SolveOptions) {
   for (let gen = 1; gen <= generations; gen++) {
     if (graderHash() !== grader) throw new Error("grader source changed during the run; aborting");
     const memory = reduce(ops);
-    const prefix = sharedPrefix(task, render(memory));
+    const prefix = sharedPrefix(task, opts.noMemory ? render(reduce([])) : render(memory));
     const state = stateText(champion, champTrain, rejected);
     const ledgerStart = usageLedger.length;
     log(`gen ${gen}: ${LENSES.length} designers reading playbook v${memory.version} (${memory.lessons.filter((l) => l.status !== "retired").length} lessons)`);
-    const proposals = await Promise.all(LENSES.map((lens) => proposeFn({ task, lens, sharedPrefix: prefix, state, probes: opts.probes ?? 0 })));
+    const ask = (lens: (typeof LENSES)[number]) => proposeFn({ task, lens, sharedPrefix: prefix, state, probes: opts.probes ?? 0 });
+    const proposals: Proposal[] = [];
+    if (opts.sequentialDesigners) for (const lens of LENSES) proposals.push(await ask(lens));
+    else proposals.push(...(await Promise.all(LENSES.map(ask))));
 
     simEvals += proposals.reduce((a, p) => a + (p.probes?.filter((x) => x.objective !== null).length ?? 0), 0);
     type Scored = { p: Proposal; id: string; hash: string | null; train: Evaluation | null; dup: boolean };
@@ -217,7 +235,7 @@ export async function solve(opts: SolveOptions) {
       if (seen.has(hash)) return { p, id, hash, train: null, dup: true };
       seen.add(hash);
       simEvals++;
-      return { p, id, hash, train: evaluate(p.layout, "train", dod), dup: false };
+      return { p, id, hash, train: meteredEvaluate("candidate", p.layout, "train", dod), dup: false };
     });
 
     const valid = scored.filter((s) => s.train).sort((a, b) => a.train!.objective - b.train!.objective);
@@ -226,7 +244,7 @@ export async function solve(opts: SolveOptions) {
     let bestSelect: Evaluation | null = null;
     let gateReason = "";
     if (best && best.train!.objective < champTrain.objective) {
-      bestSelect = evaluate(best.p.layout!, "select", dod);
+      bestSelect = meteredEvaluate("gate", best.p.layout!, "select", dod);
       simEvals++;
       const regress = regressions(champSelect.dod!, bestSelect.dod!);
       if (bestSelect.objective <= champSelect.objective * (1 - margin) && !regress.length) winner = best;
@@ -272,13 +290,13 @@ export async function solve(opts: SolveOptions) {
         rejected.push({
           gen, candidateId: s.id, designer: `${s.p.designer} (${s.p.model})`, rationale: s.p.rationale, reason,
           trainObjective: measured, errors: s.p.errors, layout: s.p.layout,
-          edits: s.p.layout && !s.p.errors.length ? attribute(champion, s.p.layout).map((e) => e.edit) : [],
+          edits: s.p.layout && !s.p.errors.length ? diffLayouts(champion, s.p.layout).map((e) => e.edit) : [],
         });
       }
       record({
         gen, candidateId: s.id, designer: s.p.designer, model: s.p.model, via: s.p.via, toolReceipts: s.p.toolReceipts,
         beforeLayoutHash: hashLayout(champion), candidateLayoutHash: s.hash, candidateLayout: s.p.layout,
-        diff: s.p.layout && !s.p.errors.length ? attribute(champion, s.p.layout).map((e) => e.edit) : [],
+        diff: s.p.layout && !s.p.errors.length ? diffLayouts(champion, s.p.layout).map((e) => e.edit) : [],
         rationale: s.p.rationale, appliedLessons: s.p.appliedLessons, playbookVersion: memory.version,
         prediction: s.p.prediction, measuredTrain: s.train ? metricsOf(s.train) : null,
         measuredSelect: s === best && bestSelect ? metricsOf(bestSelect) : null,
@@ -300,15 +318,19 @@ export async function solve(opts: SolveOptions) {
       champTrain = winner.train!;
       champSelect = bestSelect!;
       stalled = 0;
-      const lesson = await reflectFn({ id: `VER-g${gen}`, evidence: acceptedEvidence, rationale: winner.p.rationale, before, after: metricsOf(champTrain) });
-      if (lesson) memOps.push(lesson);
+      if (opts.reflect !== false) {
+        const lesson = await reflectFn({ id: `VER-g${gen}`, evidence: acceptedEvidence, rationale: winner.p.rationale, before, after: metricsOf(champTrain) });
+        if (lesson) memOps.push(lesson);
+      }
     } else {
       stalled++;
       // Review what didn't work: the best valid rejected candidate's per-edit receipts, computed by code.
-      const tried = valid.find((v) => v.p.layout && hashLayout(v.p.layout) !== hashLayout(champion));
-      if (stalled === 1 && tried) {
+      // Prefer the gated candidate: it has a measured validation result explaining the rejection.
+      const tried = best && bestSelect ? best : valid.find((v) => v.p.layout && hashLayout(v.p.layout) !== hashLayout(champion));
+      if (stalled === 1 && tried && opts.reflect !== false) {
         const edits = attribute(champion, tried.p.layout!).map((e) => ({ edit: e.deltaAlone === null ? `${e.edit} (not valid on its own)` : e.edit, deltaAlone: e.deltaAlone ?? 0 }));
-        const evidence: Evidence = { gen, candidateId: tried.id, accepted: false, deltaSelect: null, edits };
+        const deltaSelect = tried === best && bestSelect ? Math.round((bestSelect.objective - champSelect.objective) * 100) / 100 : null;
+        const evidence: Evidence = { gen, candidateId: tried.id, accepted: false, deltaSelect, edits };
         const lesson = await reflectFn({ id: `VER-g${gen}-avoid`, evidence, rationale: tried.p.rationale, before: metricsOf(champTrain), after: metricsOf(tried.train!), outcome: "stall" });
         if (lesson) memOps.push(lesson);
       }
@@ -329,7 +351,7 @@ export async function solve(opts: SolveOptions) {
       stopReason = "goal met on validation days and no further gains for 2 generations";
       break;
     }
-    if (stalled === 2 && search.usage().attempts < (opts.searches ?? 2)) {
+    if (opts.research !== false && stalled === 2 && search.usage().attempts < (opts.searches ?? 2)) {
       log("  supervisor: 2 generations without an accepted change -> re-plan with targeted research");
       const worst = champTrain.dod!.checks.filter((c) => !c.passed).map((c) => `${c.description} (got ${c.actual})`).join("; ");
       await doResearch(`Stalled. Still failing: ${worst || "none"}. Bottleneck ${champTrain.results[0]?.metrics.bottleneck}.`, `EXT-g${gen}`, gen);
@@ -345,6 +367,8 @@ export async function solve(opts: SolveOptions) {
     log(`  ${stopReason}`);
   }
 
+  // All simulator calls this run made (candidates, gate, probes, tests, attribution, replay), before comparators.
+  const simCalls = meterDelta(meter0);
   // Comparators computed by code at the same simulator-evaluation budget.
   const heuristic: Layout = { ...task.initial, name: "code-heuristic", stations: task.initial.stations.map((s) => (s.kind === "pack" ? { ...s, sizes: ["S", "M", "L"] } : s)) };
   const climb = hillclimb(task, Math.max(1, simEvals), 1);
@@ -359,7 +383,7 @@ export async function solve(opts: SolveOptions) {
   writeFileSync(`${dir}/research.json`, JSON.stringify(researchLog, null, 2));
   const s = spend();
   const summary = {
-    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals,
+    runId, taskId: task.id, stopReason, simVersion: SIM_VERSION, graderHash: grader, simEvals, simCalls, wallMs: Date.now() - startedAt,
     baseline: { train: baselineTrain.objective, select: baselineSelect.objective, dodSelect: baselineSelect.dod!.passed },
     champion: { id: champId, train: champTrain.objective, select: champSelect.objective, dodSelect: champSelect.dod!.passed },
     improvementSelectPct: Math.round((1 - champSelect.objective / baselineSelect.objective) * 10000) / 100,

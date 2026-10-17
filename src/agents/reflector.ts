@@ -33,7 +33,7 @@ export async function reflect(opts: {
         },
         {
           role: "user",
-          content: `${stall ? "Rejected change (best of a stalled generation)" : `Accepted change (select objective ${opts.evidence.deltaSelect})`}. Designer rationale (may be wrong): ${opts.rationale}\nEdit receipts:\n${receipts}\nAverage metrics before: ${JSON.stringify(opts.before)}\nAfter: ${JSON.stringify(opts.after)}`,
+          content: `${stall ? `REJECTED change (best of a stalled generation). On the separate validation days it changed the objective by ${opts.evidence.deltaSelect ?? "an unmeasured amount"} (positive is worse), so the gate rejected it; training-day receipts below may not hold up` : `Accepted change (select objective ${opts.evidence.deltaSelect})`}. Designer rationale (may be wrong): ${opts.rationale}\nEdit receipts:\n${receipts}\nAverage metrics before: ${JSON.stringify(opts.before)}\nAfter: ${JSON.stringify(opts.after)}`,
         },
       ],
     }));

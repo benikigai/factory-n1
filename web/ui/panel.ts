@@ -154,11 +154,12 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
     if (!l.basis) return l.kind === "verified" ? "LEGACY label (pre-fix run)" : "EXTERNAL hypothesis";
     if (l.basis === "isolated-test") return "INTERVENTION IMPROVED · isolated test";
     if (l.basis === "observed-from-experiment") return "OBSERVED in accepted experiment";
+    if (l.basis === "observed-from-rejected-experiment") return "OBSERVED in REJECTED experiment";
     if (l.status === "retired") return "TESTED · no improvement (retired)";
     return l.test ? "TESTED · no improvement" : "EXTERNAL hypothesis · untested";
   };
   const lessonClass = (l: ReplayBundle["lessons"][number]) =>
-    l.basis === "isolated-test" || l.basis === "observed-from-experiment" ? "verified" : l.status === "retired" ? "retired" : "external";
+    l.basis === "isolated-test" || l.basis === "observed-from-experiment" ? "verified" : l.status === "retired" || l.basis === "observed-from-rejected-experiment" ? "retired" : "external";
 
   const lessons = b.lessons.length
     ? b.lessons.map((l) =>

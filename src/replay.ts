@@ -30,7 +30,7 @@ export interface CitedLesson {
   id: string;
   /** verified = promoted by an isolated test or observed from an accepted experiment; external = still a hypothesis. */
   kind: "external" | "verified";
-  basis?: "untested" | "isolated-test" | "observed-from-experiment";
+  basis?: "untested" | "isolated-test" | "observed-from-experiment" | "observed-from-rejected-experiment";
   status?: "hypothesis" | "verified" | "retired";
   /** Times designers cited it, and how many of those proposals won (citations are not evidence). */
   cited?: number;

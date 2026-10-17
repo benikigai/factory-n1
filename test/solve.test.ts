@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { test } from "node:test";
-import type { Proposal } from "../src/agents/designer.ts";
+import { LENSES, type Proposal } from "../src/agents/designer.ts";
 import { solve } from "../src/loop/solve.ts";
 import { reduce, render, retirements, type MemoryOp } from "../src/memory/store.ts";
 import type { ReplayBundle } from "../src/replay.ts";
@@ -41,8 +41,9 @@ test("full loop offline: research -> memory -> proposals -> grader -> accept/rej
         query: "q", sources: [], receiptId: "call_1", citationRepairs: 0, dropped: [],
       }),
       propose: async ({ lens: l }) => {
-        const p = script[gen][l.id];
-        if (++lens % 2 === 0) gen++;
+        // Scripted lenses come from the table; any other lens resubmits the starting layout (rejected).
+        const p = script[gen]?.[l.id] ?? P(l.id, task.initial);
+        if (++lens % LENSES.length === 0) gen++;
         return p;
       },
       reflect: async ({ id, evidence }) => ({ op: "add_verified", id, text: "size coverage removes mis-sorts", scope: "factory-a", evidence, author: "scripted" }),
@@ -150,4 +151,13 @@ test("memory: a verified lesson is not retired by later proposals that cite it",
   assert.equal(state.lessons[0].status, "verified");
   assert.equal(retirements(state).length, 0);
   assert.equal(state.lessons[0].cited, 4, "citations are counted, not treated as evidence");
+});
+
+test("memory: a lesson from a rejected change is labeled rejected and carries its validation result", () => {
+  const ev = { gen: 2, candidateId: "g2-flow", accepted: false, deltaSelect: 460.66, edits: [{ edit: "sort-1 (12,7) -> (2,7)", deltaAlone: -606.67 }] };
+  const state = reduce([{ op: "add_verified", id: "V-avoid", text: "moving the sorter helped", scope: "a", evidence: ev, author: "t" }]);
+  assert.equal(state.lessons[0].basis, "observed-from-rejected-experiment");
+  const text = render(state);
+  assert.match(text, /REJECTED experiment/);
+  assert.match(text, /\+460\.66/, "validation result is shown next to the training-day receipt");
 });

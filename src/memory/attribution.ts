@@ -3,7 +3,7 @@
  * against the previous champion. Models narrate causes wrongly (Super VL credited a
  * sorter move for a mis-sort fix); lessons and the UI may only cite these numbers.
  */
-import { evaluate } from "../sim/evaluate.ts";
+import { meteredEvaluate } from "../loop/meter.ts";
 import type { Layout, Station } from "../sim/types.ts";
 
 export interface AtomicEdit {
@@ -39,9 +39,9 @@ export function diffLayouts(before: Layout, after: Layout): AtomicEdit[] {
 
 /** Train-objective change of each edit applied alone to `before`. null = that edit alone is not a valid layout. */
 export function attribute(before: Layout, after: Layout): { edit: string; deltaAlone: number | null }[] {
-  const base = evaluate(before, "train").objective;
+  const base = meteredEvaluate("attribution", before, "train").objective;
   return diffLayouts(before, after).map((e) => {
-    const ev = evaluate(e.apply(before), "train");
+    const ev = meteredEvaluate("attribution", e.apply(before), "train");
     return { edit: e.edit, deltaAlone: ev.valid ? Math.round((ev.objective - base) * 100) / 100 : null };
   });
 }

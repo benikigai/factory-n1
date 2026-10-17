@@ -31,7 +31,7 @@ export interface Evidence {
   isolated?: boolean;
 }
 
-export type Basis = "untested" | "isolated-test" | "observed-from-experiment";
+export type Basis = "untested" | "isolated-test" | "observed-from-experiment" | "observed-from-rejected-experiment";
 
 export type MemoryOp =
   | {
@@ -44,7 +44,7 @@ export type MemoryOp =
       retrievedAt: string;
       toolReceiptId: string;
     }
-  | { op: "add_verified"; id: string; text: string; scope: string; evidence: Evidence; author: string }
+  | { op: "add_verified"; id: string; text: string; scope: string; evidence: Evidence; author: string; basis?: Basis }
   /** A designer said its proposal relied on this lesson. Not evidence. */
   | { op: "cited"; id: string; evidence: Evidence }
   /** Isolated test of a hypothesis. `improved` is decided by code against the gate margin. */
@@ -98,7 +98,8 @@ export function reduce(ops: MemoryOp[]): MemoryState {
       if (lessons.has(o.id)) continue;
       lessons.set(o.id, {
         id: o.id, kind: "verified", status: "verified", text: o.text, scope: o.scope, sources: [],
-        basis: "observed-from-experiment", helped: 0, trials: 0, cited: 0, citedInAccepted: 0, evidence: [o.evidence],
+        basis: o.basis ?? (o.evidence.accepted ? "observed-from-experiment" : "observed-from-rejected-experiment"),
+        helped: 0, trials: 0, cited: 0, citedInAccepted: 0, evidence: [o.evidence],
       });
     } else {
       const l = lessons.get(o.id);
@@ -147,11 +148,13 @@ export function render(state: MemoryState): string {
         ? `INTERVENTION IMPROVED in an isolated test (validation objective ${test?.deltaSelect}; tested edits: ${(test?.edits ?? []).map((e) => e.edit).join("; ")}). This supports those edits, not every claim in the source`
         : l.basis === "observed-from-experiment"
           ? "OBSERVED in an accepted experiment (code-computed receipts)"
+          : l.basis === "observed-from-rejected-experiment"
+            ? `OBSERVED in a REJECTED experiment: it did not beat the champion on validation days (validation objective ${l.evidence[0]?.deltaSelect === null || l.evidence[0]?.deltaSelect === undefined ? "not measured" : (l.evidence[0].deltaSelect > 0 ? "+" : "") + l.evidence[0].deltaSelect}). Training-day receipts may not hold up`
           : l.trials
             ? `EXTERNAL hypothesis, isolated test showed no improvement (validation objective ${test?.deltaSelect ?? "n/a"})`
             : "EXTERNAL hypothesis (untested in our simulator)";
-    const receipts = l.basis === "observed-from-experiment" && l.evidence[0]?.edits?.length
-      ? ` Receipts: ${l.evidence[0].edits.map((e) => `${e.edit} ${e.deltaAlone > 0 ? "+" : ""}${e.deltaAlone}`).join("; ")}.`
+    const receipts = (l.basis === "observed-from-experiment" || l.basis === "observed-from-rejected-experiment") && l.evidence[0]?.edits?.length
+      ? ` Training-day receipts: ${l.evidence[0].edits.map((e) => `${e.edit} ${e.deltaAlone > 0 ? "+" : ""}${e.deltaAlone}`).join("; ")}.`
       : "";
     const stats = `${l.trials ? `tested ${l.trials}x, improved ${l.helped}x; ` : ""}cited ${l.cited}x`;
     const src = l.sources.length ? ` Sources: ${l.sources.map((s) => s.url).join(" ")}` : "";
@@ -176,7 +179,7 @@ export function toCited(state: MemoryState): CitedLesson[] {
     cited: l.cited,
     citedInAccepted: l.citedInAccepted,
     test: l.evidence.find((e) => e.isolated) ? { deltaSelect: l.evidence.find((e) => e.isolated)!.deltaSelect, edits: l.evidence.find((e) => e.isolated)!.edits ?? [] } : undefined,
-    receipts: l.basis === "observed-from-experiment" ? l.evidence[0]?.edits ?? [] : undefined,
+    receipts: l.basis === "observed-from-experiment" || l.basis === "observed-from-rejected-experiment" ? l.evidence[0]?.edits ?? [] : undefined,
     text: l.text,
     sources: l.sources.map((s) => ({ url: s.url, title: s.title })),
     posterior: { helped: l.helped, trials: l.trials, mean: Math.round(posteriorMean(l) * 100) / 100 },

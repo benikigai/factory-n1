@@ -9,7 +9,7 @@ import { runToolTurn, type AgentTool } from "../llm/tools.ts";
 import type { Layout } from "../sim/types.ts";
 import { validateForTask, type Task } from "../tasks/task.ts";
 import { DEFAULT_DOD } from "../sim/dod.ts";
-import { evaluate } from "../sim/evaluate.ts";
+import { meteredEvaluate } from "../loop/meter.ts";
 import { observe } from "../loop/observe.ts";
 import { retryOn429 } from "./retry.ts";
 
@@ -63,7 +63,7 @@ function probeTool(task: Task, budget: number, used: Proposal["probes"]): AgentT
         used.push({ objective: null, errors });
         return { ok: false, errors };
       }
-      const ev = evaluate(layout, "train", DEFAULT_DOD);
+      const ev = meteredEvaluate("probe", layout, "train", DEFAULT_DOD);
       used.push({ objective: ev.objective, errors: [] });
       return { ok: true, testsLeft: budget - used.length, observation: observe(ev) };
     },
@@ -78,6 +78,7 @@ export interface Lens {
 
 export const LENSES: Lens[] = [
   { id: "flow", temperature: 0.3, instructions: "Your lens is FLOW: shorten and straighten the path each package travels from receiving to its shipping dock, and spread load so no station queue explodes." },
+  { id: "quality", temperature: 0.5, instructions: "Your lens is QUALITY: eliminate damaged and mis-sorted packages entirely. Use the arrival-inspection data to find which conveyor routes damage packages, and redesign so no package has to travel such a route (for example, dedicate pack stations to zones and place them where both the sorter and their dock are close). Keep every package shipped." },
   { id: "capacity", temperature: 0.8, instructions: "Your lens is CAPACITY and COVERAGE: make sure every package type has a pack station that accepts it, size the number of sorters and pack stations to the arrival rate, and watch capex." },
 ];
 

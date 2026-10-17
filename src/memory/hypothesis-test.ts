@@ -7,7 +7,8 @@
 import { retryOn429 } from "../agents/retry.ts";
 import { chat, MODELS, parseJson } from "../llm/crusoe.ts";
 import { DEFAULT_DOD } from "../sim/dod.ts";
-import { evaluate, type Evaluation } from "../sim/evaluate.ts";
+import type { Evaluation } from "../sim/evaluate.ts";
+import { meteredEvaluate } from "../loop/meter.ts";
 import type { Layout } from "../sim/types.ts";
 import { validateForTask, type Task } from "../tasks/task.ts";
 import { attribute } from "./attribution.ts";
@@ -67,8 +68,8 @@ export async function testHypothesis(opts: {
   if (edits.length === 0) return none("intervention made no change");
   if (edits.length > MAX_TEST_EDITS) return none(`intervention not isolated (${edits.length} edits > ${MAX_TEST_EDITS})`);
 
-  const train = evaluate(layout, "train", DEFAULT_DOD);
-  const select = evaluate(layout, "select", DEFAULT_DOD);
+  const train = meteredEvaluate("hypothesis-test", layout, "train", DEFAULT_DOD);
+  const select = meteredEvaluate("hypothesis-test", layout, "select", DEFAULT_DOD);
   const deltaSelect = Math.round((select.objective - opts.championSelect.objective) * 100) / 100;
   const improved = select.objective <= opts.championSelect.objective * (1 - opts.margin);
   return {

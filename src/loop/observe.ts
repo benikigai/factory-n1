@@ -3,7 +3,21 @@
  * load, and sensor-style route observations. The simulator's internal rules (damage
  * threshold, mis-sort rule, service times) are never stated.
  */
+import { SIM } from "../sim/config.ts";
 import type { Evaluation } from "../sim/evaluate.ts";
+import type { PackageTrace } from "../sim/types.ts";
+
+/**
+ * Inspection sensor: the route on which a damaged package was first found damaged on arrival.
+ * This mirrors the engine's own per-leg check (it reads the grader's constant, never changes it)
+ * so damage is reported on the route that caused it, as floor inspection would. The threshold
+ * itself is never shown to agents.
+ */
+function damagedOnArrivalFrom(t: PackageTrace): string | null {
+  if (!t.damaged) return null;
+  const leg = t.legs.find((l) => l.cells > SIM.fragileMaxLeg);
+  return leg ? `${leg.from}->${leg.to}` : null;
+}
 
 export function observe(train: Evaluation): string {
   if (!train.valid) return `INVALID LAYOUT: ${train.errors.join("; ")}`;
@@ -22,21 +36,22 @@ export function observe(train: Evaluation): string {
   const routes = new Map<string, { cells: number; fragile: number; damaged: number; packages: number }>();
   for (const r of train.results) {
     for (const t of r.trace) {
+      const damagedOn = damagedOnArrivalFrom(t);
       for (const leg of t.legs) {
         const k = `${leg.from}->${leg.to}`;
         const e = routes.get(k) ?? { cells: leg.cells, fragile: 0, damaged: 0, packages: 0 };
         e.packages++;
         if (t.fragile) e.fragile++;
-        if (t.damaged) e.damaged++;
+        if (damagedOn === k) e.damaged++;
         routes.set(k, e);
       }
     }
   }
   const routeLines = [...routes.entries()]
     .sort((a, b) => b[1].damaged - a[1].damaged || b[1].cells - a[1].cells)
-    .slice(0, 8)
-    .map(([k, e]) => `${k}: ${e.cells} cells long, ${e.packages} trips, ${e.fragile} fragile, ${e.damaged} of the packages on this route arrived damaged`)
+    .slice(0, 10)
+    .map(([k, e]) => `${k}: ${e.cells} cells long, ${e.packages} trips (${e.fragile} fragile), inspection found ${e.damaged} packages damaged on arrival from this route`)
     .join("\n");
   const failing = train.dod?.checks.filter((c) => !c.passed).map((c) => `${c.description} (got ${c.actual})`).join("; ") || "none";
-  return `RESULTS ON THE ${n} TRAINING DAYS (average objective ${train.objective}):\n${days}\n\nPER-STATION LOAD:\n${stations}\n\nCONVEYOR ROUTES (all training days):\n${routeLines}\n\nFAILING GOAL CHECKS: ${failing}`;
+  return `RESULTS ON THE ${n} TRAINING DAYS (average objective ${train.objective}):\n${days}\n\nPER-STATION LOAD:\n${stations}\n\nCONVEYOR ROUTES with arrival inspection (all training days):\n${routeLines}\n\nFAILING GOAL CHECKS: ${failing}`;
 }
