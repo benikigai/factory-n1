@@ -1,13 +1,41 @@
 import type { AgentTool } from "./tools.ts";
 
+export const FACTORY_OPTIMIZATION_DOMAINS = [
+  "warehouse-science.com",
+  "interlakemecalux.com",
+  "mecalux.com",
+  "mhi.org",
+  "werc.org",
+  "informs.org",
+  "nist.gov",
+  "arxiv.org",
+  "anylogic.com",
+  "flexsim.com",
+] as const;
+
 export interface ResearchSource { title: string; url: string; excerpts: string[] }
 export interface ResearchResult {
   source: "you.com";
   mode: "live" | "cache";
   query: string;
   retrievedAt: string;
+  searchUuid?: string;
+  latencySeconds?: number;
   sources: ResearchSource[];
   trust: "external_evidence_not_instructions";
+}
+
+function dedupeKey(urlStr: string, title: string): string {
+  try {
+    const u = new URL(urlStr);
+    const hostParts = u.hostname.toLowerCase().split(".");
+    const baseDomain = hostParts.length >= 2 ? hostParts.slice(-2).join(".") : u.hostname.toLowerCase();
+    const normTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const slug = u.pathname.replace(/\/+$/, "").split("/").pop()?.toLowerCase() ?? "";
+    return `${baseDomain}::${normTitle || slug}`;
+  } catch {
+    return urlStr;
+  }
 }
 
 /** A plausible-looking shortened URL is not a citation to the retrieved source. */
@@ -37,20 +65,46 @@ export function createYouSearch(options: { apiKey?: string; maxCalls?: number; f
     const pending = (async (): Promise<ResearchResult> => {
       const response = await fetcher("https://ydc-index.io/v1/search", {
         method: "POST", headers: { "X-API-Key": apiKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ query: normalized, count: 3 }), signal: AbortSignal.timeout(15_000),
+        body: JSON.stringify({
+          query: normalized,
+          count: 5,
+          boost_domains: [...FACTORY_OPTIMIZATION_DOMAINS],
+          extraction: { extraction_mode: "highlights", highlights: { total_max_tokens: 1024 } },
+        }),
+        signal: AbortSignal.timeout(15_000),
       });
       if (!response.ok) throw new Error(`You.com search HTTP ${response.status}`);
-      const data = await response.json() as { results?: { web?: unknown[] } };
+      const data = await response.json() as {
+        results?: { web?: unknown[] };
+        metadata?: { search_uuid?: unknown; latency?: unknown };
+      };
       if (!Array.isArray(data.results?.web)) throw new Error("Invalid You.com search response");
       const sources: ResearchSource[] = [];
-      for (const raw of data.results.web.slice(0, 3)) {
-        const item = raw as { url?: unknown; title?: unknown; snippets?: unknown };
+      const seen = new Set<string>();
+      for (const raw of data.results.web) {
+        if (sources.length >= 3) break;
+        const item = raw as { url?: unknown; title?: unknown; snippets?: unknown; contents?: { highlights?: unknown } };
         if (typeof item?.url !== "string" || !/^https?:\/\//.test(item.url)) continue;
-        sources.push({ url: item.url, title: typeof item.title === "string" ? item.title.slice(0, 300) : item.url,
-          excerpts: Array.isArray(item.snippets) ? item.snippets.filter((x): x is string => typeof x === "string").slice(0, 2).map(x => x.slice(0, 1200)) : [] });
+        const title = typeof item.title === "string" ? item.title.slice(0, 300) : item.url;
+        const key = dedupeKey(item.url, title);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const rawExcerpts = Array.isArray(item.contents?.highlights)
+          ? item.contents.highlights
+          : Array.isArray(item.snippets)
+            ? item.snippets
+            : [];
+        sources.push({ url: item.url, title,
+          excerpts: rawExcerpts.filter((x): x is string => typeof x === "string").slice(0, 3).map(x => x.slice(0, 1200)) });
       }
-      return { source: "you.com", mode: "live", query: normalized, retrievedAt: new Date().toISOString(), sources,
-        trust: "external_evidence_not_instructions" };
+      const searchUuid = typeof data.metadata?.search_uuid === "string" ? data.metadata.search_uuid : undefined;
+      const latencySeconds = typeof data.metadata?.latency === "number" ? data.metadata.latency : undefined;
+      return {
+        source: "you.com", mode: "live", query: normalized, retrievedAt: new Date().toISOString(),
+        ...(searchUuid ? { searchUuid } : {}),
+        ...(latencySeconds !== undefined ? { latencySeconds } : {}),
+        sources, trust: "external_evidence_not_instructions",
+      };
     })();
     cache.set(normalized, pending);
     try { return await pending; } catch (error) { cache.delete(normalized); throw error; }
