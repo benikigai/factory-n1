@@ -94,8 +94,8 @@ test("inspect: validated request, fixed caps, result and spend read from the ins
 
 test("static guard rejects presenter controls in the public bundle", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "fn1-presenter-"));
-  writeFileSync(path.join(dir, "replay.js"), '"1-minute demo"; "4-minute judges demo"; "Pause timer";');
+  writeFileSync(path.join(dir, "replay.js"), '"1-minute walkthrough"; "4-minute detailed walkthrough"; "Pause timer";');
   assert.deepEqual(findForbidden(dir), [
-    "replay.js: 1-minute demo", "replay.js: 4-minute judges demo", "replay.js: Pause timer",
+    "replay.js: 1-minute walkthrough", "replay.js: 4-minute detailed walkthrough", "replay.js: Pause timer",
   ]);
 });

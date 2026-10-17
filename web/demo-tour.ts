@@ -21,7 +21,7 @@ export interface DemoTour {
 }
 
 export const DEMO_TOURS: DemoTour[] = [
-  { id: 'quick', label: '1-minute demo', seconds: 60, steps: [
+  { id: 'quick', label: '1-minute walkthrough', seconds: 60, steps: [
     { title: 'The factory', seconds: 15, time: 'play', cue: 'Show the two factories. Packages are moving through the recorded run.', say: [
       'Factory N+1 simulates receiving, sorting, packing and shipping. The left floor is the baseline; the right is the agents’ improved design. Both replay the same packages.',
     ] },
@@ -35,7 +35,7 @@ export const DEMO_TOURS: DemoTour[] = [
       'One hundred packages shipped in nineteen minutes, forty-four seconds, with zero mis-sorts or damage. Penalty fell eighty-two percent across nine feedback validation days, not an untouched final test.',
     ] },
   ] },
-  { id: 'judges', label: '4-minute judges demo', seconds: 240, steps: [
+  { id: 'judges', label: '4-minute detailed walkthrough', seconds: 240, steps: [
     { title: 'Meet the factory', seconds: 30, time:'play', cue:'Introduce the baseline on the left and run 11 on the right.', say:[
       'Factory N+1 is a simulated fulfillment center that agents can redesign. Packages arrive at receiving, pass through sorting and packing, then leave through the correct shipping dock. Each station processes one package at a time, so layout, capacity and queues affect performance.',
       'Both factories replay the same packages on the same clock.',

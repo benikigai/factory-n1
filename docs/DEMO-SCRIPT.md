@@ -1,10 +1,10 @@
 # Factory N+1 timed judge demos
 
-Use the local dev server at `http://localhost:5184/replay.html?run=live-a-11`. Presenter controls are excluded from production builds, including the public Vercel site. Choose **1-minute demo** or **4-minute judges demo**. Both use the recorded run, automatically advance, and make no paid calls. The timer begins after run 11 loads.
+Use the local dev server at `http://localhost:5184/replay.html?run=live-a-11`. Presenter controls are excluded from production builds, including the public Vercel site. Choose **1-minute walkthrough** or **4-minute detailed walkthrough**. Both use the recorded run, automatically advance, and make no paid calls. The timer begins after run 11 loads.
 
 Pause timer while answering a question. Next and Back jump to the start of a stop. The final result or evidence panel remains visible when the time ends; Finish returns to the clean factory.
 
-## 1-minute demo
+## 1-minute walkthrough
 
 4 stops · 60 seconds · 104 spoken words.
 
@@ -32,7 +32,7 @@ On screen: Show the final checks. Leave this result on screen at the end.
 
 > One hundred packages shipped in nineteen minutes, forty-four seconds, with zero mis-sorts or damage. Penalty fell eighty-two percent across nine feedback validation days, not an untouched final test.
 
-## 4-minute judges demo
+## 4-minute detailed walkthrough
 
 8 stops · 240 seconds · 425 spoken words.
 

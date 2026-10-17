@@ -3,7 +3,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-export const FORBIDDEN = ["/api/run", "/api/inspect", "INSPECT_OUT_DIR", "child_process", "FACTORY_ENV_FILE", "--env-file", "CRUSOE_API_KEY", "YDC_API_KEY", "mountRunLive", "spawn(", "1-minute demo", "4-minute judges demo", "Pause timer"];
+export const FORBIDDEN = ["/api/run", "/api/inspect", "INSPECT_OUT_DIR", "child_process", "FACTORY_ENV_FILE", "--env-file", "CRUSOE_API_KEY", "YDC_API_KEY", "mountRunLive", "spawn(", "1-minute walkthrough", "4-minute detailed walkthrough", "Pause timer"];
 
 export function findForbidden(dir: string): string[] {
   const hits: string[] = [];
