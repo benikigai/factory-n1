@@ -1,6 +1,6 @@
 # Nemotron optimizer pilot
 
-Status: dataset and offline implementation prepared on `codex/optimizer-pilot`. No second GPU VM has been created and no optimizer training or live comparison has run. New paid execution requires approval of the estimate below.
+Status: the $3 pilot was approved and completed on `codex/optimizer-pilot`. Training and the 20-factory comparison passed independent verification; the VM and boot disk were deleted. This file preserves the preparation plan and estimate. See [measured results and cleanup](nemotron-optimizer-pilot.md).
 
 This experiment is separate from the frozen website and video. The previous critic adapter remains a separate artifact. Start from the same pinned base model, not the critic adapter.
 

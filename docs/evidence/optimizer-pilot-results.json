@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "completed": true,
+  "stopped": null,
+  "planHash": "3a100f247c3cbfe8daf048cf55844bc7b298613bc76de7ae4a50b5255226f31a",
+  "scope": "Measured factory outcomes after three proposal opportunities; schema correctness alone is not an optimization win.",
+  "definitions": {
+    "objectiveDelta": "Final held-out objective minus initial held-out objective; negative is better. pairedWins compares final objective only; goal and zero-damage wins are separate.",
+    "denominator": "All selected factories are retained, including malformed outputs, stopped searches and interrupted arms.",
+    "goalPass": "The unchanged DoD passes on all four previously unseen final demand days.",
+    "fairness": "Equal offered proposal, model output, token and simulator limits; stop and invalid actions may use less than the allowance. Random baseline has no model tokens."
+  },
+  "overall": {
+    "base": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 10752.35,
+      "meanObjectiveDelta": -15.1125,
+      "objectiveImprovements": 3,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 60,
+        "acceptedMoves": 4,
+        "invalidActions": 50,
+        "stops": 0,
+        "knownTokens": 77862,
+        "reservedUnknownTokens": 0,
+        "simulations": 280,
+        "layoutEvaluations": 70,
+        "skippedProposals": 0
+      }
+    },
+    "tuned": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 9406.825,
+      "meanObjectiveDelta": -1360.6375,
+      "objectiveImprovements": 12,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 60,
+        "acceptedMoves": 24,
+        "invalidActions": 21,
+        "stops": 0,
+        "knownTokens": 90040,
+        "reservedUnknownTokens": 0,
+        "simulations": 396,
+        "layoutEvaluations": 99,
+        "skippedProposals": 0
+      }
+    },
+    "random": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 10307.975,
+      "meanObjectiveDelta": -459.4875,
+      "objectiveImprovements": 7,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 0,
+        "acceptedMoves": 14,
+        "invalidActions": 0,
+        "stops": 0,
+        "knownTokens": 0,
+        "reservedUnknownTokens": 0,
+        "simulations": 480,
+        "layoutEvaluations": 120,
+        "skippedProposals": 0
+      }
+    }
+  },
+  "pairedCases": 20,
+  "incompletePairs": 0,
+  "pairedGoalWins": {
+    "base": 0,
+    "tuned": 0,
+    "ties": 20
+  },
+  "pairedZeroDamageWins": {
+    "base": 0,
+    "tuned": 0,
+    "ties": 20
+  },
+  "pairedWins": {
+    "base": 2,
+    "tuned": 12,
+    "ties": 6
+  },
+  "pairs": [
+    {
+      "caseId": "optimizer-test-building-1",
+      "buildingHash": "208f56a994bfdad67d6193fa96ff3e445d1d011025e7b85ee07bcffc12f7919e",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -2701
+    },
+    {
+      "caseId": "optimizer-test-building-10",
+      "buildingHash": "ee86b3a483581fa298796ab8ae88840f49d169489523d63b7d76e25b8cd5b651",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -2713.25
+    },
+    {
+      "caseId": "optimizer-test-building-11",
+      "buildingHash": "943c37ae747bea3b4aae477175cdc32fe16b31bd9cb1683d710a3f45ce8b0652",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 14.25
+    },
+    {
+      "caseId": "optimizer-test-building-12",
+      "buildingHash": "f07353b64068d5b91dee3ab5c15d372b6b018ce4b9643cb33638eac1190fea77",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -31
+    },
+    {
+      "caseId": "optimizer-test-building-13",
+      "buildingHash": "f2cc4bcc344fef9f4d2aa6ecee56a651fbdea10356a2af4e62f16abe41fc27e4",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-14",
+      "buildingHash": "74759df49bfbed13d4ede63c70cacc52678deff2526d36d6b901c4745077578f",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-15",
+      "buildingHash": "9ea35a60bf584acb539d4b6d9f76a24e83ff6a4462397e204de7a3a8b273ecd1",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-16",
+      "buildingHash": "f83b51b7d34f38b3730d874c512c9d4536dc7a02e94fb3ac5e4e0c338397e1d7",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -7.25
+    },
+    {
+      "caseId": "optimizer-test-building-17",
+      "buildingHash": "618fa850660e17f2d35faec01eb7aeab2c6a76e0a3484a30d0421442189fad3a",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -2848.75
+    },
+    {
+      "caseId": "optimizer-test-building-18",
+      "buildingHash": "a1f9ce84612de4cd63156b16d708fed67c06e653ab90ff7d7e139ec67e48478f",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -2988.5
+    },
+    {
+      "caseId": "optimizer-test-building-19",
+      "buildingHash": "073583008017adfce8f47713836fa97fe63d3fdcafabca883b1b151160c54dac",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-2",
+      "buildingHash": "30a800ea846a2e269f17b184d25facd1f9924772b57cf7f107ad74ecf08ff4bc",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-20",
+      "buildingHash": "e033960e7699bc9ad02d6386a21defa994b6ed589dbf833a05619a062d93c666",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 22.75
+    },
+    {
+      "caseId": "optimizer-test-building-3",
+      "buildingHash": "60d4691d1adab8682809efce596c265ccbfd35c26eb466022174a161fc9b992c",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -13.25
+    },
+    {
+      "caseId": "optimizer-test-building-4",
+      "buildingHash": "abcd3bded626d6cfb998043ce013377fee41409ed2393f48112d5d6cde5a0caf",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -3013
+    },
+    {
+      "caseId": "optimizer-test-building-5",
+      "buildingHash": "c7547043a587caa5e412111b591eea424f293ccd4ec329b87966326536fd8f68",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -1493.75
+    },
+    {
+      "caseId": "optimizer-test-building-6",
+      "buildingHash": "95bc0e66b9aa1b947300d400df79d09a221d6b2f1076e8144944eedb0dba0da9",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -3908.5
+    },
+    {
+      "caseId": "optimizer-test-building-7",
+      "buildingHash": "9b84f336a9fbfd8c333e1c632c1e994905e9da7869d6501124b200443bc38b48",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -1817.25
+    },
+    {
+      "caseId": "optimizer-test-building-8",
+      "buildingHash": "6e7cfb315631ff933df964fcd181b2fee0b54e67859aecb35482a4f0fa8885eb",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": 0
+    },
+    {
+      "caseId": "optimizer-test-building-9",
+      "buildingHash": "1d535aa54e6be5c32abbc6e4a9109a4687a3a1b9ad87e0a7cb40b80379fd8576",
+      "complete": true,
+      "baseGoalMet": false,
+      "tunedGoalMet": false,
+      "baseZeroDamage": false,
+      "tunedZeroDamage": false,
+      "tunedMinusBaseObjective": -5412
+    }
+  ],
+  "percentageDefinition": "100 * (mean initial objective - mean final objective) / mean initial objective; lower objective is better.",
+  "meanObjectiveReductionPercent": {
+    "base": 0.14035340267030672,
+    "tuned": 12.636565950427029,
+    "random": 4.2673703298246854
+  },
+  "artifactHashes": {
+    "evaluation-plan.json": "c6e891008e0ab4459f4d840d48cb448d2dcbbbcf9f596db64408e3098df584d4",
+    "health-receipt.json": "cac59ff7700e3a0b342d5ca04bc1bc0aebd03dbd52292078385d1ed893309c9d",
+    "selection.json": "446bb3802f0adb096edf09c7b9edd5acb0b18bc676fbe6cc54eaaaf8ede1508c",
+    "metrics.json": "b92b017c13d46bb6b505edc3573331f21161530a07990287e5d76ff3638a6f66",
+    "receipts.jsonl": "54b507fe4b81b04639b8fdb177d04cbe0352d4e60f9e1b89e856f034db335cb3"
+  }
+}

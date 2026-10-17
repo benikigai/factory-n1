@@ -1,0 +1,12 @@
+--- a/README.md
++++ b/README.md
+@@ -87,3 +87,9 @@
+ | `docs/specs/factory-n1.md` | Full as-built spec: claims, proof, runs, work log |
+ | `docs/evidence/` | Run evidence, independent checks, spend, [commit hash map](docs/evidence/commit-hash-map.md) after the history rewrite |
+ | `docs/demo/script.md` | Demo script |
++
++## Separate Nemotron optimizer pilot
++
++A fresh rank-8 LoRA adapter on `nvidia/Llama-3.1-Nemotron-Nano-8B-v1` trained for one epoch on 1,200 simulator-verified machine-move examples. In a frozen comparison on 20 new factories, its mean objective improved 12.64% from the starting layouts, versus 0.14% for the base model and 4.27% for random legal moves. Against the base it won 12 factories, lost two and tied six. Neither model achieved zero damage or the full goal on these test factories; the tuned model still proposed 21 invalid actions out of 60.
++
++The unchanged grader and all 1,156 simulator scenarios were independently audited. This result is separate from the frozen demo and video. The adapter and raw traces were recovered locally, then the A100 and boot disk were deleted. Estimated pilot cost was $0.70 against the approved $3 cap; the posted charge is pending. [Evidence and limitations](docs/evidence/nemotron-optimizer-pilot.md).

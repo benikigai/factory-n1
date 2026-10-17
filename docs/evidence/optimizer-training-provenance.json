@@ -1,0 +1,20 @@
+{
+  "baseModel": "factory-optimizer-base",
+  "tunedModel": "factory-optimizer-lora",
+  "baseCheckpoint": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1@54641c1611fcff44fa4865626462445e0a153fc7",
+  "tunedBaseCheckpoint": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1@54641c1611fcff44fa4865626462445e0a153fc7",
+  "trainingJobId": "vm-optimizer-f4ecf989ca0b482a8fb8aa4638a63595",
+  "taskProfile": "optimizer",
+  "promptProfile": "nemotron8b-thinking-off-v1",
+  "dataset": {
+    "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+    "files": {
+      "train.jsonl": "39622e2529c53607ec890c587d2faa0ab41b2bd40b5048c8148e53725a9f6895",
+      "validation.jsonl": "11e7d2c849d50112af9fb7d986c704516c9c75e6c74ee6fc00eb34e2d4dac52c"
+    }
+  },
+  "adapterHashes": {
+    "adapter_config.json": "92669ee447f5464c5eb2641ca350f2b815309ec7575fadd40b8f55f3d870cafd",
+    "adapter_model.safetensors": "36017222cfccc931a3db069cc72392bae9640c5df7cddc601ac30579318f8957"
+  }
+}
