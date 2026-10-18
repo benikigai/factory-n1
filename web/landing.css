@@ -222,3 +222,4 @@ section h2 { display: inline-block; margin: 0; background: var(--ink); color: va
 @media (max-width: 640px) { .prose .paper { padding: 4px 16px 14px; } .prose .paper p { font-size: 16px; } }
 
 .sub b { color: var(--ink); font-weight: 600; }
+.prose .paper p b { color: var(--ink); font-weight: 600; }
