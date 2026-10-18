@@ -112,8 +112,8 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
       const p = b.stationWorld(id);
       if (p) return { pos: p.clone().add(new THREE.Vector3(4.5, 7.5, 10.5)), target: p.clone().add(new THREE.Vector3(0.6, 0.5, 0.4)) };
     }
-    const minX = a.originX - 3;
-    const maxX = b.originX + b.width + 3;
+    const minX = a.originX - 5;
+    const maxX = b.originX + b.width + 5;
     const depth = Math.max(a.depth, b.depth);
     const halfW = (maxX - minX) / 2;
     const vfov = THREE.MathUtils.degToRad(camera.fov);
