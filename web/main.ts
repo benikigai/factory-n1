@@ -225,6 +225,7 @@ function showDemoStep(step:DemoStep){
   if(step.agentPath){const node=demoAgent(snapshot!.tree,step.agentPath);view='agents';scope=node.children.length?node:node.parent??snapshot!.tree;selected={type:'agent',node};world.setAgents(scope);renderNavigation();renderInspection();target=$('inspection');}
   if(step.panel==='rules'){open('#learn-factory');open('#factory-guide details');target=$('factory-guide');}
   if(step.panel==='demand'){open('#learn-factory');open('#demand-guide details');target=$('demand-guide');}
+  if(step.panel==='score'){open('.result .score-explainer');target=document.querySelector<HTMLElement>('.result')!;}
   if(step.panel==='results')target=document.querySelector<HTMLElement>('.result')!;
   if(step.panel==='work')target=document.querySelector<HTMLElement>('.work')!;
   if(step.panel?.startsWith('critic')||step.panel?.startsWith('optimizer')){open('#nemotron-results');const kind=step.panel.startsWith('critic')?'critic':'optimizer';if(step.panel.endsWith('-details'))open(`#${kind}-test-details`);target=$(`${kind}-result`);}
