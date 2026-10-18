@@ -206,7 +206,6 @@ if (bundle && summary && a7) {
 
 /* ---------- Evidence and footer ---------- */
 const ev: [string, string][] = [
-  [`./replay.html?run=${HERO_RUN}`, "Rev 11 replay, with receipts"],
   [`./replay.html?run=${HERO_RUN}&view=agents`, "Agent team view"],
   ["./replay.html?run=live-a-7", "Rev 7 replay (equal-budget proof)"],
   ["./evidence/independent-verification-live-a-11.md", "Independent re-score of rev 11"],
@@ -215,8 +214,8 @@ const ev: [string, string][] = [
   ["./evidence/2026-10-17-live-roundtrip.md", "The faked simulator run"],
   ["./evidence/spend-accounting.json", "Spend accounting"],
   ["./evidence/spec-as-built.md", "Spec, as built"],
-  [REPO, "Source on GitHub"],
 ];
+$("ev-count").textContent = `Receipts (${ev.length})`;
 $("evlist").innerHTML = ev.map(([h, k]) => `<a href="${h}"${h.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${esc(k)}</a>`).join("");
 $("foot-note").innerHTML = `<span>${esc(
   `Every number on this page is read from recorded runs. ` +
