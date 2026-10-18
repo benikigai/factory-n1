@@ -1,133 +1,79 @@
 # Factory N+1
 
-A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a parcel fulfillment floor (receive → sort → pack → ship, 100 packages). The agents research real practice with **You.com**, share what they learn in one memory, and test every change against a frozen simulator. A change is kept only if code measures it as better on days the designers never saw.
+A parcel factory that AI agents can redesign. **NVIDIA Nemotron** agents on **Crusoe** research, propose and test layouts. A frozen simulator decides which changes survive.
 
-Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
+**[Live demo](https://factory-n1.vercel.app)** · **[3D replay](https://factory-n1.vercel.app/replay.html?run=live-a-11)** · **[Full specification](docs/specs/factory-n1.md)**
 
-**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html)
+Built at the Crusoe x Cerebral Valley Recursive Agents Hackathon, October 17, 2026.
 
-![Rev 0, the original floor, and Rev 11, the agents' floor, replaying the same scored day on one clock](docs/readme/landing.gif)
+![Original and improved factory layouts replay the same packages on one clock](docs/readme/landing.gif)
 
-## Where we are (13:50 PT)
+## Results
 
-| Question | Answer | Proof |
-|---|---|---|
-| Do the agents improve the floor? | **Yes, by 82%.** Validation score 18,061 → 3,283 (lower is better). At −66% (`live-a-7`) they already beat a one-line code fix (13,194) and random search with the same 41 simulator runs (13,099). | `live-a-7` re-scored independently by Codex; `live-a-11` re-scored from its saved layout |
-| Did they reach the goal? | **Yes, on all 15 development days** (the final split stays locked): 100/100 shipped, 0 mis-sorts, 0 damaged, every day under 25 minutes. Three runs failed first because the designers mis-measured route lengths. With a ruler tool (`measure_legs`), one move of one pack station fixed it. | `live-a-11`: 54 calls, $0.042 ([why it took a ruler](docs/evidence/zero-damage-feasibility.md)) |
-| Does shared memory help on new factories? | **No, it hurt.** Memory lost all 4 paired tests on two fresh factories (median score +2,357, worse). | [memory-eval-valid.md](docs/evidence/memory-eval-valid.md), n = 4 |
-| Can the numbers be trusted? | One frozen grader (hash `493a1b03…`) scores everything. Agents never score themselves, and every claim they make is checked. | Replays regenerate exactly |
-| What did it cost? | `live-a-7`: 61 model calls, $0.029. All runs: $0.355 inference plus $0.10 search; $0.886 counting uncertain reservations at their bound, inside a $2.00 ceiling. | [spend-accounting.json](docs/evidence/spend-accounting.json) |
+| Measure | Original floor | Run 11 |
+|---|---:|---:|
+| Mean validation penalty | 18,061 | **3,283** |
+| Packages shipped, displayed peak day | 100/100 | **100/100** |
+| Completion time, displayed peak day | 26:21 | **19:44** |
+| Mis-sorts, displayed peak day | 16 | **0** |
+| Damaged packages, displayed peak day | 14 | **0** |
 
-## How it works
+**81.8% lower penalty**, not 81.8% faster shipping. The score combines completion time, mis-sorts, damage, unshipped packages and equipment cost. Run 11 met the goal on all 15 development scenarios; its final test split remains locked.
 
-1. **Research.** Nemotron Lightning searches You.com. Every citation must match a URL the search actually returned. Ideas enter memory as untested hypotheses.
-2. **Propose.** Nemotron Super VL designers read the shared memory, test drafts in the simulator, then submit a layout plus a predicted score through a typed tool.
-3. **Grade.** A frozen simulator runs 100 packages on 6 training days and scores the result.
-4. **Gate.** The change is kept only if it is at least 1% better on 9 separate validation days and no goal check gets worse.
-5. **Learn.** Code splits each change into single edits and scores each one alone. The lesson written to memory cites only those measured effects.
+Run 11 continued from run 7. Its accepted move shortened a damaging route from **15 cells to 11**. It used **54 model calls and $0.042 in recorded inference usage**, excluding earlier runs and training. [Measured fix](docs/evidence/zero-damage-feasibility.md) · [Independent re-score](docs/evidence/independent-verification-live-a-11.md)
 
-The 3D viewer replays the exact scored runs: the baseline and the champion floor side by side, on one clock.
+For the equal-budget comparison, run 7 scored **6,083**, versus **13,194** for a simple code heuristic and **13,099** for random search, with the same 41 simulator evaluations. [Run 7 receipt](recorded/live-a-7/summary.json)
 
-### The loop
+## How it improves
 
 ```mermaid
 flowchart TD
-    R["Research<br/>Nemotron Lightning + You.com<br/>citations must match returned URLs"] --> M[("Shared memory<br/>append-only, evidence-labeled")]
-    M --> P["Propose<br/>Nemotron Super VL designers<br/>test drafts, submit layout + predicted score"]
-    P --> G["Grade<br/>frozen simulator SIM 1.1.0<br/>100 packages x 6 training days"]
-    G --> K{"Gate<br/>at least 1% better on 9 validation days<br/>and no goal check worse?"}
-    K -- "yes: keep" --> L["Learn<br/>score each single edit alone"]
-    K -- "no: reject" --> P
-    L -- "lesson cites measured effects only" --> M
-    L --> N["Next generation starts from the champion"]
-    N --> P
+    R["Research: Lightning + You.com"] --> M[("Shared memory: hypotheses and measured lessons")]
+    M --> P["Super VL designers propose and test layouts"]
+    P --> S["Frozen simulator: 6 training scenarios"]
+    S --> G{"At least 1% better on 9 validation scenarios,<br/>with no passing goal check lost?"}
+    G -->|Keep| C["New best layout"]
+    G -->|Reject| F["Record failure; keep current layout"]
+    C --> E["Measure individual edits; record lessons"]
+    E --> M
+    F --> P
+    C --> P
 ```
 
-The final 20-day test split stays locked. A supervisor stops or re-plans, and hard call and spend caps bound every run.
+Each scenario contains 100 packages. Training uses two normal, two peak and two fragile-heavy days; validation uses three of each, with different fixed seeds. Validation feedback helps select revisions, so it is **not an untouched final test**.
 
-### Architecture
+The main loop changes layouts and later prompts, not model weights. Designers can inspect routes with `measure_legs` and test drafts with `simulate_layout`. Humans added the ruler and clarified placement rules before run 11; the agent selected the accepted move.
 
-```mermaid
-flowchart LR
-    YOU["You.com search"] --> LTN
-    subgraph CRU["Crusoe Managed Inference"]
-        SVL["Nemotron 3.5 Super VL<br/>designers"]
-        LTN["Nemotron 3.5 Lightning<br/>research, test edits"]
-    end
-    SVL <--> LOOP["src/ learning loop<br/>agents, shared memory,<br/>goal as executable checks"]
-    LTN <--> LOOP
-    LOOP --> SIM["Frozen simulator<br/>the only grader"]
-    SIM --> WEB["recorded/ runs to<br/>three.js replay on Vercel"]
-```
+The viewer exposes recorded agents, proposals, tool receipts and simulator traces. It also runs local scenario previews. A recorded replay is distinct from a new live agent run.
 
-### See it
-
-![3D replay of run live-a-11: Gen-0 baseline vs agent champion, with the before/after table](docs/readme/replay.gif)
-
-| Proof board | 3D replay |
+| Proof board | Inspectable replay |
 |---|---|
-| [![Landing proof board](docs/readme/landing.png)](https://factory-n1.vercel.app) | [![3D replay with before/after table](docs/readme/replay.png)](https://factory-n1.vercel.app/replay.html) |
+| [![Landing proof board](docs/readme/landing.png)](https://factory-n1.vercel.app) | [![Factory replay with results and receipts](docs/readme/replay.png)](https://factory-n1.vercel.app/replay.html?run=live-a-11) |
 
-## The three tracks
+<details>
+<summary>Watch the recorded replay</summary>
 
-| Track | What we built | Proof | Gap |
-|---|---|---|---|
-| **Version N+1** | Generation-by-generation ratchet, runs that continue from earlier runs, equal-budget comparisons | −66% on validation (`live-a-7`) | Most of the gain comes in generation 1; memory didn't transfer to new factories |
-| **Done Means Done** | Goal written as executable checks ("all shipped" can't be removed), graded predictions, a supervisor that stops or re-plans, hard spend caps | The goal shows FAIL honestly; refuted predictions fell from 4 of 7 to 0 of 7 once designers tested their drafts | The goal is hand-written; a goal compiler is in progress |
-| **Shared Brain** | Append-only memory every agent reads; each lesson labeled by its evidence (untested, tested, or observed in a kept change) | Crusoe prefix-cache hits up to 49% of prompt tokens | No quality gain on new factories (0 of 4) |
+![Baseline and improved layouts with measured package movement](docs/readme/replay.gif)
 
-## Sponsors
+</details>
 
-- **Crusoe Managed Inference** serves every model call (about $0.0005 each) and caches the shared memory prompt across agents.
-- **NVIDIA Nemotron:** 3.5 Super VL designs every layout through typed tool calls (8 of 8 valid in `live-a-5`); 3.5 Lightning runs research and builds test edits.
-- **You.com** supplies the research, with exact-URL citation checks. No web idea improved the floor when tested on its own.
+## What the experiments proved
 
-## What we learned
+| Experiment | Result | Limit |
+|---|---|---|
+| [Shared memory transfer](docs/evidence/memory-eval-valid.md) | Memory lost all **4 paired tests** on two fresh factories. | This saved playbook did not generalize; small sample. |
+| [Nemotron 8B critic](docs/evidence/nemotron-finetune-pilot.md) | Required-format responses improved **0/100 → 100/100**. | Recognized **0/17** goal-passing layouts. Format learning, not reliable prediction. |
+| [Nemotron 8B optimizer](docs/evidence/nemotron-optimizer-pilot.md) | Penalty reduction on 20 unseen factories: **12.64% tuned**, **0.14% base**, **4.27% random**. | **21/60** tuned proposals invalid; **0/20** full-goal wins. |
 
-- **The model lied, and the grader caught it.** Lightning once invented a simulator re-run with made-up numbers.
-- **Measure the edit, not the story.** Super VL credited a fix to the wrong change; per-edit scoring found the real cause.
-- **Testing drafts makes agents honest.** Refuted predictions dropped from 4 of 7 to 0 of 7.
-- **Memory can make agents worse.** Lessons tied to one factory's coordinates misled designers on new ones.
+The two 8B adapters are separate fine-tuning experiments. Neither produced the run 11 replay. The simulator uses synthetic rules and has not been calibrated to a real facility.
 
-## Limits
-
-- The simulator uses synthetic rules (for example, fragile packages break on legs over 12 cells). It is not calibrated to a real facility.
-- Small n: seven runs on factory A ranged from −33% to −66%.
-- The original factory agent's 20-day final test split remains locked. A separate Nemotron 8B critic fine-tuning pilot used its own disjoint synthetic test buildings; it did not change the frozen demo.
-
-## Separate critic fine-tuning pilot
-
-After Crusoe's native fine-tuning estimate failed on missing model/pricing metadata, we trained a LoRA adapter for a pinned Nemotron Nano 8B on one Crusoe A100. One epoch over 600 simulator-labeled examples took 216.455 seconds. Validation used 100 examples; a separate frozen test compared base and adapter on 100 examples from five unseen buildings under equal limits.
-
-The adapter learned the output contract: exact-schema responses rose from 0/100 to 100/100. Prediction quality was not reliable: zero-damage accuracy on valid layouts was 18/75 (24%), below the 54.7% majority-label diagnostic, with 35 false-safe zero-damage outputs across all cases. We did not integrate this critic into the optimizer. The unchanged simulator remains the grader. See [pilot receipt](docs/evidence/nemotron-finetune-pilot.md) and [independent audit](docs/evidence/nemotron-8b-heldout-independent-audit.md).
-
-## Run it
+## Run locally
 
 ```bash
 npm ci
-npm test               # simulator, memory, full offline loop, 3D trace math
-npm run web            # local site at http://localhost:5173, full 3D replay at /replay.html
-npm run build:static   # static site in web/dist: viewer plus recorded runs, no server code or keys
+npm test
+npm run web          # landing at localhost:5173; replay at /replay.html
+npm run build:static # static viewer and recordings in web/dist
 ```
 
-A live run needs a Crusoe key, plus a You.com key for research. Load them from a secret mount, never a plaintext file, and set spend caps:
-
-```bash
-CALL_BUDGET=120 SPEND_CAP_USD=0.50 node --env-file=<path-to-secret-mount> --import tsx scripts/solve.ts 8 my-run 1
-npm run publish-run -- my-run   # public copy in recorded/
-```
-
-## Where things are
-
-| Path | What |
-|---|---|
-| `src/sim/` | Frozen simulator and grader (SIM 1.1.0) |
-| `src/tasks/`, `layouts/` | Factories A–E with fixed docks, plus F and G for the memory test |
-| `src/agents/`, `src/loop/` | Nemotron designers, reflector, the learning loop |
-| `src/memory/` | Shared memory, You.com research, per-edit scoring |
-| `src/llm/` | Crusoe client with spend caps and typed tool calls |
-| `web/` | Landing proof board and the three.js replay of the scored runs |
-| `recorded/` | Public copies of recorded runs |
-| `docs/specs/factory-n1.md` | Full as-built spec: claims, proof, runs, work log |
-| `docs/evidence/` | Run evidence, independent checks, spend, [commit hash map](docs/evidence/commit-hash-map.md) after the history rewrite |
-| `docs/demo/script.md` | Demo script |
+New live runs require Crusoe credentials and, for research, You.com credentials. Use a secret mount and explicit spend caps. [Run instructions and architecture](docs/specs/factory-n1.md) · [Walkthrough](docs/demo/walkthrough.md) · [Spend records](docs/evidence/spend-accounting.json)
