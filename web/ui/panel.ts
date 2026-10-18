@@ -215,7 +215,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const ca = checks(A.result.metrics), cb = checks(B.result.metrics);
   const mark = ([, ok, v]: [string, boolean, string]) => h("td", { class: `num ${ok ? "ok" : "no"}` }, h("span", { class: "tick" }, ok ? "✓" : "✗"), ` ${v}`);
   const result = h("section", { class: "result" },
-    h("div", { class: "eyebrow" }, "Validation score · 9 feedback validation days · lower is better"),
+    h("div", { class: "eyebrow" }, "Score · 9 held-out days · lower is better"),
     h("div", { class: "score" },
       h("span", { class: "score-from" }, fmtNum(A.select.objective)),
       h("span", { class: "score-arrow" }, "→"),
@@ -258,7 +258,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   });
   const work = h("section", { class: "work" },
     h("h3", null, "How the agents got here"),
-    h("p", { class: "small k work-key" }, "Each generation, Nemotron designers propose floors and code keeps at most one. Right-hand numbers are validation scores used to select changes."),
+    h("p", { class: "small k work-key" }, "Nemotron proposes. Code keeps at most one per generation."),
     h("ol", { class: "timeline" },
       step("gen-start", "Starting floor", A.select.objective),
       continued ? step("gen-start", "Continued from an earlier run's best floor", b.curve[0].championSelect) : null,
@@ -269,7 +269,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const more = (title: string, ...kids: (HTMLElement | null)[]) => h("details", { class: "more" }, h("summary", null, title), ...kids);
   rail.replaceChildren(
     result,
-    h('p',{class:'small'}, B.final ? 'Final split results are recorded below.' : 'Validation guided acceptance. No untouched final-split result is recorded for this run.'),
+    h('p',{class:'small'}, B.final ? 'Final split results are recorded below.' : 'Final test split stays locked.'),
     work,
     more("This day in numbers", table),
     more("Against simple baselines",
