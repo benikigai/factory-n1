@@ -316,3 +316,14 @@ details.more[open] > :not(summary) { margin-top: 10px; }
 #learn-factory>section:first-of-type{margin-top:12px}#learn-factory>section{margin-bottom:10px}
 
 @media(max-width:600px){.demo-heading{flex-wrap:wrap}.demo-heading>span:first-child{flex-basis:60%;font-size:9px}#demo-clock{font-size:10px;margin:0}.demo-options .btn{min-height:44px}}
+
+/* Rail readability: wider, larger type */
+:root { --rail-w: 440px; }
+#rail { font-size: 14px; }
+#rail .small, .cand-why, .eyebrow, .work-key { font-size: 13px; }
+.checks th, .checks td { font-size: 14px; }
+.step-title, .cand-name { font-size: 14.5px; }
+.cand-score, .step-score { font-size: 13px; }
+.edits code { font-size: 13px; }
+.visual-view { --rail-w: 460px; }
+@media (max-width: 1280px) { :root { --rail-w: 400px; } }
