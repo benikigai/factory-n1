@@ -4,6 +4,7 @@
  */
 import type { ReplayBundle } from "../src/replay.ts";
 import { HERO_RUN, MEMORY_EVAL, REPO } from "./facts.ts";
+import { createScoreExplanation } from "./ui/score-explainer.ts";
 import { createWarehouse } from "./world/warehouse.ts";
 import { playbackEnd, traceMeta } from "./world/state.ts";
 
@@ -128,6 +129,7 @@ if (bundle) {
 /* ---------- Title block: the release label ---------- */
 if (bundle && summary) {
   $("tb-result").innerHTML = `${fmt(summary.baseline.select)} → ${fmt(summary.champion.select)} <em>${drop(summary.baseline.select, summary.champion.select)}</em>`;
+  $("tb-result").after(createScoreExplanation(summary.baseline.select, summary.champion.select, { before: bundle.baseline.result.metrics.makespan, after: bundle.improved.result.metrics.makespan, missorts: bundle.improved.result.metrics.missorts, damaged: bundle.improved.result.metrics.damaged }));
   $("tb-drawn").textContent = "NVIDIA Nemotron 3.5 Super VL on Crusoe";
   $("tb-checked").textContent = `Frozen simulator · SIM ${bundle.simVersion}`;
   // Barcode bars derived from the run id and grader hash it prints underneath, so the label carries real data.
