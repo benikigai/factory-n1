@@ -178,19 +178,27 @@
       "youSearches": 0,
       "actualBasis": "runs/live-demo-2/inspections/2026-10-17T22-20-15-031Z/inspection.json budget.usd (4 calls, image input verified)",
       "unknownChargeReason": null
+    },
+    {
+      "item": "live-demo-3 (demo video live clip)",
+      "returnedUsageUsd": 0.0321106,
+      "unknownChargeReservationUsd": 0.0046568,
+      "youSearches": 0,
+      "actualBasis": "runs/live-demo-3/summary.json usage.usd",
+      "unknownChargeReason": null
     }
   ],
   "totals": {
-    "returnedUsageInferenceUsd": 0.4443,
-    "unknownChargeReservationsUsd": 0.4316,
+    "returnedUsageInferenceUsd": 0.4764,
+    "unknownChargeReservationsUsd": 0.4362,
     "youSearches": 20,
     "youSearchBaseUsd": 0.1,
     "unconfirmed": "highlight-extraction surcharge on 7 searches (before/after 'after' call, live-a-6 x2, live-a-7 x2, live-a-8 x2); You.com docs say extraction may add cost",
-    "conservativeCommittedUsd": 0.9758,
-    "returnedUsagePlusSearchBaseUsd": 0.5443,
-    "remainingUnderAuthorizationUsd": 1.0242
+    "conservativeCommittedUsd": 1.0126,
+    "returnedUsagePlusSearchBaseUsd": 0.5764,
+    "remainingUnderAuthorizationUsd": 0.9874
   },
-  "status": "Within the $2.00 working ceiling on the conservative basis ($0.9758 committed). The A100 critic pilot is tracked under separateBudgets.",
+  "status": "Within the $2.00 working ceiling on the conservative basis ($1.0126 committed). The A100 critic pilot is tracked under separateBudgets.",
   "separateBudgets": [
     {
       "item": "Nemotron 8B critic fine-tune pilot (Crusoe A100 80GB VM, Codex)",

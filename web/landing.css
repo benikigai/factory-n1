@@ -224,3 +224,7 @@ section h2 { display: inline-block; margin: 0; background: var(--ink); color: va
 .receipts-fold[open] > summary::after { content: "−"; }
 .receipts-fold > summary small { font: 13px var(--sans, inherit); color: var(--ink-2); }
 .receipts-fold .manifest { margin-top: 10px; }
+/* Prose sections sit on paper, never directly on the grid. */
+.prose .paper { max-width: 760px; margin-top: 0; background: var(--sheet); border: 1px solid var(--hair); padding: 6px 22px 18px; box-shadow: 0 1px 0 rgba(20, 20, 20, 0.05); }
+.prose .paper p { max-width: none; }
+@media (max-width: 640px) { .prose .paper { padding: 4px 16px 14px; } .prose .paper p { font-size: 16px; } }
