@@ -50,20 +50,24 @@
       </article>
       <section id="problem" class="prose">
         <h2>The problem</h2>
-        <p>A factory floor gets drawn once.</p>
-        <p>Then demand shifts. Products change. Peak days hit. The floor stays the same, because redesigning it is slow, expensive and risky.</p>
-        <p>AI agents can propose the redesign. But agents grade their own homework. They report wins they didn't earn. One of ours invented a simulator run that never happened.</p>
-        <p>So we flipped it. The agents draw. Code decides.</p>
+        <div class="paper">
+          <p>A factory floor gets drawn once. Demand keeps changing.</p>
+          <p>Redesigns are slow and risky. AI agents can propose them, but they grade their own work. One of ours reported a simulator run that never happened.</p>
+          <p class="law">So the agents draw, and code decides.</p>
+        </div>
       </section>
       <section id="approach" class="prose">
         <h2>Version N+1</h2>
-        <p>Every change is a revision. Nemotron designers research, propose a new floor and predict its score. A frozen simulator runs 100 packages through it. The revision ships only if it beats the current floor by at least 1% on 9 validation days used to accept or reject revisions, and no goal check gets worse.</p>
-              </section>
+        <div class="paper">
+          <p>Every change is a revision.</p>
+          <p>Nemotron agents propose a floor and predict its score. A frozen simulator runs 100 packages through it. It ships only if it beats the current floor by at least 1% on 9 validation days and no goal check gets worse.</p>
+        </div>
+      </section>
       <div id="run-live-slot"></div>
 
       <section id="revisions">
         <h2>Revision history</h2>
-        <p class="sec-sub">Each card is one version of the floor. Agents propose a change. The simulator runs 100 packages through it. The change ships only if it beats the previous version on 9 validation days used to accept or reject revisions. Score is seconds to clear the floor plus penalties for every mis-sort, damaged package and dollar of equipment. Lower is better.</p>
+        <p class="sec-sub">Each card is one version of the floor. A change ships only if it beats the last one on 9 held-out days. Score is seconds to clear the floor plus penalties. Lower is better.</p>
         <div class="tags" id="revtags"></div>
         <p class="fine" id="rev-note"></p>
       </section>
@@ -84,10 +88,11 @@
 
       <section id="next" class="prose">
         <h2>What's next</h2>
-        <p>Today the nodes are stations. Receive, sort, pack, ship.</p>
-        <p>Next they are humanoid robots, vision models and world models. Each one drops in as a node the simulator can score. The agents design around it. The gate stays the same.</p>
-        <p>The loop works for anything a simulator can measure. A fulfillment floor is the first one.</p>
-        <p class="law">The floor is never finished. It ships its next revision.</p>
+        <div class="paper">
+          <p>Today the nodes are stations: receive, sort, pack, ship.</p>
+          <p>Next they can be humanoid robots, vision models or world models, anything a simulator can score. The agents design around them; the gate stays the same.</p>
+          <p class="law">The floor is never finished. It ships its next revision.</p>
+        </div>
       </section>
       <section id="evidence">
         <details class="receipts-fold">

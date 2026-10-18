@@ -155,10 +155,10 @@ if (bundle && summary && a7) {
   const fail = (d?: number) => `<span class="stamp no">Fragile ✕${d !== undefined ? ` ${d}` : ""}</span>`;
   const peak = (m?: { missorts: number; damaged: number }) => (m ? `${m.missorts}|${m.damaged}` : "n/a|n/a");
   const rows: Rev[] = [
-    { n: "0", title: "Original floor", what: "Two shared pack stations that refuse large boxes, and fragile packages riding long conveyor legs.", by: "As built", obj: summary.baseline.select, peak: peak(b), stamp: fail(b.damaged) },
-    { n: "7", title: "One pack station per zone", what: "Agents gave each zone its own pack station beside its dock. Routes got shorter. One 15-cell leg still broke fragile packages.", by: "Quality designer", obj: a7.champion.select, delta: drop(summary.baseline.select, a7.champion.select, 0), peak: peak(m7), stamp: a7.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(m7?.damaged) },
-    { n: "8–10", title: "Stalled", what: "Three runs, nothing shipped. Designers misjudged route lengths, so every fix they proposed failed the gate.", by: "Route designer", obj: a7.champion.select, peak: peak(m7), stamp: `<span class="stamp hold">Hold</span>` },
-    { n: "11", title: "One station moved inland", what: "Given a ruler tool, the route designer moved pack-B 3 cells inland. Every leg is now 12 cells or less.", by: "Route designer + measure_legs ruler", obj: summary.champion.select, delta: drop(summary.baseline.select, summary.champion.select, 0), peak: peak(c), stamp: summary.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(c.damaged), current: true },
+    { n: "0", title: "Original floor", what: "Pack stations refuse large boxes. Fragile packages ride long legs.", by: "As built", obj: summary.baseline.select, peak: peak(b), stamp: fail(b.damaged) },
+    { n: "7", title: "One pack station per zone", what: "Each zone gets its own pack station. One 15-cell leg still breaks fragile packages.", by: "Quality designer", obj: a7.champion.select, delta: drop(summary.baseline.select, a7.champion.select, 0), peak: peak(m7), stamp: a7.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(m7?.damaged) },
+    { n: "8–10", title: "Stalled", what: "Designers misjudged route lengths. Every fix failed the gate.", by: "Route designer", obj: a7.champion.select, peak: peak(m7), stamp: `<span class="stamp hold">Hold</span>` },
+    { n: "11", title: "One station moved inland", what: "With a ruler tool, pack-B moves 3 cells inland. Every leg is 12 cells or less.", by: "Route designer + measure_legs ruler", obj: summary.champion.select, delta: drop(summary.baseline.select, summary.champion.select, 0), peak: peak(c), stamp: summary.champion.dodSelect ? `<span class="stamp ok">Approved</span>` : fail(c.damaged), current: true },
   ];
   $("revtags").innerHTML = rows
     .map((r) => `<article class="label tag${r.current ? " current" : ""}">
@@ -168,7 +168,7 @@ if (bundle && summary && a7) {
       </article>`)
     .join("");
   $("rev-note").innerHTML =
-    "Mis-sorts and damage are from the replayed peak day. Rev 11 continued from rev 7's floor. The final test split stays locked. " +
+    "Mis-sorts and damage: replayed peak day. Rev 11 built on rev 7. " +
     `<a href="./evidence/zero-damage-feasibility.md">Why it took a ruler</a>`;
 }
 
