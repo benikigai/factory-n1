@@ -8,7 +8,7 @@ import type { BackendEvent, Experiment, RunEntry, RunSnapshot, ReplayBundle } fr
 import { buildSnapshot, parseLines } from './snapshot';
 import { flatten, type AgentNode } from './runtime';
 import { DEMAND_PROFILES, previewDemand, stationRole, stationFailures, ROUTING_RULE, DAMAGE_RULE, MISSORT_RULE, type DemandProfile } from './factory-guide';
-import { renderNemotronResults } from './nemotron-results';
+import { renderNemotronGuide, renderNemotronResults } from './nemotron-results';
 import type { DemoStep } from './demo-tour';
 import { loadVisualInspection, renderVisualInspection, type InspectionState } from './ui/visual-inspection';
 
@@ -28,7 +28,7 @@ document.querySelector('#app')!.innerHTML=`
 <nav id="breadcrumbs" aria-label="Agent factory breadcrumbs" hidden></nav>
 <div id="empty-scene" hidden>Loading recorded simulator traces…</div>
 <div id="frame-tag" hidden></div><div id="legend"></div><footer id="controls"></footer><div id="connection" role="status" hidden></div></main>
-<aside id="rail"><section class="run-controls"><div class="run-actions"><label for="run-select">RUN</label><a href="./" class="btn">Back to proof</a></div><select id="run-select" aria-label="Select run"></select><div class="run-state"><span id="run-status">Loading recording…</span></div><div class="view-switch" role="group" aria-label="Factory view"><button id="layout-view" class="btn active">Factory layouts</button><button id="agents-view" class="btn">Agent factories</button><button id="visual-view" class="btn">Visual inspector</button></div></section><section id="visual-inspection" hidden></section><section id="inspection" hidden></section><details id="operator-controls" class="more" hidden><summary>Operator controls</summary><div id="operator-content"></div></details><section class="run-summary" id="run-summary"></section><div id="metrics-panel"></div><details id="learn-factory" class="more"><summary>Factory guide · stations &amp; demand</summary><section id="factory-guide"></section><section id="demand-guide"></section></details><details class="more" id="nemotron-results"><summary>Nemotron fine-tune results</summary><div id="nemotron-panel"></div></details><section class="artifact-links" id="run-evidence"></section><section><button id="download" class="btn" disabled>Download run evidence</button></section></aside>
+<aside id="rail"><section class="run-controls"><div class="run-actions"><label for="run-select">RUN</label><a href="./" class="btn">Back to proof</a></div><select id="run-select" aria-label="Select run"></select><div class="run-state"><span id="run-status">Loading recording…</span></div><div class="view-switch" role="group" aria-label="Factory view"><button id="layout-view" class="btn active">Factory layouts</button><button id="agents-view" class="btn">Agent factories</button><button id="visual-view" class="btn">Visual inspector</button></div></section><section id="visual-inspection" hidden></section><section id="inspection" hidden></section><details id="operator-controls" class="more" hidden><summary>Operator controls</summary><div id="operator-content"></div></details><section class="run-summary" id="run-summary"></section><div id="metrics-panel"></div><details id="learn-factory" class="more"><summary>Factory guide · stations &amp; demand</summary><section id="factory-guide"></section><section id="demand-guide"></section></details><details class="more" id="nemotron-models"><summary>Why we used Nemotron · model guide</summary><div id="nemotron-guide"></div></details><details class="more" id="nemotron-results"><summary>Nemotron fine-tune results</summary><div id="nemotron-panel"></div></details><section class="artifact-links" id="run-evidence"></section><section><button id="download" class="btn" disabled>Download run evidence</button></section></aside>
 `;
 
 const imageCheck = new URLSearchParams(location.search).get('visionCheck');
@@ -42,6 +42,7 @@ function message(text:string|null){$('connection').textContent=text;$('connectio
 function button(text:string,action:()=>void,attrs:Record<string,string>={}){const b=h('button',{class:'btn',...attrs},text);b.onclick=action;return b;}
 $('metrics-panel').after($('operator-controls'));
 renderNemotronResults($('nemotron-panel'));
+renderNemotronGuide($('nemotron-guide'));
 const world=createWarehouse($('scene'),selection=>{selected=selection;if(selection.type==='agent')enter(selection.node);else renderInspection();$('rail').scrollTop=0;});
 const controls=createControls($('controls'),playback,{seek:t=>{playback.t=t;},toggle:()=>{if(playback.t>=playback.end)playback.t=0;playback.playing=!playback.playing;},speed:s=>{playback.speed=s;},camera:p=>world.preset(p)});
 $('controls').querySelector('input')!.setAttribute('aria-label','Replay time');

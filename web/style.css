@@ -263,9 +263,9 @@ details.more[open] > :not(summary) { margin-top: 10px; }
 .failure-counts{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:10px 0}.failure-counts span{padding:7px;border:1px solid #675235;border-radius:5px;font-size:11px;color:#f5cd92}
 .inbound-route{display:grid;gap:3px;margin:7px 0;padding:7px;background:#151b22;border-radius:5px;font-size:11px}.inbound-route b{font-size:11px}.inbound-route span{color:var(--muted)}.inbound-route .route-risk{color:#fca5a5}
 
-#nemotron-results{margin:0 0 14px;border:1px solid #3c4d64;border-radius:7px;background:#1c2634;padding:10px}
-#nemotron-results>summary{font-weight:600;color:#c4d7f5}
-#nemotron-panel{line-height:1.5;overflow-wrap:anywhere}
+#nemotron-results,#nemotron-models{margin:0 0 14px;border:1px solid #3c4d64;border-radius:7px;background:#1c2634;padding:10px}
+#nemotron-results>summary,#nemotron-models>summary{font-weight:600;color:#c4d7f5}
+#nemotron-panel,#nemotron-guide{line-height:1.5;overflow-wrap:anywhere}
 .tune-context{font-size:11px;color:var(--muted);margin:12px 0}
 .tune-result{border-top:1px solid #354354;padding:14px 0 8px}
 #rail .tune-result h3{color:#c9dcf8;letter-spacing:.03em;margin:0 0 10px}

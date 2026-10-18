@@ -217,7 +217,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const ca = checks(A.result.metrics), cb = checks(B.result.metrics);
   const mark = ([, ok, v]: [string, boolean, string]) => h("td", { class: `num ${ok ? "ok" : "no"}` }, h("span", { class: "tick" }, ok ? "✓" : "✗"), ` ${v}`);
   const result = h("section", { class: "result" },
-    h("div", { class: "eyebrow" }, "Score · 9 held-out days · lower is better"),
+    h("div", { class: "eyebrow" }, "Score · 9 validation days · lower is better"),
     h("div", { class: "score" },
       h("span", { class: "score-from" }, fmtNum(A.select.objective)),
       h("span", { class: "score-arrow" }, "→"),
