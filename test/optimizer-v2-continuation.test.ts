@@ -28,13 +28,13 @@ function fixture() {
 }
 const usage = { promptTokens: 100, completionTokens: 20, totalTokens: 120 };
 const noTeacher: any = () => ({ actions: [], endpoint: { feasible: false }, feedbackSimulationCalls: 0, simulatorCalls: 0 });
-async function abortOriginal(f: ReturnType<typeof fixture>) {
+async function abortOriginal(f: ReturnType<typeof fixture>, now?: () => number) {
   let calls = 0;
   const result = await runV2Evaluation(f.plan, f.cases, async () => {
     calls++;
     if (calls === 9) throw new Error("No route to host");
     return { content: calls === 5 ? "malformed" : '{"op":"stop"}', usage };
-  }, { teacher: noTeacher });
+  }, { teacher: noTeacher, ...(now ? { now } : {}) });
   assert.equal(result.terminalReason, "provider_failure_charge_unknown");
   assert.equal(read(join(f.plan.outputDirectory, "requests", UNKNOWN_REQUEST + ".json")).status, "unknown");
 }
@@ -93,7 +93,8 @@ test("continuation refuses expired clocks and a second unknown request", async (
 test("approved interruption pause preserves active runtime and caps the absolute deadline", async () => {
   const f = fixture();
   try {
-    await abortOriginal(f);
+    // The historical approval cutoff must not make this test expire with wall time.
+    await abortOriginal(f, () => Date.parse("2026-10-17T19:00:00.000Z"));
     const original = read(join(f.plan.outputDirectory, "checkpoint.json"));
     const now = original.startedAt + 60_000, activeElapsedMs = 10_000, hardDeadline = now + 100_000;
     const m = prepareV2Continuation({ originalDirectory: f.plan.outputDirectory, outputDirectory: f.out, approveContinuation: true, now, pauseAllowance: { activeElapsedMs, hardDeadline } });

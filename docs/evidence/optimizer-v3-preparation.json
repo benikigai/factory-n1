@@ -1,0 +1,61 @@
+{
+  "phase": "prepared-awaiting-approval",
+  "newResourcesCreated": false,
+  "budgetUsd": 3,
+  "maxMinutes": 85,
+  "setupMinutes": 20,
+  "evaluationMinutes": 50,
+  "finalizeMinute": 72,
+  "poweroffMinute": 75,
+  "deleteByMinute": 85,
+  "gpu": "A100 80GB PCIe",
+  "gpuRateUsdPerHour": 2,
+  "diskGiB": 128,
+  "diskUsdPerGiBMonth": 0.08,
+  "monthHoursAssumption": 720,
+  "expectedMinutes": [
+    40,
+    60
+  ],
+  "expectedCostUsd": [
+    1.3428,
+    2.0142
+  ],
+  "maximumEstimatedCostUsd": 2.8535,
+  "priceSource": "https://www.crusoe.ai/cloud/pricing",
+  "baseModel": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+  "baseRevision": "54641c1611fcff44fa4865626462445e0a153fc7",
+  "modelAliases": [
+    "factory-optimizer-base",
+    "factory-optimizer-v1",
+    "factory-optimizer-old3",
+    "factory-optimizer-v2"
+  ],
+  "noRetraining": true,
+  "frozenDemoUntouched": true,
+  "preparedAt": "2026-10-18T00:10:29.845630+00:00",
+  "bundle": {
+    "archive": "/Users/bshyong/Code/factory-n1-final/runs/optimizer-v3-private/fresh-comparison.tar.gz",
+    "sha256": "1047a6a53929dad03f72bbbd8f07f4bfadecbf424ef68347677c144497aef688",
+    "bytes": 76438842,
+    "bundleManifestSha256": "a0b78098d927157064d31847d9a2ac9566c8d6794c3a323066274edb8221fbce",
+    "testSha256": "78f57c1722b03a64244ece77d58c89ee47cdc1c6766b584d975e0e6d11cc4202"
+  },
+  "freshData": {
+    "manifestSha256": "6b2ac1ecd55faf415cea862d30da7ccdfc39b877487f63974fa0ffb1c6934085",
+    "testSha256": "78f57c1722b03a64244ece77d58c89ee47cdc1c6766b584d975e0e6d11cc4202",
+    "factories": 20,
+    "uniqueDemandSeeds": 160,
+    "simulatorCalls": 0,
+    "trainingUnchanged": true
+  },
+  "checks": {
+    "pythonTests": 10,
+    "newFreshDataTests": 6,
+    "shellSyntax": "passed",
+    "bundleHashes": "passed",
+    "liveDockerNvidiaSystemd": "pending approval and launch",
+    "repositoryTests": 144,
+    "typecheck": "passed"
+  }
+}
