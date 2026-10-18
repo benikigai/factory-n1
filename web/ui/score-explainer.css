@@ -1,0 +1,7 @@
+.score-explainer{margin:10px 0 14px;padding:9px 11px;border:1px solid var(--line,var(--hair,#29313b));border-radius:6px;font-size:12px;line-height:1.5}
+.score-explainer>summary{color:inherit;cursor:pointer;font-weight:600}
+.score-explainer p{margin:10px 0}.score-explainer .score-caveat{font-size:11px;opacity:.8}
+.score-breakdown{width:100%;border-collapse:collapse;font-size:12px}
+.score-breakdown th,.score-breakdown td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line,var(--hair,#29313b));font-weight:400;vertical-align:top}
+.score-breakdown thead th{font-weight:600}.score-breakdown tbody th{width:40%}
+.tb-main .score-explainer{margin-bottom:4px}.tb-main .score-explainer strong{font-family:var(--sans);font-size:12px}

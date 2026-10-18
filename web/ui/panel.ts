@@ -3,6 +3,7 @@ import type { ReplayBundle, ReplaySide } from "../../src/replay.ts";
 import type { RunMetrics } from "../../src/sim/types.ts";
 import type { Frame } from "../world/state.ts";
 import { fmtDelta, fmtNum, h, safeLink } from "./dom.ts";
+import { createScoreExplanation } from "./score-explainer.ts";
 
 const MODE_TEXT: Record<ReplayBundle["mode"], { label: string; hint: string }> = {
   synthetic: { label: "SYNTHETIC", hint: "Fixture with no model calls. Not an agent result." },
@@ -221,6 +222,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
       h("span", { class: "score-to" }, fmtNum(B.select.objective)),
       h("span", { class: `score-delta ${pct > 0 ? "good" : "bad"}` }, `${pct > 0 ? "−" : "+"}${Math.abs(pct)}%`),
     ),
+    createScoreExplanation(A.select.objective, B.select.objective, { before: A.result.metrics.makespan, after: B.result.metrics.makespan, missorts: B.result.metrics.missorts, damaged: B.result.metrics.damaged }),
     h("div", { class: `verdict ${B.select.dodPassed ? "pass" : "fail"}` }, B.select.dodPassed ? "Goal met on every validation day" : "Goal not met on the validation days"),
     h("table", { class: "checks" },
       h("thead", null, h("tr", null, h("th", null, `Final results · ${b.scenario.profile} day shown`), h("th", { class: "num" }, "Before"), h("th", { class: "num" }, "After"))),

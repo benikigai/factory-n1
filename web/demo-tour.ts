@@ -11,7 +11,7 @@ export interface DemoStep {
   profile?: DemandProfile;
   station?: { side: 'baseline' | 'improved'; id: string; detail: 'operation' | 'failures' };
   agentPath?: string[];
-  panel?: 'rules' | 'demand' | 'results' | 'work' | 'critic' | 'critic-details' | 'optimizer' | 'optimizer-details';
+  panel?: 'rules' | 'demand' | 'results' | 'score' | 'work' | 'critic' | 'critic-details' | 'optimizer' | 'optimizer-details';
 }
 export interface DemoTour {
   id: 'quick' | 'detailed';
@@ -31,8 +31,8 @@ export const DEMO_TOURS: DemoTour[] = [
     { title: 'One move', seconds: 15, time: 'end', station: {side:'improved',id:'pack-B',detail:'failures'}, caption: '15 cells became 11. Under the limit.', content: [
       'Run 7 left one 15-cell conveyor that broke fragile packages. Run 11 moved pack-B 3 cells inland. 15 cells became 11. Under the limit.',
     ] },
-    { title: 'Goal met', seconds: 15, time: 'end', panel:'results', caption: '100 of 100. 19:44. Zero mis-sorts. Zero damage.', content: [
-      '100 of 100 shipped in 19:44. Zero mis-sorts. Zero damage. 82% better across 9 held-out days, for 4 cents. Version N+1 has to earn it.',
+    { title: 'Goal met', seconds: 15, time: 'end', panel:'score', caption: '82% lower penalty across 9 held-out days.', content: [
+      '82% is the drop in one penalty score: time to clear plus fines for mis-sorts, damage and equipment. 100 of 100 shipped in 19:44. Zero errors. 4 cents.',
     ] },
   ] },
   { id: 'detailed', label: '4-minute detailed walkthrough', seconds: 240, steps: [
@@ -56,8 +56,8 @@ export const DEMO_TOURS: DemoTour[] = [
       'Run 7 gave each zone its own pack station. One leg, sorter to pack-B, was still 15 cells. Runs 8 to 10 stalled until the designers got a ruler tool.',
       'Run 11 moved pack-B from (0,4) to (3,5). 15 cells became 11. The next leg is 8. Both under the limit.',
     ] },
-    { title: 'Result', seconds:30, panel:'results', time:'end', caption:'Goal met. 82% better. 4 cents.', content:[
-      'Peak day: 19:44, zero mis-sorts, zero damage. 82% better across 9 held-out days. 54 model calls, 4 cents.',
+    { title: 'Result', seconds:30, panel:'score', time:'end', caption:'Goal met. Penalty down 82%. 4 cents.', content:[
+      'Peak day: 19:44, zero mis-sorts, zero damage. The penalty score, time plus fines for errors, damage and equipment, fell 82% across 9 held-out days. 54 model calls, 4 cents.',
       'Run 7 is the fair comparison. With the same 41 simulator runs it beat a one-line code fix and random search.',
     ] },
     { title: 'Fine-tune one: the critic', seconds:30, panel:'critic-details', caption:'It learned the format, not the outcome.', content:[
