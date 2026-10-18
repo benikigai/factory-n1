@@ -23,7 +23,7 @@ export interface Warehouse {
   /** Advance both floors to sim time t and draw. Returns [baseline, improved] frames. */
   render(t: number, realTime: number): [Frame, Frame] | null;
   setCounters(base: string, improved: string): void;
-  preset(name: CameraPreset, animate?: boolean): void;
+  preset(name: CameraPreset, animate?: boolean, durationMs?: number): void;
   closeupTarget(): string | null;
 }
 
@@ -124,7 +124,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     return { pos: target.clone().addScaledVector(dir, dist), target };
   }
 
-  function preset(name: CameraPreset, animate = true) {
+  function preset(name: CameraPreset, animate = true, durationMs = 900) {
     userMoved = false;
     currentPreset = name;
     const pose = presetPose(name);
@@ -135,7 +135,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
       tween = null;
       return;
     }
-    tween = { from: camera.position.clone(), to: pose.pos, tFrom: controls.target.clone(), tTo: pose.target, t0: performance.now(), dur: 900 };
+    tween = { from: camera.position.clone(), to: pose.pos, tFrom: controls.target.clone(), tTo: pose.target, t0: performance.now(), dur: durationMs };
   }
 
   function setBundle(next: ReplayBundle) {

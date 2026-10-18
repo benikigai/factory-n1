@@ -146,6 +146,17 @@ function renderData(){
   }else{$('hud-meta').textContent=snapshot.tree.output;$('metrics-panel').replaceChildren(h('p',{class:'empty'},'No scored replay exists in this recording.'));$('run-summary').replaceChildren();counters=null;}
   if(snapshot.error)message(snapshot.error);
 }
+/** First load only: start close on the busiest station while the floor runs, then glide out to the overview.
+ *  Any click, drag or scroll on the scene skips it. ?intro=0 turns it off. */
+let introPlayed=false,introTimer:ReturnType<typeof setTimeout>|undefined;
+function openingShot(){
+  const wanted=!introPlayed&&view==='layout'&&new URLSearchParams(location.search).get('intro')!=='0'&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  introPlayed=true;clearTimeout(introTimer);
+  if(!wanted){world.preset('overview',false);return;}
+  world.preset('closeup',false);playback.playing=true;
+  introTimer=setTimeout(()=>{if(view==='layout')world.preset('overview',true,3200);},7000);
+}
+for(const type of ['pointerdown','wheel'])$('scene').addEventListener(type,()=>clearTimeout(introTimer),{once:true,passive:true});
 function apply(data:RunSnapshot){
   if(snapshot?.id===data.id&&snapshot.revision===data.revision)return;
   const isNew=snapshot?.id!==data.id,scopeId=scope?.id,selectedId=selected?.type==='agent'?selected.node.id:null;
@@ -153,7 +164,7 @@ function apply(data:RunSnapshot){
   if(isNew){playback.t=0;selected=null;scope=data.tree;view='layout';demand=null;}
   else{scope=nodes().find(n=>n.id===scopeId)??data.tree;if(selectedId){const node=nodes().find(n=>n.id===selectedId);selected=node?{type:'agent',node}:null;}}
   displayReplay=data.replay?(demand?previewDemand(data.replay,demand):data.replay):null;
-  if(view==='agents'&&scope)world.setAgents(scope);else if(data.replay&&previousReplay!==data.replay){world.setBundle(displayReplay!);if(isNew)world.preset('overview',false);}
+  if(view==='agents'&&scope)world.setAgents(scope);else if(data.replay&&previousReplay!==data.replay){world.setBundle(displayReplay!);if(isNew)openingShot();}
   playback.end=displayReplay?Math.max(1,playbackEnd(displayReplay.baseline.result.trace,displayReplay.improved.result.trace)):1;playback.t=Math.min(playback.t,playback.end);controls.setEnd(playback.end);
   renderNavigation();renderData();renderInspection();guide?.refresh();
 }
