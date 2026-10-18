@@ -1,0 +1,144 @@
+{
+  "status": "prepared-awaiting-spend-approval",
+  "trainingStarted": false,
+  "baseModel": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+  "baseRevision": "54641c1611fcff44fa4865626462445e0a153fc7",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "datasetFiles": {
+    "train.jsonl": {
+      "sha256": "39622e2529c53607ec890c587d2faa0ab41b2bd40b5048c8148e53725a9f6895",
+      "bytes": 6915859
+    },
+    "validation.jsonl": {
+      "sha256": "11e7d2c849d50112af9fb7d986c704516c9c75e6c74ee6fc00eb34e2d4dac52c",
+      "bytes": 1142026
+    },
+    "raw-transitions.jsonl": {
+      "sha256": "fbb9a945605ba5c7ada00ebd22ec9876d99a3afb1c4d6f6cf8299f152f166b09",
+      "bytes": 51087816
+    },
+    "test-factories.jsonl": {
+      "sha256": "ee7346e6123a15ae5880533a5aaccf61e1e7934cd51a482ddbc9913ffcd066c1",
+      "bytes": 52230
+    }
+  },
+  "datasetStats": {
+    "train": {
+      "examples": 1200,
+      "buildings": 60
+    },
+    "validation": {
+      "examples": 200,
+      "buildings": 10
+    },
+    "test": {
+      "examples": 20,
+      "buildings": 20,
+      "scored": false
+    },
+    "trajectorySteps": {
+      "0": 563,
+      "1": 474,
+      "2": 363
+    },
+    "stopLabels": 13,
+    "simulatorCalls": 321452,
+    "rejectedGates": 176,
+    "rejectedSearches": 13,
+    "elapsedMs": 56295
+  },
+  "tokenizerStats": {
+    "train": {
+      "examples": 1200,
+      "totalTokens": 1873761,
+      "assistantTokens": 25888,
+      "maximumTokens": 2072,
+      "maximumPromptTokens": 2050
+    },
+    "validation": {
+      "examples": 200,
+      "totalTokens": 309301,
+      "assistantTokens": 4317,
+      "maximumTokens": 2071,
+      "maximumPromptTokens": 2049
+    }
+  },
+  "bundleSha256": "bdacc95662c59424d699b3aeedab693cd36c12144ba2b27deef39c7f22a4adcd",
+  "offlineChecks": {
+    "typescriptTests": 121,
+    "pythonTests": 7,
+    "typecheck": "passed",
+    "independentAudit": {
+      "schemaVersion": 1,
+      "auditedAt": "2026-10-17T21:50:54.853Z",
+      "status": "passed",
+      "scope": "Independent train/validation transition replay only. Test factories were never opened or scored.",
+      "manifestSha256": "c2cccbedcce09a1ebaed0ec0c5aa5733fe7cea9aa42b60340af695faa68f4119",
+      "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+      "sourceHashes": {
+        "src/training/optimizer.ts": "fde5f5f39493f2f547c9656974c9240628306afecb998daa6733f75896030bae",
+        "src/training/optimizer-data.ts": "1170f1710f6026347336fdfa83786a361c7eff7346cd9ee2ac8584af585825ff",
+        "src/training/generate.ts": "8a7af5c1973dfcb7dbb19d348d632c1ef81ecaad27f187bd2a80d45b112ce788",
+        "scripts/prepare-optimizer.ts": "9a1f7e0f9a9736e3025a8fd7525ad9c19ce0703edff492576cf7e27e281d21e0",
+        "src/tasks/task.ts": "39d06d3859e7368c7a444de34714dd840edd1da84f465ab00558939ac5de438f"
+      },
+      "files": {
+        "train.jsonl": {
+          "sha256": "39622e2529c53607ec890c587d2faa0ab41b2bd40b5048c8148e53725a9f6895",
+          "bytes": 6915859
+        },
+        "validation.jsonl": {
+          "sha256": "11e7d2c849d50112af9fb7d986c704516c9c75e6c74ee6fc00eb34e2d4dac52c",
+          "bytes": 1142026
+        },
+        "raw-transitions.jsonl": {
+          "sha256": "fbb9a945605ba5c7ada00ebd22ec9876d99a3afb1c4d6f6cf8299f152f166b09",
+          "bytes": 51087816
+        }
+      },
+      "rows": 1400,
+      "splitRows": {
+        "train": 1200,
+        "validation": 200
+      },
+      "splitBuildings": {
+        "train": 60,
+        "validation": 10
+      },
+      "verifiedMoves": 1387,
+      "verifiedStops": 13,
+      "stopCandidatesReplayed": 624,
+      "simulatorRuns": 24792,
+      "uniqueFeedbackSeeds": 5600,
+      "uniqueGateSeeds": 5600,
+      "checks": [
+        "all file sizes and SHA256 match frozen manifest",
+        "source hashes and grader unchanged before and after audit",
+        "all actions recreate exact after layout and preserve task validity",
+        "all chat examples recreate exact frozen training rows",
+        "all stored full per-day metrics and mean metrics match independent simulator replay",
+        "all moves improve objective on feedback and fresh gate days",
+        "no previously passed daily goal check regresses",
+        "all 48 sampled candidates fail improvement for each stop label",
+        "train and validation building identities and demand seeds are disjoint"
+      ],
+      "elapsedMs": 5456
+    }
+  },
+  "costEstimate": {
+    "gpuUsdPerHour": 2,
+    "bootDiskGiB": 128,
+    "diskUsdPerGiBMonth": 0.08,
+    "expectedRuntimeMinutes": [
+      30,
+      60
+    ],
+    "expectedUsd": [
+      1.01,
+      2.02
+    ],
+    "proposedAdditionalCapUsd": 3,
+    "maximumMinutesCreationToDeletion": 75,
+    "billingConfirmed": false
+  }
+}

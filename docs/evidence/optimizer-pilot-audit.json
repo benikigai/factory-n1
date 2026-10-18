@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "auditedAt": "2026-10-17T22:12:15.472Z",
+  "status": "passed",
+  "evaluation": "/Users/bshyong/Code/factory-n1-final/runs/optimizer-eval/test-v1",
+  "planHash": "3a100f247c3cbfe8daf048cf55844bc7b298613bc76de7ae4a50b5255226f31a",
+  "manifestHash": "c2cccbedcce09a1ebaed0ec0c5aa5733fe7cea9aa42b60340af695faa68f4119",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "receiptHash": "54b507fe4b81b04639b8fdb177d04cbe0352d4e60f9e1b89e856f034db335cb3",
+  "metricsHash": "b92b017c13d46bb6b505edc3573331f21161530a07990287e5d76ff3638a6f66",
+  "factories": 20,
+  "arms": 3,
+  "simulatedScenarios": 1156,
+  "receiptCount": 710,
+  "recoveredAdapterVerified": true,
+  "checks": [
+    "pinned checkpoint and adapter/dataset provenance",
+    "whole-building and demand independence",
+    "all prompts reconstructed from current state and past feedback only",
+    "action legality and exact one-station mutations",
+    "all feedback and final metrics independently replayed",
+    "acceptance preserves passed day checks and strictly improves objective",
+    "random baseline actions reproduced",
+    "no final simulations before search-complete",
+    "call/token/simulator caps and all ledger snapshots",
+    "no retries, missing usage or unsettled reservations",
+    "all final states and aggregate/pairwise reports"
+  ],
+  "overall": {
+    "base": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 10752.35,
+      "meanObjectiveDelta": -15.1125,
+      "objectiveImprovements": 3,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 60,
+        "acceptedMoves": 4,
+        "invalidActions": 50,
+        "stops": 0,
+        "knownTokens": 77862,
+        "reservedUnknownTokens": 0,
+        "simulations": 280,
+        "layoutEvaluations": 70,
+        "skippedProposals": 0
+      }
+    },
+    "tuned": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 9406.825,
+      "meanObjectiveDelta": -1360.6375,
+      "objectiveImprovements": 12,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 60,
+        "acceptedMoves": 24,
+        "invalidActions": 21,
+        "stops": 0,
+        "knownTokens": 90040,
+        "reservedUnknownTokens": 0,
+        "simulations": 396,
+        "layoutEvaluations": 99,
+        "skippedProposals": 0
+      }
+    },
+    "random": {
+      "factories": 20,
+      "completedSearches": 20,
+      "scoredFactories": 20,
+      "missingScores": 0,
+      "initialGoalPasses": 0,
+      "finalGoalPasses": 0,
+      "initialZeroDamage": 0,
+      "finalZeroDamage": 0,
+      "meanInitialObjective": 10767.4625,
+      "meanFinalObjective": 10307.975,
+      "meanObjectiveDelta": -459.4875,
+      "objectiveImprovements": 7,
+      "budget": {
+        "offeredProposals": 60,
+        "attemptedProposals": 60,
+        "modelCalls": 0,
+        "acceptedMoves": 14,
+        "invalidActions": 0,
+        "stops": 0,
+        "knownTokens": 0,
+        "reservedUnknownTokens": 0,
+        "simulations": 480,
+        "layoutEvaluations": 120,
+        "skippedProposals": 0
+      }
+    }
+  },
+  "pairwise": {
+    "base-vs-tuned": {
+      "base": 2,
+      "tuned": 12,
+      "ties": 6
+    },
+    "base-vs-random": {
+      "base": 5,
+      "random": 7,
+      "ties": 8
+    },
+    "tuned-vs-random": {
+      "tuned": 12,
+      "random": 4,
+      "ties": 4
+    }
+  },
+  "elapsedMs": 464,
+  "limitations": [
+    "Audit verifies saved evidence and current frozen sources; it does not attest remote hardware.",
+    "Results concern synthetic factories in this generator family."
+  ]
+}

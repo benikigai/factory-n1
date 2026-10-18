@@ -1,0 +1,65 @@
+{
+  "audit": {
+    "status": "passed",
+    "createdAt": "2026-10-17T22:38:40.774Z",
+    "directory": "/Users/bshyong/Code/factory-n1-final/runs/optimizer-data/v2",
+    "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+    "trainingRows": 1400,
+    "simulatorCalls": 24920,
+    "stats": {
+      "moves": 1330,
+      "stops": 70,
+      "nonGoalStops": 0,
+      "goalTargets": 716,
+      "correctionHistories": 910,
+      "verifiedInvalidHistories": 280,
+      "verifiedRejectedHistories": 630,
+      "acceptedHistories": 280,
+      "emptyHistories": 210,
+      "sorterTargets": 553,
+      "packTargets": 777
+    },
+    "reservedTrainingDemandSeeds": 40,
+    "sealedTestOpened": false,
+    "testChecks": "Only manifest geometry and demand disjointness verified; evaluator must independently verify sealed file contents after checkpoint freeze.",
+    "limitation": "Training curriculum selects full-goal demand draws and verifies both day sets during label selection. This audit verifies targets and provenance, not that more epochs or new data improve held-out model performance.",
+    "manifestHash": "d0bc0b9f5122ce1f531b7f3d8b848ac67074fc46363217dd962e7932a3882566"
+  },
+  "tokenizer": {
+    "baseModel": "nvidia/Llama-3.1-Nemotron-Nano-8B-v1",
+    "baseRevision": "54641c1611fcff44fa4865626462445e0a153fc7",
+    "taskProfile": "optimizer",
+    "dataset": {
+      "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+      "files": {
+        "train.jsonl": "96361ea2bf2f3ae9dd222f7866e2924117487c7c88607e5344307a36d19de587",
+        "validation.jsonl": "9244d18c2d8f07bebe595541119bb5636183ea928002693b26a13f7769d4a137"
+      }
+    },
+    "stats": {
+      "train": {
+        "examples": 1200,
+        "totalTokens": 1775950,
+        "assistantTokens": 24967,
+        "maximumTokens": 1639,
+        "maximumPromptTokens": 1617
+      },
+      "validation": {
+        "examples": 200,
+        "totalTokens": 295832,
+        "assistantTokens": 4160,
+        "maximumTokens": 1635,
+        "maximumPromptTokens": 1613
+      }
+    },
+    "modelWeightsDownloaded": false
+  },
+  "oldTrainTokens": 1873761,
+  "newToOldTokenRatio": 0.9477996393350059,
+  "tests": {
+    "typescript": 135,
+    "python": 11,
+    "typecheck": "passed"
+  },
+  "paidWorkStarted": false
+}

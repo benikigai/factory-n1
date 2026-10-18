@@ -7,7 +7,7 @@ from pathlib import Path
 import time
 import uuid
 
-from common import BASE_MODEL, BASE_REVISION, BASE_ALIAS, ADAPTER_ALIAS, MAX_SEQUENCE_LENGTH, PROMPT_PROFILE, adapter_hashes, model_messages, validate_request
+from common import BASE_MODEL, BASE_REVISION, MAX_SEQUENCE_LENGTH, PROMPT_PROFILE, adapter_hashes, model_aliases, model_messages, validate_request
 
 
 def main():
@@ -17,6 +17,8 @@ def main():
     args = parser.parse_args()
     root = Path(args.checkpoint)
     manifest = json.loads((root / "manifest.json").read_text())
+    task_profile = manifest.get("taskProfile", "critic")
+    base_alias, adapter_alias = model_aliases(task_profile)
     if manifest.get("status") != "complete" or manifest.get("baseModel") != BASE_MODEL or manifest.get("baseRevision") != BASE_REVISION or manifest.get("promptProfile") != PROMPT_PROFILE:
         raise ValueError("require a complete adapter on the exact pinned base model")
     if adapter_hashes(root / "adapter") != manifest["adapterHashes"]:
@@ -47,9 +49,10 @@ def main():
 
         def do_GET(self):
             if self.path == "/health":
-                return self.send(200, {"status": "ready", "trainingJobId": manifest["trainingJobId"], "baseCheckpoint": BASE_MODEL + "@" + BASE_REVISION, "promptProfile": PROMPT_PROFILE})
+                return self.send(200, {"status": "ready", "trainingJobId": manifest["trainingJobId"], "baseCheckpoint": BASE_MODEL + "@" + BASE_REVISION,
+                    "taskProfile": task_profile, "promptProfile": PROMPT_PROFILE, "dataset": manifest["dataset"], "adapterHashes": manifest["adapterHashes"]})
             if self.path == "/v1/models":
-                return self.send(200, {"object": "list", "data": [{"id": alias, "object": "model", "owned_by": "factory-n1"} for alias in (BASE_ALIAS, ADAPTER_ALIAS)]})
+                return self.send(200, {"object": "list", "data": [{"id": alias, "object": "model", "owned_by": "factory-n1"} for alias in (base_alias, adapter_alias)]})
             self.send(404, {"error": {"message": "not found"}})
 
         def do_POST(self):
@@ -59,14 +62,14 @@ def main():
                 length = int(self.headers.get("Content-Length", "0"))
                 if not 1 <= length <= 2_000_000:
                     raise ValueError("invalid body size")
-                alias, messages, limit = validate_request(json.loads(self.rfile.read(length)))
+                alias, messages, limit = validate_request(json.loads(self.rfile.read(length)), task_profile)
                 tokens = tokenizer.apply_chat_template(model_messages(messages), tokenize=True, add_generation_prompt=True, return_tensors="pt")
                 prompt_length = tokens.shape[1]
                 if prompt_length + limit > MAX_SEQUENCE_LENGTH:
                     raise ValueError("full prompt plus output exceeds 4096 tokens; no truncation")
                 tokens = tokens.to("cuda")
                 # HTTPServer is deliberately single threaded: base and adapter state cannot overlap.
-                context = model.disable_adapter() if alias == BASE_ALIAS else nullcontext()
+                context = model.disable_adapter() if alias == base_alias else nullcontext()
                 with context, torch.inference_mode():
                     generated = model.generate(input_ids=tokens, attention_mask=torch.ones_like(tokens), max_new_tokens=limit,
                             do_sample=False, use_cache=True, pad_token_id=tokenizer.eos_token_id)
@@ -85,7 +88,7 @@ def main():
     # No public bind option. Use an SSH tunnel for authorized access from the demo machine.
     server = HTTPServer(("127.0.0.1", args.port), Handler)
     server.timeout = 90
-    print(json.dumps({"status": "ready", "url": f"http://127.0.0.1:{args.port}/v1", "models": [BASE_ALIAS, ADAPTER_ALIAS]}), flush=True)
+    print(json.dumps({"status": "ready", "url": f"http://127.0.0.1:{args.port}/v1", "models": [base_alias, adapter_alias]}), flush=True)
     server.serve_forever()
 
 

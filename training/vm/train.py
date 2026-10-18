@@ -8,13 +8,14 @@ import shutil
 import time
 import uuid
 
-from common import BASE_MODEL, BASE_REVISION, BASE_ALIAS, ADAPTER_ALIAS, PROMPT_PROFILE, adapter_hashes, encode_example, load_data, save_json
+from common import BASE_MODEL, BASE_REVISION, PROMPT_PROFILE, adapter_hashes, encode_example, load_data, model_aliases, save_json, validate_task_dataset
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--task-profile", choices=("critic", "optimizer"), default="critic")
     parser.add_argument("--smoke", action="store_true", help="Two training rows, one validation row and one optimizer step")
     parser.add_argument("--validate-only", action="store_true", help="Check dataset hashes with stdlib only; no downloads")
     parser.add_argument("--max-steps", type=int, default=75)
@@ -22,7 +23,9 @@ def main():
     args = parser.parse_args()
     if not 1 <= args.max_steps <= 512 or not 60 <= args.max_seconds <= 5400:
         raise ValueError("max-steps must be 1..512; max-seconds must be 60..5400")
+    validate_task_dataset(args.data, args.task_profile)
     rows, data_receipt = load_data(args.data)
+    base_alias, adapter_alias = model_aliases(args.task_profile)
     if args.validate_only:
         print(json.dumps({"verified": data_receipt, "rows": {s: len(r) for s, r in rows.items()}}))
         return
@@ -30,10 +33,10 @@ def main():
     output.mkdir(parents=True, exist_ok=False)
     started = time.monotonic()
     deadline = started + args.max_seconds
-    run_id = "vm-critic-" + uuid.uuid4().hex
+    run_id = "vm-" + args.task_profile + "-" + uuid.uuid4().hex
     receipt = {"schemaVersion": 1, "trainingJobId": run_id, "baseModel": BASE_MODEL, "baseRevision": BASE_REVISION, "promptProfile": PROMPT_PROFILE,
                "dataset": data_receipt, "smoke": args.smoke, "epochs": 1, "rank": 8, "alpha": 16, "seed": 20261017,
-               "status": "preparing", "optimizerSteps": 0, "maxSeconds": args.max_seconds, "maxSteps": args.max_steps}
+               "status": "preparing", "taskProfile": args.task_profile, "optimizerSteps": 0, "maxSeconds": args.max_seconds, "maxSteps": args.max_steps}
     save_json(output / "manifest.json", receipt)
     try:
         import torch
@@ -128,8 +131,10 @@ def main():
         receipt["peakGpuMemoryBytes"] = torch.cuda.max_memory_allocated()
         save_json(output / "manifest.json", receipt)
         checkpoint = BASE_MODEL + "@" + BASE_REVISION
-        save_json(output / "provenance.json", {"baseModel": BASE_ALIAS, "tunedModel": ADAPTER_ALIAS,
-                    "baseCheckpoint": checkpoint, "tunedBaseCheckpoint": checkpoint, "trainingJobId": run_id, "promptProfile": PROMPT_PROFILE})
+        save_json(output / "provenance.json", {"baseModel": base_alias, "tunedModel": adapter_alias,
+                    "baseCheckpoint": checkpoint, "tunedBaseCheckpoint": checkpoint, "trainingJobId": run_id,
+                    "taskProfile": args.task_profile, "promptProfile": PROMPT_PROFILE,
+                    "dataset": data_receipt, "adapterHashes": receipt["adapterHashes"]})
         print(json.dumps({"status": "complete", "trainingJobId": run_id, "beforeValidationLoss": receipt["beforeValidationLoss"], "afterValidationLoss": receipt["afterValidationLoss"]}))
     except BaseException as error:
         receipt["status"] = "failed"

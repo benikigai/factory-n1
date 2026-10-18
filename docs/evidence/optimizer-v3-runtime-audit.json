@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "createdAt": "2026-10-18T00:47:35.485761+00:00",
+  "fullAuditSha256": "4c1abdf22da0ff24898f1588674510f693a965f76ad9b024a4089aa95308acd4",
+  "deployedBundleSha256": "1047a6a53929dad03f72bbbd8f07f4bfadecbf424ef68347677c144497aef688",
+  "deployedBundleManifestSha256": "a0b78098d927157064d31847d9a2ac9566c8d6794c3a323066274edb8221fbce",
+  "deployedFilesVerified": 76,
+  "exclusionSourcesVerified": 31,
+  "priorV1V2EntireTestSetsExcluded": true,
+  "timing": {
+    "creationEpoch": 1792283183,
+    "launchEpoch": 1792283265,
+    "evaluationStartedEpochMs": 1792283442020,
+    "evaluationElapsedMs": 880547,
+    "evaluationEndedEpochMs": 1792284322567,
+    "secondsCreationToEvaluation": 259.0199999809265,
+    "secondsCreationToEvaluationEnd": 1139.566999912262,
+    "workstopEpoch": 1792287683,
+    "deletionDeadlineEpoch": 1792288283
+  },
+  "runtime": {
+    "node": "v22.23.3",
+    "npm": "10.9.9",
+    "gpu": "NVIDIA A100 80GB PCIe, 81920, 565.57.01"
+  },
+  "cleanupObservations": {
+    "errors": [
+      {
+        "command": [
+          "systemctl",
+          "stop",
+          "factory-eval-fresh-comparison-evaluator"
+        ],
+        "returncode": 5
+      },
+      {
+        "command": [
+          "systemctl",
+          "stop",
+          "factory-eval-fresh-comparison-server"
+        ],
+        "error": "TimeoutExpired"
+      }
+    ]
+  },
+  "cleanupInterpretation": "Evaluation completed before cleanup. Evaluator stop returned 5 and server systemctl stop timed out before forced container removal; these are shutdown observations, not failed model calls. Cloud deletion remains a separate parent-owned check.",
+  "cohortInterpretation": {
+    "initialFullGoalFactories": 1,
+    "old3FinalFullGoalFactories": 10,
+    "old3NewFullGoalFactories": 9
+  },
+  "remainingLimitations": [
+    "Single synthetic 20-factory cohort, not real-world safety validation.",
+    "Three-epoch and archived one-epoch checkpoints were independently trained; epoch count is not a perfectly isolated causal factor.",
+    "All four policies used identical proposal opportunities, not identical actual tokens.",
+    "Geometric teacher has separately counted privileged planning simulations.",
+    "Simulation receipts lack timestamps; final-scoring order is supported by frozen control flow and reconstructed feedback-only prompts."
+  ]
+}

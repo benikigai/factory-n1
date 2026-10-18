@@ -1,0 +1,207 @@
+{
+  "status": "offline-assessment-complete-no-paid-run",
+  "observedAt": "2026-10-17T22:28:30.176157+00:00",
+  "graderHash": "493a1b033888446449637b8872016ad40f552f2608a6a3ddb3da66d499ad9cc4",
+  "trainingEvidence": {
+    "examples": 1200,
+    "targetZeroDamageBoth": 212,
+    "targetFullGoalBoth": 211,
+    "examplesWithNegativeHistory": 0,
+    "maximumTrajectorySteps": 3,
+    "savedEndpointsFullGoalBoth": 160,
+    "savedTrajectories": 480
+  },
+  "tunedEvaluation": {
+    "responses": 60,
+    "strictActionJson": 60,
+    "actionOutcomes": {
+      "accepted": 24,
+      "rejected": 15,
+      "invalid-action": 21
+    },
+    "invalidReasons": {
+      "station-spacing": 21
+    },
+    "stationIds": {
+      "pack-A-1": 26,
+      "pack-A-2": 15,
+      "pack-C-1": 8,
+      "pack-C-2": 4,
+      "pack-B-2": 4,
+      "pack-B-1": 3
+    },
+    "destinations": [
+      {
+        "x": 9,
+        "y": 10,
+        "count": 15
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "count": 5
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "count": 3
+      },
+      {
+        "x": 6,
+        "y": 15,
+        "count": 2
+      },
+      {
+        "x": 9,
+        "y": 4,
+        "count": 2
+      },
+      {
+        "x": 10,
+        "y": 4,
+        "count": 2
+      },
+      {
+        "x": 10,
+        "y": 6,
+        "count": 2
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "count": 2
+      }
+    ],
+    "promptPriorAttemptStatuses": {
+      "accepted": 32,
+      "rejected": 10,
+      "invalid": 18
+    },
+    "attemptsAfterAnEarlierInvalid": 15,
+    "acceptedAfterAnEarlierInvalid": 3,
+    "repeatedEarlierInvalidAction": 3,
+    "finalGoalPasses": 0,
+    "finalZeroDamage": 0,
+    "finalObjectiveImprovements": 12
+  },
+  "feasibility": {
+    "consumed-v1-test": {
+      "cases": 20,
+      "feasible": 20,
+      "infeasible": 0,
+      "minChangesHistogram": {
+        "2": 6,
+        "3": 9,
+        "4": 4,
+        "5": 1
+      },
+      "withinThree": 15,
+      "zeroDamageFourAssessmentDays": 20,
+      "fullGoalFourAssessmentDays": 20,
+      "directLegalPath": 20,
+      "directAcceptedPath": 20,
+      "totalSearchNodes": 73
+    },
+    "new-exploratory-probe": {
+      "cases": 20,
+      "feasible": 20,
+      "infeasible": 0,
+      "minChangesHistogram": {
+        "1": 2,
+        "2": 5,
+        "3": 7,
+        "4": 3,
+        "5": 2,
+        "6": 1
+      },
+      "withinThree": 14,
+      "zeroDamageFourAssessmentDays": 20,
+      "fullGoalFourAssessmentDays": 20,
+      "directLegalPath": 20,
+      "directAcceptedPath": 20,
+      "totalSearchNodes": 70
+    }
+  },
+  "independentFeasibilityAudit": {
+    "consumed-v1-test": {
+      "cases": 20,
+      "certifiedFeasible": 20,
+      "certificateMinMovesHistogram": {
+        "2": 6,
+        "3": 9,
+        "4": 4,
+        "5": 1
+      },
+      "moreThanThree": 5,
+      "prefixThreeZeroDamage": 15,
+      "prefixThreeFullGoal": 15,
+      "fullZeroDamage": 20,
+      "fullGoal": 20
+    },
+    "new-exploratory-probe": {
+      "cases": 20,
+      "certifiedFeasible": 20,
+      "certificateMinMovesHistogram": {
+        "1": 2,
+        "2": 5,
+        "3": 7,
+        "4": 3,
+        "5": 3
+      },
+      "moreThanThree": 6,
+      "prefixThreeZeroDamage": 14,
+      "prefixThreeFullGoal": 14,
+      "fullZeroDamage": 20,
+      "fullGoal": 20
+    }
+  },
+  "verificationHashes": {
+    "data-diagnosis.json": "7f14fb36651ad7f73792432ec761f5962b099eaa816e092a0c2598148364f2a1",
+    "geometric-feasibility.json": "e63cfefda60c1d885f12205ace41fb1d80ad89344eb0c2c2755567ce01db9145",
+    "geometric-summary.json": "19ab61c074d7d4e5383e051b790dfd12717833d78a8129d4bf5009294152216d",
+    "feasibility-audit.json": "b4eeec6b08f919a997aefcd37b0e5839f2ae856af464fbdd0fd824fc16a72738",
+    "geometric-feasibility.ts": "7d978f37816c0317c84b886796d481ea794c0a170a81e4841ab5c35be13d8c5f",
+    "audit-feasibility.ts": "45929a067c23119d3d6ad1f180998284330fd0bab7ef5b24c6bff8d34c2e15ac",
+    "exploratory-probes.jsonl": "b4d52f20e6b3d6239739ad350c1a986eafb66faa3529b4a8dad926b281cbbb54"
+  },
+  "consumedExploratoryBuildingHashes": [
+    "324d285d1d4179ece8da57e5a93c19a32226e871f0c06ace95f8c55fd889160c",
+    "f7bbe4e516092bb5b16e256fb971596a7c0c02c1d41692d13f977cfefb04fa57",
+    "6703b474cb00cba3b43f34c99084b57cd6642b075f07e056057e57c59e56475d",
+    "9fd74a9d48ccd8ec0631e2189c2699ba20af864575d8976a847636dc53c905b4",
+    "0a759e730e9ddcd9f5319393012ed0e60baaf4e7f9cf6bb78d447e372fdae91f",
+    "486513e1dcc5c38749cec7920f97f84a2dba3ba4347118b0f7b5b956ca46028d",
+    "71d5c7ea1696ce330f9482207d40458384dc18b9fd82355e1943fe054bc15bf5",
+    "6ad7824495e2091373ee7ea7e3630975c06bfaf09a5c8a0c239c6c2536ef1be5",
+    "505031462663b5171e949283185ebd3d3fbd99effec1eda8780b87624abc93a0",
+    "ab3526e63c9053a1060630a82c86e956ab1cedad7995c964549b111c97e0530d",
+    "83727fa17aaef870c18b513f866c67c8b948f02be33f82617182c8422eeec2b4",
+    "3fd01e52d88102a4817f2be77d518801e449953508a44811fd6ee7fd324bbfdf",
+    "5a58e690f387234bcc696cf7c8634aaa6d84032517b87864a2e24540e02ebcb3",
+    "97f714b17fe010a83749aa855718cb4613311983496e9c2dd03995ec9442f0ed",
+    "d44070b9b0f5a3a1c42d294cf183cb671440afa4893996465f3150d6ec779e98",
+    "d01034e671597d3731b732f42fd1a951598352881674d59d11de372122796147",
+    "ac6389ed63b03e625a8db2c6a888e78640fa442f6d9bd552cc4a1d8d2f658042",
+    "84fe334b28f118420899a673ed82b45ed0eca90054ba734c2f3144deba7728f1",
+    "ac31c72185f20c038c8748ab7a8b6531ecfe60c05b37b61a1e1bba69c830090d",
+    "90f2f22b64da3295a1f164b95eb9c4587167756af2bbcb0cfaa6b500e402630f"
+  ],
+  "proposedBudget": {
+    "additionalCapUsd": 4,
+    "creationToDeletionMinutes": 100,
+    "expectedMinutes": [
+      75,
+      95
+    ],
+    "expectedUsd": [
+      2.52,
+      3.19
+    ],
+    "workStopMinutes": 90,
+    "gpu": "A100 80GB PCIe",
+    "rateUsdPerHour": 2,
+    "bootDiskGiB": 128,
+    "storageUsdPerGiBMonth": 0.08,
+    "approved": false
+  }
+}
