@@ -90,3 +90,10 @@ test("inspect: validated request, fixed caps, result and spend read from the ins
   writeFileSync(path.join(dir, "inspection.json"), JSON.stringify({ imageInput: { verified: true }, findings: [{}, {}], budget: { calls: 3, usd: 0.0017 } }));
   assert.deepEqual(readInspectResult("live-demo-2", dir), { runId: "live-demo-2", ok: true, message: "finished", verified: true, findings: 2, calls: 3, usd: 0.0017 });
 });
+
+
+test("static guard allows presenter tours, which only mount with ?tour", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "fn1-presenter-"));
+  writeFileSync(path.join(dir, "replay.js"), '"1-minute walkthrough"; "4-minute detailed walkthrough"; "Pause timer";');
+  assert.deepEqual(findForbidden(dir), []);
+});
