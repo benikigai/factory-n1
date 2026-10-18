@@ -1,6 +1,6 @@
 # Fresh comparison on a VM
 
-Status: prepared for a new spending approval. No VM has been created for this run.
+Status: completed with explicit $3 approval. All20 fresh factories were audited; the VM and boot disk were deleted. See `optimizer-v3-results.md` and `optimizer-v3-vm-deletion-receipt.json`.
 
 Reuse the pinned Nemotron Nano 8B base and the three recovered adapters: original data / one epoch, original data / three epochs, and new curriculum / one epoch. This is a new evaluation cohort, not another training run. The earlier incomplete results remain intact.
 
