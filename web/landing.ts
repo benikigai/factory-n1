@@ -29,6 +29,7 @@ type Summary = {
   comparators: { label: string; select: number }[];
   usage: { calls: number; usd: number; promptTokens: number; cachedTokens: number };
   simEvals: number;
+  simCalls?: { evaluations: number; scenarioSims: number };
 };
 type MemResults = { n: number; wins: number; ties: number; losses: number };
 type Spend = { totals: { returnedUsageInferenceUsd: number; youSearches: number; youSearchBaseUsd: number } };
@@ -179,12 +180,12 @@ if (bundle && summary && a7) {
   const stamp = (tag: string, big: string, body: string, href: string) =>
     `<article class="label proof"><span class="tiny">${tag}</span><div class="big">${big}</div><p>${body}</p><a href="${href}">Evidence ↗</a></article>`;
   $("stamps").innerHTML = [
-    a7 && heur && rand
-      ? stamp("Equal budget", fmt(a7.champion.select), `Rev 7, against ${fmt(heur.select)} for a one-line code fix and ${fmt(rand.select)} for blind random search, each given the same ${a7.simEvals} simulator runs.`, "./replay.html?run=live-a-7")
+    a7 && heur && rand && a7.simCalls
+      ? stamp("Search comparison", fmt(a7.champion.select), `Rev 7's score, versus ${fmt(heur.select)} for a simple code fix and ${fmt(rand.select)} for random search. Lower is better. Random search received ${a7.simEvals} search evaluations. The agent logged ${a7.simCalls.evaluations} total evaluation batches, including checks and diagnostics. Total compute was not matched.`, "./evidence/agent-loop-proof-checks.md")
       : "",
-    stamp("Claims checked", "4/7 → 0/7", "Designer predictions the simulator refuted, before and after designers could test drafts. When a model reported a simulator run that never happened, the grader caught it.", "./evidence/2026-10-17-live-roundtrip.md"),
+    stamp("Predictions checked", "4/7 → 0/7", "Before draft testing, 4 of 7 score predictions were more than 25% off the measured score. In a later run with draft testing, 0 of 7 crossed that threshold. These two small runs do not prove perfect accuracy.", "./evidence/hero-run-live-a-5.md"),
     mem
-      ? stamp("Negative result, shown", `${mem.wins} of ${mem.n}`, `Shared memory won none of ${mem.n} pre-registered tests on fresh factories. We report it rather than tune it away.`, "./evidence/memory-eval-valid.md")
+      ? stamp("Memory comparison", `${mem.wins} of ${mem.n} wins`, `Two fresh factories, each tested twice: ${mem.n} paired comparisons under the same budget caps. Agents given two saved lessons lost all four against agents with empty memory. This result applies to these lessons and factories, not memory in general.`, "./evidence/memory-eval-valid.md")
       : "",
   ].join("");
 }
