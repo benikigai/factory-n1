@@ -1,5 +1,26 @@
 import { h } from './ui/dom';
 
+export function renderNemotronGuide(root: HTMLElement) {
+  root.replaceChildren(
+    h('p', { class: 'tune-context' }, 'Tool use for experiments, different model sizes for different jobs, and downloadable weights for custom training.'),
+    h('article', { class: 'tune-result' },
+      h('h3', null, 'Lightning · research and testable ideas'),
+      h('p', null, 'Nemotron 3.5 Lightning is the smaller text model. It searches warehouse practices through You.com and turns ideas into hypotheses to test.')),
+    h('article', { class: 'tune-result' },
+      h('h3', null, 'Super VL · design and reflection'),
+      h('p', null, 'Nemotron 3.5 Super VL proposes layouts, calls tools to test drafts and measure routes, and writes lessons from the results.'),
+      h('p', { class: 'small' }, 'VL means vision-language. It also supports the separate visual inspector. The main optimization loop uses structured layouts and simulator feedback; the 82% result does not establish a benefit from vision.')),
+    h('article', { class: 'tune-result' },
+      h('h3', null, 'Nano 8B · two separate fine-tunes'),
+      h('p', null, 'Downloadable Llama-3.1-Nemotron-Nano-8B weights let us train two LoRA adapters on one GPU: a critic to predict outcomes and an optimizer to propose station moves.'),
+      h('p', { class: 'small' }, 'Neither adapter produced the selected replay. Their measured results and limits are in the fine-tune panel below.')),
+    h('p', { class: 'tune-limit' }, 'Nemotron proposes; the fixed simulator grades. We did not compare against Claude or GPT, so this does not prove Nemotron is the best model for the task.'),
+    h('p', { class: 'small' },
+      h('a', { href: 'https://research.nvidia.com/labs/nemotron/Nemotron-3.5-Super-and-Lightning/', target: '_blank', rel: 'noopener noreferrer' }, 'NVIDIA model overview'), ' · ',
+      h('a', { href: 'https://huggingface.co/nvidia/Llama-3.1-Nemotron-Nano-8B-v1', target: '_blank', rel: 'noopener noreferrer' }, 'Nano 8B model card')),
+  );
+}
+
 // Verified against factory-n1-final/docs/evidence/nemotron-{finetune,optimizer}-pilot.md,
 // completed October 17, 2026. These fixed experiment results are independent of run selection.
 export function renderNemotronResults(root: HTMLElement) {

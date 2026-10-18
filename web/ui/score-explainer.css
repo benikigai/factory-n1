@@ -4,4 +4,5 @@
 .score-breakdown{width:100%;border-collapse:collapse;font-size:12px}
 .score-breakdown th,.score-breakdown td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line,var(--hair,#29313b));font-weight:400;vertical-align:top}
 .score-breakdown thead th{font-weight:600}.score-breakdown tbody th{width:40%}
+.score-explainer h4{margin:16px 0 6px;font-size:12px}.score-scenarios tbody th{width:22%}.score-scenarios th,.score-scenarios td{padding:6px 3px}
 .tb-main .score-explainer{margin-bottom:4px}.tb-main .score-explainer strong{font-family:var(--sans);font-size:12px}
