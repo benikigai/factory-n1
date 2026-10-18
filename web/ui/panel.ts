@@ -3,6 +3,7 @@ import type { ReplayBundle, ReplaySide } from "../../src/replay.ts";
 import type { RunMetrics } from "../../src/sim/types.ts";
 import type { Frame } from "../world/state.ts";
 import { fmtDelta, fmtNum, h, safeLink } from "./dom.ts";
+import { SIM } from "../../src/sim/config.ts";
 import { createScoreExplanation } from "./score-explainer.ts";
 
 const MODE_TEXT: Record<ReplayBundle["mode"], { label: string; hint: string }> = {
@@ -19,6 +20,7 @@ export function renderHud(badge: HTMLElement, meta: HTMLElement, b: ReplayBundle
   const run = b.runId.replace(/^live-a-/, "Run ");
   meta.replaceChildren(
     h("div", { class: "hud-title" }, run, h("span", { class: "hud-sub" }, ` · ${b.scenario.profile} day · 100 packages`)),
+    h("div", { class: "hud-floor" }, `Standard floor for every run: ${b.baseline.layout.grid.w} × ${b.baseline.layout.grid.h} cells. Moving one cell takes ${SIM.secondsPerCell} s on the conveyor.`),
     h("div", { class: "hud-goal" }, b.task.goal),
     ...(b.invalid ? [h("div", { class: "hud-invalid", role: "alert" }, `⚠ ${b.invalid}. Not evidence.`)] : []),
   );

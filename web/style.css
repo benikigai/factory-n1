@@ -327,3 +327,4 @@ details.more[open] > :not(summary) { margin-top: 10px; }
 .edits code { font-size: 13px; }
 .visual-view { --rail-w: 460px; }
 @media (max-width: 1280px) { :root { --rail-w: 400px; } }
+.hud-floor { color: #7d8a99; font-size: 12px; }
