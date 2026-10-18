@@ -214,7 +214,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const ca = checks(A.result.metrics), cb = checks(B.result.metrics);
   const mark = ([, ok, v]: [string, boolean, string]) => h("td", { class: `num ${ok ? "ok" : "no"}` }, h("span", { class: "tick" }, ok ? "✓" : "✗"), ` ${v}`);
   const result = h("section", { class: "result" },
-    h("div", { class: "eyebrow" }, "Validation score · 9 held-out days · lower is better"),
+    h("div", { class: "eyebrow" }, "Validation score · 9 feedback validation days · lower is better"),
     h("div", { class: "score" },
       h("span", { class: "score-from" }, fmtNum(A.select.objective)),
       h("span", { class: "score-arrow" }, "→"),
@@ -223,7 +223,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
     ),
     h("div", { class: `verdict ${B.select.dodPassed ? "pass" : "fail"}` }, B.select.dodPassed ? "Goal met on every validation day" : "Goal not met on the validation days"),
     h("table", { class: "checks" },
-      h("thead", null, h("tr", null, h("th", null, `Goal checks · ${b.scenario.profile} day shown`), h("th", { class: "num" }, "Before"), h("th", { class: "num" }, "After"))),
+      h("thead", null, h("tr", null, h("th", null, `Final results · ${b.scenario.profile} day shown`), h("th", { class: "num" }, "Before"), h("th", { class: "num" }, "After"))),
       h("tbody", null, ca.map((c, k) => h("tr", null, h("th", null, c[0]), mark(c), mark(cb[k])))),
     ),
   );
@@ -243,7 +243,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
         h("span", { class: "tick" }, c.accepted ? "✓" : "✗"),
         h("span", { class: "cand-name" }, short(c.id)),
         h("span", { class: "cand-score" }, c.train === null ? "not scored" : `train ${fmtNum(c.train)}`),
-        h("div", { class: "cand-why" }, c.accepted ? "Kept: at least 1% better on held-out days, no goal check worse" : reasonFor(c.id)),
+        h("div", { class: "cand-why" }, c.accepted ? "Kept: at least 1% better on validation days, no goal check worse" : reasonFor(c.id)),
       ));
     return step(kept ? "gen-kept" : "gen-flat", `Generation ${g.gen}`, g.championSelect,
       h("ul", { class: "cands" }, items),
@@ -256,7 +256,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   });
   const work = h("section", { class: "work" },
     h("h3", null, "How the agents got here"),
-    h("p", { class: "small k work-key" }, "Each generation, Nemotron designers propose floors and code keeps at most one. Right-hand numbers are held-out scores."),
+    h("p", { class: "small k work-key" }, "Each generation, Nemotron designers propose floors and code keeps at most one. Right-hand numbers are validation scores used to select changes."),
     h("ol", { class: "timeline" },
       step("gen-start", "Starting floor", A.select.objective),
       continued ? step("gen-start", "Continued from an earlier run's best floor", b.curve[0].championSelect) : null,
@@ -267,6 +267,7 @@ export function renderRail(rail: HTMLElement, b: ReplayBundle): CounterEls {
   const more = (title: string, ...kids: (HTMLElement | null)[]) => h("details", { class: "more" }, h("summary", null, title), ...kids);
   rail.replaceChildren(
     result,
+    h('p',{class:'small'}, B.final ? 'Final split results are recorded below.' : 'Validation guided acceptance. No untouched final-split result is recorded for this run.'),
     work,
     more("This day in numbers", table),
     more("Against simple baselines",

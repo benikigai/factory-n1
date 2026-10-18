@@ -1,4 +1,4 @@
-// The public static site must stay replay-only: no run API, no process spawning, no key or env-file handling.
+// The public static site excludes local operator tools. Presenter tours ship but only mount with ?tour.
 // build-static.ts calls this on web/dist and fails the build on any hit.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
