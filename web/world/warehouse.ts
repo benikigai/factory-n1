@@ -25,6 +25,8 @@ export interface Warehouse {
   setCounters(base: string, improved: string): void;
   preset(name: CameraPreset, animate?: boolean, durationMs?: number): void;
   closeupTarget(): string | null;
+  /** Fly the camera to one station so it fills the view. */
+  focusStation(side: "baseline" | "improved", id: string): void;
 }
 
 export type Selection = {type:"station";side:"baseline"|"improved";id:string}|{type:"agent";node:AgentNode};
@@ -81,6 +83,11 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
   controls.maxPolarAngle = Math.PI * 0.47;
   controls.minDistance = 3;
   controls.maxDistance = 180;
+  // Explore freely: scroll zooms toward the pointer, right-drag or Shift-drag pans across the floor, arrow keys pan.
+  controls.zoomToCursor = true;
+  controls.screenSpacePanning = false;
+  controls.listenToKeyEvents(window);
+  controls.keyPanSpeed = 18;
 
   let floors: Floor[] = [];
   let agentScope:AgentNode|null=null;
@@ -124,6 +131,14 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     return { pos: target.clone().addScaledVector(dir, dist), target };
   }
 
+  function focusStation(side: "baseline" | "improved", id: string) {
+    if (!floors.length || agentScope) return;
+    const p = (side === "baseline" ? floors[0] : floors.at(-1)!).stationWorld(id);
+    if (!p) return;
+    userMoved = true;
+    tween = { from: camera.position.clone(), to: p.clone().add(new THREE.Vector3(3.5, 9, 9.5)), tFrom: controls.target.clone(), tTo: p.clone().add(new THREE.Vector3(0.4, 0.4, 0.3)), t0: performance.now(), dur: 1100 };
+  }
+
   function preset(name: CameraPreset, animate = true, durationMs = 900) {
     userMoved = false;
     currentPreset = name;
@@ -143,8 +158,8 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
     bundle = next;agentScope=null;
     if (floors) for (const f of floors) f.dispose();
     const wa = next.baseline.layout.grid.w;
-    const base = createFloor(next.baseline, -GAP / 2 - wa, "Before · starting floor", "base",{onStation:id=>onSelect({type:"station",side:"baseline",id})});
-    const imp = createFloor(next.improved, GAP / 2, `After · ${next.runId.replace(/^live-a-/, "Run ")}`, "improved",{onStation:id=>onSelect({type:"station",side:"improved",id})});
+    const base = createFloor(next.baseline, -GAP / 2 - wa, "Before · starting floor", "base",{onStation:id=>{focusStation("baseline",id);onSelect({type:"station",side:"baseline",id});}});
+    const imp = createFloor(next.improved, GAP / 2, `After · ${next.runId.replace(/^live-a-/, "Run ")}`, "improved",{onStation:id=>{focusStation("improved",id);onSelect({type:"station",side:"improved",id});}});
     scene.add(base.group, imp.group);
     floors = [base, imp];
     // Fit the sun's shadow frustum to both floors.
@@ -177,7 +192,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
       let obj:THREE.Object3D|null=hit.object;while(obj&&!obj.userData.stationId)obj=obj.parent;
       if(!obj)continue;const id=obj.userData.stationId as string;
       if(agentScope){const node=agentScope.children.find(n=>n.id===id);if(node)onSelect({type:"agent",node});}
-      else{const side=floors[0].group.getObjectById(obj.id)?"baseline":"improved";onSelect({type:"station",side,id});}break;
+      else{const side=floors[0].group.getObjectById(obj.id)?"baseline":"improved";focusStation(side,id);onSelect({type:"station",side,id});}break;
     }
   });
 
@@ -221,6 +236,7 @@ export function createWarehouse(host: HTMLElement,onSelect:(selection:Selection)
       floors[1]?.setCounters(b);
     },
     preset,
+    focusStation,
     closeupTarget: () => agentScope?null:bundle?.improved.result.metrics.bottleneck ?? null,
   };
 }
