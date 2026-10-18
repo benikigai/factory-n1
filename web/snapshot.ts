@@ -15,10 +15,10 @@ export function buildSnapshot(id:string,replay:ReplayBundle|null,events:BackendE
   const status:Status='done';
   const start=events.find(e=>e.type==='run_started');const models=(start?.models??{}) as Record<string,string>;
   const modelRun=mode!=='fixture';
-  const research=events.filter(e=>e.type==='research');const hypothesis=events.filter(e=>e.type==='hypothesis_test');
+  const research=events.filter(e=>e.type==='research');const curve0=(replay as {curve?:{championSelect:number}[]}|null)?.curve?.[0];const continued=!!replay&&!!curve0&&Math.abs(curve0.championSelect-(replay as ReplayBundle).baseline.select.objective)>0.01;const hypothesis=events.filter(e=>e.type==='hypothesis_test');
   const researchChildren=research.map((e,i)=>node(`research-${i}`,`Search ${i+1}`,'Research tool',colors[0],`${String(e.query??'Research')}. ${Number(e.added??0)} hypotheses. Sources: ${((e.sources??[]) as string[]).join(', ')}`,e.error?'failed':'done','You.com'));
   researchChildren.push(...hypothesis.map((e,i)=>node(`hypothesis-${i}`,String(e.id??`Hypothesis ${i+1}`),'Isolated simulator test',colors[0],e.untestable?String(e.untestable):`Validation delta: ${e.deltaSelect??'unavailable'}; adopted: ${Boolean(e.adopted)}.`,'done')));
-  const researcher=node('research','Researcher','Model agent',colors[0],modelRun?'Searches and tests external hypotheses. Untestable or rejected hypotheses remain visible.':'Not invoked in this simulator-only run.',research.length?'done':'idle',models.researcher??models.lightning??'NVIDIA Nemotron Lightning',researchChildren);
+  const researcher=node('research','Researcher','Model agent',colors[0],!modelRun?'Not invoked in this simulator-only run.':research.length||hypothesis.length?'Searches and tests external hypotheses. Untestable or rejected hypotheses remain visible.':continued?'No new searches in this run. It continued from an earlier run\'s floor and shared memory, which already held the research. Pick live-a-7 in the run list to open the searches and hypothesis tests.':'Searches and tests external hypotheses. None were recorded in this run.',research.length?'done':'idle',models.researcher??models.lightning??'NVIDIA Nemotron Lightning',researchChildren);
   const lenses = [...new Set(experiments.map(e => e.designer).filter(name => name !== 'hypothesis-test'))];
   const designers=lenses.map(lens=>{
     const attempts=experiments.filter(e=>e.designer===lens).map(e=>{
