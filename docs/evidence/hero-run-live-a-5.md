@@ -26,7 +26,7 @@ Replay scenario `peak-202` (test-split day, identical for both floors): shipped 
 | 3 | re-plan research | 3 new hypotheses; tests: 1 no change, 2 malformed JSON (repair added afterwards) |
 | 4 | both rejected | duplicate; validation not better |
 
-Graded predictions: 0 of 7 refuted. Designers tested drafts with `simulate_layout` before predicting. Compare `live-a-1` (blind proposals): 4 of 7 refuted.
+Graded predictions: 0 of 7 refuted. Designers tested drafts with `simulate_layout` before predicting. Compare `live-a-1` (blind proposals): 4 of 7 refuted. A prediction is refuted when its objective differs from the measured training objective by more than 25% of the measured value. These are two small, separate runs; 0 of 7 crossing that threshold does not mean exact predictions or establish a general accuracy rate.
 Typed tool calls: 8 of 8 proposals via `propose_layout`; 6 needed one repair after the task validator returned rule violations.
 Crusoe prefix cache: cached prompt tokens rose each generation, from 5,440 of 21,256 (26%) to 10,880 of 28,886 (38%).
 
