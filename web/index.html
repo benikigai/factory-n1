@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factory N+1</title>
-    <meta name="description" content="A factory that redesigns itself. NVIDIA Nemotron agents on Crusoe shipped a fulfillment floor 82% better for 4 cents. Nothing ships unless a frozen simulator proves it." />
+    <meta name="description" content="A factory that redesigns itself. NVIDIA Nemotron agents on Crusoe reduced simulator penalty by 82% across nine validation days for about 4 cents in estimated model cost. Nothing ships unless a frozen simulator proves it." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -25,7 +25,7 @@
         <header class="sheet-head">
           <span class="tiny">Factory N+1 · Fulfillment floor A · 24 × 14 cells · 100 packages</span>
           <h1>A factory that redesigns itself. Recursively.</h1>
-          <p class="sub">A team of NVIDIA Nemotron agents researches, redesigns and tests its own floor. Every version N+1 must beat version N on days it never saw. Rev 11 shipped <mark id="h-pct">82%</mark> better for <span id="h-cost">4¢</span>.</p>
+          <p class="sub">A team of NVIDIA Nemotron agents researches, redesigns and tests its own floor. Every version N+1 must beat version N in the simulator. Rev 11 reduced simulator penalty <mark id="h-pct">82%</mark> across nine validation days, for about <span id="h-cost">4¢</span> in estimated model cost.</p>
         </header>
 
         <div class="drawing">
@@ -57,13 +57,13 @@
       </section>
       <section id="approach" class="prose">
         <h2>Version N+1</h2>
-        <p>Every change is a revision. Nemotron designers research, propose a new floor and predict its score. A frozen simulator runs 100 packages through it. The revision ships only if it beats the current floor by at least 1% on 9 days the designers never saw, and no goal check gets worse.</p>
+        <p>Every change is a revision. Nemotron designers research, propose a new floor and predict its score. A frozen simulator runs 100 packages through it. The revision ships only if it beats the current floor by at least 1% on 9 validation days used to accept or reject revisions, and no goal check gets worse.</p>
               </section>
       <div id="run-live-slot"></div>
 
       <section id="revisions">
         <h2>Revision history</h2>
-        <p class="sec-sub">Each card is one version of the floor. Agents propose a change. The simulator runs 100 packages through it. The change ships only if it beats the previous version on 9 days the designers never saw. Score is seconds to clear the floor plus penalties for every mis-sort, damaged package and dollar of equipment. Lower is better.</p>
+        <p class="sec-sub">Each card is one version of the floor. Agents propose a change. The simulator runs 100 packages through it. The change ships only if it beats the previous version on 9 validation days used to accept or reject revisions. Score is seconds to clear the floor plus penalties for every mis-sort, damaged package and dollar of equipment. Lower is better.</p>
         <div class="tags" id="revtags"></div>
         <p class="fine" id="rev-note"></p>
       </section>

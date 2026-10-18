@@ -128,6 +128,8 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    // File notifications are unreliable in the shared checkout; avoid serving stale modules.
+    watch: { usePolling: true, interval: 500 },
     fs: { allow: [repoRoot] },
   },
   preview: { port: 4173, strictPort: false },
