@@ -6,7 +6,7 @@ Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Franci
 
 **Won NVIDIA Best Use of Nemotron** at the hackathon (prize: an NVIDIA RTX 5090).
 
-**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html)
+**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html) · **Demo video:** [youtu.be/rYMa50uhpzA](https://youtu.be/rYMa50uhpzA)
 
 ![Rev 0, the original floor, and Rev 11, the agents' floor, replaying the same scored day on one clock](docs/readme/landing.gif)
 
