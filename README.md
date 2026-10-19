@@ -4,6 +4,8 @@ A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a
 
 Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
 
+**Won NVIDIA Best Use of Nemotron** at the hackathon (prize: an NVIDIA RTX 5090).
+
 **Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html)
 
 ![Rev 0, the original floor, and Rev 11, the agents' floor, replaying the same scored day on one clock](docs/readme/landing.gif)
@@ -16,6 +18,7 @@ Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Franci
 | Did they reach the goal? | **Yes, on all 15 development days** (the final split stays locked): 100/100 shipped, 0 mis-sorts, 0 damaged, every day under 25 minutes. Three runs failed first because the designers mis-measured route lengths. With a ruler tool (`measure_legs`), one move of one pack station fixed it. | `live-a-11`: 54 calls, $0.042 ([why it took a ruler](docs/evidence/zero-damage-feasibility.md)) |
 | Does shared memory help on new factories? | **No, it hurt.** Memory lost all 4 paired tests on two fresh factories (median score +2,357, worse). | [memory-eval-valid.md](docs/evidence/memory-eval-valid.md), n = 4 |
 | Can the numbers be trusted? | One frozen grader (hash `493a1b03…`) scores everything. Agents never score themselves, and every claim they make is checked. | Replays regenerate exactly |
+| Does fine-tuning Nemotron help? | **Yes, in a narrow test.** A LoRA-tuned Nemotron Nano 8B cut mean simulator penalty **12.64%** on 20 unseen factories, against 0.14% for the base model and 4.27% for random legal moves under the same limits. | [optimizer pilot](docs/evidence/nemotron-optimizer-pilot.md), independently audited |
 | What did it cost? | `live-a-7`: 61 model calls, $0.029. All runs: $0.355 inference plus $0.10 search; $0.886 counting uncertain reservations at their bound, inside a $2.00 ceiling. | [spend-accounting.json](docs/evidence/spend-accounting.json) |
 
 ## How it works
@@ -94,6 +97,18 @@ flowchart LR
 - The simulator uses synthetic rules (for example, fragile packages break on legs over 12 cells). It is not calibrated to a real facility.
 - Small n: seven runs on factory A ranged from −33% to −66%.
 - The original factory agent's 20-day final test split remains locked. A separate Nemotron 8B critic fine-tuning pilot used its own disjoint synthetic test buildings; it did not change the frozen demo.
+
+## Fine-tuned Nemotron optimizer
+
+We fine-tuned a pinned Nemotron Nano 8B (`nvidia/Llama-3.1-Nemotron-Nano-8B-v1`) with a rank-8 LoRA adapter to propose station moves: one epoch over 1,200 simulator-labeled examples from 60 buildings, 708 seconds on one Crusoe A100 80GB. Then we gave three methods the same 20 unseen starting factories and three proposal chances each, and scored the final layouts on four fresh demand days per factory.
+
+| Measure | Base Nemotron 8B | Fine-tuned Nemotron 8B | Random legal moves |
+| --- | ---: | ---: | ---: |
+| Reduction in mean penalty from starting layouts | 0.14% | **12.64%** | 4.27% |
+| Buildings improved / regressed / unchanged | 3 / 1 / 16 | 12 / 2 / 6 | 7 / 3 / 10 |
+| Invalid proposals | 50 / 60 | 21 / 60 | 0 / 60 |
+
+Head to head, the tuned model beat the base model on 12 buildings, lost two and tied six. The claim is narrow: one epoch of training produced more useful move proposals on fresh synthetic factories. It is not a general factory optimizer, none of the 20 factories reached zero damage or the full goal, and 12.64% is the reduction of the aggregate mean penalty, not a throughput gain. An independent audit replayed all 1,156 scenarios. See the [optimizer pilot](docs/evidence/nemotron-optimizer-pilot.md).
 
 ## Separate critic fine-tuning pilot
 

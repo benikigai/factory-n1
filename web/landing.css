@@ -127,7 +127,7 @@ section h2 { display: inline-block; margin: 0; background: var(--ink); color: va
 .tag.current { box-shadow: 4px 4px 0 var(--ink); }
 .tag .stamp { font-size: 12px; padding: 5px 7px 4px; border-width: 2.5px; }
 
-.proofs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.proofs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .proof { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
 .proof .big { font: 44px/1 var(--display); letter-spacing: -0.01em; }
 .proof p { margin: 0; color: var(--ink-2); font-size: 14.5px; flex: 1; }
@@ -233,3 +233,5 @@ section h2 { display: inline-block; margin: 0; background: var(--ink); color: va
 .tag dd small { color: var(--ink); font-weight: 600; }
 .sub b { color: var(--ink); font-weight: 600; }
 .prose .paper p b { color: var(--ink); font-weight: 600; }
+
+.award { display: inline-block; align-self: flex-start; margin: 4px 0 2px; padding: 4px 10px; font: 600 12.5px var(--mono); letter-spacing: 0.02em; color: var(--ink); border: 1.5px solid var(--ink); border-radius: 3px; background: #ffe066; }
