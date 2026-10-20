@@ -2,13 +2,13 @@
 
 A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a parcel fulfillment floor (receive → sort → pack → ship, 100 packages). The agents research real practice with **You.com**, share what they learn in one memory, and test every change against a frozen simulator. A change is kept only if code measures it as better on days the designers never saw.
 
-Built at the Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. Everything here was written during the event.
+> **Status:** Hackathon project — Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. **Won NVIDIA Best Use of Nemotron.** Everything here was written during the event; the repo is kept as a reference build.
 
-**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html)
+**Live site:** [factory-n1.vercel.app](https://factory-n1.vercel.app) · **3D replay:** [factory-n1.vercel.app/replay.html](https://factory-n1.vercel.app/replay.html) · **Demo video:** [youtu.be/rYMa50uhpzA](https://youtu.be/rYMa50uhpzA)
 
 ![Rev 0, the original floor, and Rev 11, the agents' floor, replaying the same scored day on one clock](docs/readme/landing.gif)
 
-## Where we are (13:50 PT)
+## Results (as submitted, 2026-10-17 13:50 PT)
 
 | Question | Answer | Proof |
 |---|---|---|
@@ -76,7 +76,9 @@ flowchart LR
 | **Done Means Done** | Goal written as executable checks ("all shipped" can't be removed), graded predictions, a supervisor that stops or re-plans, hard spend caps | The goal shows FAIL honestly; refuted predictions fell from 4 of 7 to 0 of 7 once designers tested their drafts | The goal is hand-written; a goal compiler is in progress |
 | **Shared Brain** | Append-only memory every agent reads; each lesson labeled by its evidence (untested, tested, or observed in a kept change) | Crusoe prefix-cache hits up to 49% of prompt tokens | No quality gain on new factories (0 of 4) |
 
-## Sponsors
+## Stack and sponsors
+
+- **TypeScript / Node** for the simulator, agents and learning loop; **Vite + three.js** for the proof board and 3D replay; static deploy on **Vercel**.
 
 - **Crusoe Managed Inference** serves every model call (about $0.0005 each) and caches the shared memory prompt across agents.
 - **NVIDIA Nemotron:** 3.5 Super VL designs every layout through typed tool calls (8 of 8 valid in `live-a-5`); 3.5 Lightning runs research and builds test edits.
@@ -131,3 +133,11 @@ npm run publish-run -- my-run   # public copy in recorded/
 | `docs/specs/factory-n1.md` | Full as-built spec: claims, proof, runs, work log |
 | `docs/evidence/` | Run evidence, independent checks, spend, [commit hash map](docs/evidence/commit-hash-map.md) after the history rewrite |
 | `docs/demo/script.md` | Demo script |
+
+## Related
+
+- Write-up and project page: [benjaminshyong.com](https://benjaminshyong.com)
+
+## Credits
+
+Built by [Ben Shyong](https://github.com/benikigai) with AI coding agents (Claude Code, Codex) during the event. Sponsors: Crusoe, NVIDIA, You.com; hosted by Cerebral Valley.
