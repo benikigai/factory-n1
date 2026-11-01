@@ -1,5 +1,7 @@
 # Factory N+1
 
+> **N+1 Labs grew out of this build.** This repo simulates a parcel fulfillment floor. The N+1 Labs product, which simulates hardware assembly lines, is separate: [nplusonelabs.com](https://nplusonelabs.com).
+
 A team of **NVIDIA Nemotron** agents on **Crusoe Managed Inference** redesigns a parcel fulfillment floor (receive → sort → pack → ship, 100 packages). The agents research real practice with **You.com**, share what they learn in one memory, and test every change against a frozen simulator. A change is kept only if code measures it as better on days the designers never saw.
 
 > **Status:** Hackathon project — Crusoe x Cerebral Valley **Recursive Agents Hackathon**, San Francisco, 2026-10-17. **Won NVIDIA Best Use of Nemotron.** Everything here was written during the event; the repo is kept as a reference build.
