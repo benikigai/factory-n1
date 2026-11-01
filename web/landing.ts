@@ -184,6 +184,7 @@ if (bundle && summary && a7) {
     mem
       ? stamp("Negative result, shown", `${mem.wins} of ${mem.n}`, `Shared memory won none of ${mem.n} pre-registered tests on fresh factories. We report it rather than tune it away.`, "./evidence/memory-eval-valid.md")
       : "",
+    stamp("Fine-tuned Nemotron", "−12.64%", "On 20 unseen factories, our LoRA-tuned Nemotron Nano 8B cut mean simulator penalty 12.64%, against 0.14% for the base model and 4.27% for random legal moves under the same limits. Independently audited.", "./evidence/nemotron-optimizer-pilot.md"),
   ].join("");
 }
 
@@ -193,6 +194,7 @@ if (bundle && summary && a7) {
   const rows: [string, string, string][] = [
     ["Crusoe Managed Inference", "Serves every model call and caches the shared-memory prefix", `${spend ? `$${spend.totals.returnedUsageInferenceUsd.toFixed(3)} all inference today` : ""}${cache ? `<small>${cache} in rev 11</small>` : ""}`],
     ["NVIDIA Nemotron 3.5", "Super VL designs through typed tool calls; Lightning researches and runs isolated tests", "27 ruler calls → 1 approved move<small>0 refuted claims in rev 11</small>"],
+    ["NVIDIA Nemotron Nano 8B + LoRA", "Fine-tuned optimizer: proposes station moves, trained on 1,200 simulator-labeled examples on one Crusoe A100", "−12.64% on 20 unseen factories<small>vs 0.14% base, 4.27% random</small>"],
     ["You.com Search API", "Grounded research with search receipts", `${spend ? spend.totals.youSearches : "—"} live searches<small>every citation matched to a returned URL</small>`],
     ["Frozen simulator", "Ours. Scores every change; agents never grade themselves", bundle ? `SIM ${esc(bundle.simVersion)} · ${esc(bundle.graderHash.slice(0, 8))}<small>audited before use</small>` : "—"],
   ];
@@ -209,6 +211,7 @@ const ev: [string, string][] = [
   ["./evidence/independent-verification-live-a-11.md", "Independent re-score of rev 11"],
   ["./evidence/zero-damage-feasibility.md", "Why it took a ruler"],
   ["./evidence/memory-eval-valid.md", "Memory test (negative)"],
+  ["./evidence/nemotron-optimizer-pilot.md", "Fine-tuned Nemotron optimizer pilot"],
   ["./evidence/2026-10-17-live-roundtrip.md", "The faked simulator run"],
   ["./evidence/spend-accounting.json", "Spend accounting"],
   ["./evidence/spec-as-built.md", "Spec, as built"],
