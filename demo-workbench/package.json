@@ -1,0 +1,13 @@
+{
+  "name": "recursive-factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5180 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": { "three": "0.170.0" },
+  "devDependencies": { "@types/three": "0.170.0", "typescript": "5.7.3", "vite": "5.4.11", "tsx": "4.23.15", "@types/node": "22.10.2" }
+}
